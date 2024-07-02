@@ -34,7 +34,7 @@ namespace UnitBrains.Player
         protected override List<Vector2Int> SelectTargets()
         {
             List<Vector2Int> result = GetReachableTargets();
-            List<Vector2Int> targetEn = new List<Vector2Int>();
+            Vector2Int targetEn = new Vector2Int();
             float minD = float.MaxValue;
 
             if (result.Count == 0)
@@ -45,11 +45,14 @@ namespace UnitBrains.Player
             foreach (var target in result)
             {
                 float dis = DistanceToOwnBase(target);
-                if (dis < minD) minD = dis;
-                targetEn.Add(target);
+                if (dis < minD)
+                {
+                    minD = dis;
+                    targetEn = target;
+                }
             }
             result.Clear();
-            result.AddRange(targetEn);
+            result.Add(targetEn);
 
             while (result.Count > 1)
             {
