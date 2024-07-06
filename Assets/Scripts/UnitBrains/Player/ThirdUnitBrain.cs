@@ -38,7 +38,6 @@ namespace UnitBrains.Player
          */
         public override Vector2Int GetNextStep()
         {
-            Debug.Log("GetNextStep");
             Vector2Int nextStepForMove = base.GetNextStep();
             if (AllowedAction == ThirdUnitBrainAction.Any && !Vector2Int.Equals(nextStepForMove, unit.Pos))
             {
@@ -58,7 +57,6 @@ namespace UnitBrains.Player
          */
         protected override List<Vector2Int> SelectTargets()
         {
-            Debug.Log("SelectTargets");
             List <Vector2Int> targets = base.SelectTargets();
             if (AllowedAction == ThirdUnitBrainAction.Any && targets.Count > 0)
             {
