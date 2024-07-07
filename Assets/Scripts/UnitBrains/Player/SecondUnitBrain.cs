@@ -55,6 +55,8 @@ namespace UnitBrains.Player
             Vector2Int promisingTarget = GetPromisingTarget(allTargets);
             Targets.Add(promisingTarget);
 
+            if (!IsTargetInRange(promisingTarget)) return new List<Vector2Int>();
+
             return Targets;
             ///////////////////////////////////////
         }
