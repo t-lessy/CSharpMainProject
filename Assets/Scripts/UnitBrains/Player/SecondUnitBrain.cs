@@ -1,7 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using Model;
 using Model.Runtime.Projectiles;
+using Unity.VisualScripting.YamlDotNet.Core.Tokens;
 using UnityEngine;
+using Utilities;
 using static UnityEngine.GraphicsBuffer;
 
 namespace UnitBrains.Player
@@ -14,35 +18,55 @@ namespace UnitBrains.Player
         private float _temperature = 0f;
         private float _cooldownTime = 0f;
         private bool _overheated;
+
+        public List<Vector2Int> OutOfRange = new();
+
         
         protected override void GenerateProjectiles(Vector2Int forTarget, List<BaseProjectile> intoList)
         {
             float overheatTemperature = OverheatTemperature;
-            ///////////////////////////////////////
-            // Homework 1.3 (1st block, 3rd module)
-            ///////////////////////////////////////           
-            var projectile = CreateProjectile(forTarget);
-            AddProjectileToList(projectile, intoList);
-            ///////////////////////////////////////
+            float t = GetTemperature();
+            IncreaseTemperature();
+            if (t >= overheatTemperature)
+            {
+                return;
+            }
+
+            for (float i = GetTemperature(); i <= 3 && i > 0; i--)
+            {
+                var projectile = CreateProjectile(forTarget);
+                AddProjectileToList(projectile, intoList);
+            }
+            IncreaseTemperature();
+
         }
 
         public override Vector2Int GetNextStep()
         {
-            return base.GetNextStep();
+            Vector2Int target = OutOfRange[0];
+            Vector2Int nextPosition = Vector2Int.right;
+            if (OutOfRange.Count > 0 && !IsTargetInRange(target))
+            {
+                return unit.Pos.CalcNextStepTowards(target);
+            }
+
+            else
+            {
+                return unit.Pos;
+            }
         }
 
         protected override List<Vector2Int> SelectTargets()
         {
             List<Vector2Int> result = GetReachableTargets();
-            Vector2Int targetEn = new Vector2Int();
+            Vector2Int targetEn = Vector2Int.zero;
+
+            OutOfRange.Clear();
+
             float minD = float.MaxValue;
 
-            if (result.Count == 0)
-            {
-                return new List<Vector2Int>();
-            }
 
-            foreach (var target in result)
+            foreach (var target in GetAllTargets())
             {
                 float dis = DistanceToOwnBase(target);
                 if (dis < minD)
@@ -51,16 +75,37 @@ namespace UnitBrains.Player
                     targetEn = target;
                 }
             }
-            result.Clear();
-            result.Add(targetEn);
 
-            while (result.Count > 1)
+
+            if (IsTargetInRange(targetEn))
             {
-
-                result.RemoveAt(result.Count - 1);
+                result.Add(targetEn);
             }
-            return result;
+            else
+            {
+                OutOfRange.Add(targetEn);
+            }
+
+
+            if (result.Count == 0 && OutOfRange.Count == 0)
+            {
+                var target = runtimeModel.RoMap.Bases[IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId];
+                if (IsTargetInRange(target))
+                {
+                    result.Add(target);
+                    return result;
+                }
+
+                OutOfRange.Add(target);
+                return result;
+            }
+            else
+            {
+                return result;
+            }
         }
+
+
 
         public override void Update(float deltaTime, float time)
         {
@@ -88,5 +133,6 @@ namespace UnitBrains.Player
             _temperature += 1f;
             if (_temperature >= OverheatTemperature) _overheated = true;
         }
+
     }
 }
