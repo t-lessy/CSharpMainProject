@@ -1,14 +1,23 @@
 ﻿using System.Collections.Generic;
 using Model;
 using Model.Runtime.Projectiles;
+using UnitBrains.Pathfinding;
 using UnityEngine;
+using Utilities;
 
 namespace UnitBrains.Player
 {
     public class DefaultPlayerUnitBrain : BaseUnitBrain
     {
         protected float DistanceToOwnBase(Vector2Int fromPos) =>
-            Vector2Int.Distance(fromPos, runtimeModel.RoMap.Bases[RuntimeModel.PlayerId]);
+        Vector2Int.Distance(fromPos, runtimeModel.RoMap.Bases[RuntimeModel.PlayerId]);
+
+        public static bool IsPlayerUnitBrain => true;
+        public BaseUnitPath ActivePath => _activePath;
+
+        private readonly TimeUtil _timeUtil = ServiceLocator.Get<TimeUtil>();
+
+        private BaseUnitPath _activePath = null;
 
         protected void SortByDistanceToOwnBase(List<Vector2Int> list)
         {
@@ -21,5 +30,15 @@ namespace UnitBrains.Player
             var distanceB = DistanceToOwnBase(b);
             return distanceA.CompareTo(distanceB);
         }
+        public override Vector2Int GetNextStep()
+        {
+            if (HasTargetsInRange())
+                return unit.Pos;
+            var target = TargetSingleton.GetInstance(IsPlayerUnitBrain).GetTargetPosRecommendation();
+
+            _activePath = new AStarUnitPath(runtimeModel, unit.Pos, target);
+            return _activePath.GetNextStepFrom(unit.Pos);
+        }
+
     }
 }

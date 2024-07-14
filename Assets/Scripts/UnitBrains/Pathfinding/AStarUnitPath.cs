@@ -68,7 +68,6 @@ public class AStarUnitPath : BaseUnitPath
                     if (!openList.Contains(newPoint))
                     {
                         openList.Add(newPoint);
-                        Debug.Log($"Added newPoint to openList: {newPoint}");
                         newNodeAdded = true;
                     }
                 }
@@ -114,7 +113,6 @@ public class AStarUnitPath : BaseUnitPath
                 if (!openList.Contains(newPoint))
                 {
                     openList.Add(newPoint);
-                    Debug.Log($"Added newPoint to openList: {newPoint}");
                 }
             }
             if (isUnitOnTile(newPoint))
