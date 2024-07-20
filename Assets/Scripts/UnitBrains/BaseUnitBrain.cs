@@ -15,7 +15,9 @@ namespace UnitBrains
         public virtual string TargetUnitName => string.Empty;
         public virtual bool IsPlayerUnitBrain => true;
         public virtual BaseUnitPath ActivePath => _activePath;
-        
+
+        protected UnitCoordinator _unitCoordinator;
+
         protected Unit unit { get; private set; }
         protected IReadOnlyRuntimeModel runtimeModel => ServiceLocator.Get<IReadOnlyRuntimeModel>();
         private BaseUnitPath _activePath = null;
@@ -37,7 +39,7 @@ namespace UnitBrains
                 return unit.Pos;
 
             var target = runtimeModel.RoMap.Bases[
-                IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId];
+                IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId]; 
 
             _activePath = new AStarUnitPath(runtimeModel, unit.Pos, target);
             return _activePath.GetNextStepFrom(unit.Pos);
@@ -163,5 +165,11 @@ namespace UnitBrains
 
             return result;
         }
+
+        internal void SetCoordinator(UnitCoordinator unitCoordinator)
+        {
+            _unitCoordinator = unitCoordinator;
+        }
+
     }
 }

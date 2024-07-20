@@ -11,6 +11,7 @@ namespace Controller
         private readonly PersistedModel _persisted;
         private readonly RuntimeModel _runtimeModel;
         private readonly LevelController _levelController;
+        private UnitCoordinator _unitCoordinator;
         
         private RootView _rootView;
 
@@ -21,10 +22,13 @@ namespace Controller
             
             _runtimeModel = new();
             ServiceLocator.RegisterAs(_runtimeModel, typeof(IReadOnlyRuntimeModel));
-            
+
+            _unitCoordinator = new UnitCoordinator();
+            ServiceLocator.RegisterAs(_unitCoordinator, typeof(UnitCoordinator));
+
             SpawnRootVisual(targetCanvas);
             ServiceLocator.Register(_rootView);
-            
+
             var gameplayVisual = SpawnGameplayVisual();
             ServiceLocator.Register(gameplayVisual);
 
@@ -34,6 +38,7 @@ namespace Controller
             _levelController = new(_runtimeModel, this);
             
             _rootView.ShowStartMenu();
+
         }
 
         public void RestartGame()

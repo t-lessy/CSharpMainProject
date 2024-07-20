@@ -46,29 +46,6 @@ namespace UnitBrains.Player
         }
 
 
-        protected override List<Vector2Int> SelectTargets()
-        {
-            List<Vector2Int> result = new List<Vector2Int>();
-            //List<Vector2Int> allTargets = (List<Vector2Int>)GetAllTargets();
-            //List<Vector2Int> reachableTargets = new List<Vector2Int>();
-            _notReachebleTarget.Clear();
-            foreach (Vector2Int v2 in GetAllTargets())
-            {
-                    _notReachebleTarget.Add(v2);
-            }
-            if (_notReachebleTarget.Count <= 1)
-            {
-                Vector2Int enemyBase = runtimeModel.RoMap.Bases[IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId];
-                result.Add(enemyBase);
-                return result;
-            }
-            SortByDistanceToOwnBase(_notReachebleTarget);
-            int targetIndex = _unitNumber % _maxUnits;
-            Vector2Int bestTarget = _notReachebleTarget[targetIndex];
-            if(IsTargetInRange(bestTarget))
-                result.Add(_notReachebleTarget[targetIndex]);
-            return result;
-        }
 
         public override void Update(float deltaTime, float time)
         {

@@ -17,8 +17,13 @@ namespace UnitBrains.Player
 
         private readonly TimeUtil _timeUtil = ServiceLocator.Get<TimeUtil>();
 
+        private readonly UnitCoordinator _ts = ServiceLocator.Get<UnitCoordinator>();
+
         private BaseUnitPath _activePath = null;
 
+        void Awake()
+        {
+        }
         protected void SortByDistanceToOwnBase(List<Vector2Int> list)
         {
             list.Sort(CompareByDistanceToOwnBase);
@@ -34,7 +39,7 @@ namespace UnitBrains.Player
         {
             if (HasTargetsInRange())
                 return unit.Pos;
-            var target = TargetSingleton.GetInstance(IsPlayerUnitBrain).GetTargetPosRecommendation();
+            var target = _ts.GetTargetPosRecommendation();
 
             _activePath = new AStarUnitPath(runtimeModel, unit.Pos, target);
             return _activePath.GetNextStepFrom(unit.Pos);
