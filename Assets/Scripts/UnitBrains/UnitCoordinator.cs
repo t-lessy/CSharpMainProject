@@ -102,6 +102,7 @@ using Utilities;
         public void UpdateEnemies(float deltaTime)
         {
         Debug.Log(targetPos);
+        if (runtimeModel.Stage != RuntimeModel.GameStage.None) 
             GetEnemies();
 
         }
