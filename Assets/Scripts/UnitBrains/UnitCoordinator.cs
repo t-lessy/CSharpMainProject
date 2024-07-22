@@ -46,7 +46,7 @@ using Utilities;
             basePoint = runtimeModel.RoMap.Bases[
                     _isPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId];
             List<IReadOnlyUnit> enemyNearBase = new List<IReadOnlyUnit>();
-        foreach (var enemy in runtimeModel.RoPlayerUnits)
+        foreach (var enemy in runtimeModel.RoBotUnits)
         {
             if (Vector2Int.Distance(basePoint,enemy.Pos) <= 5)
             {
@@ -101,7 +101,8 @@ using Utilities;
 
         public void UpdateEnemies(float deltaTime)
         {
-        Debug.Log(targetPos);
+        Debug.Log(runtimeModel.RoBotUnits.Count());
+
         if (runtimeModel.Stage != RuntimeModel.GameStage.None) 
             GetEnemies();
 

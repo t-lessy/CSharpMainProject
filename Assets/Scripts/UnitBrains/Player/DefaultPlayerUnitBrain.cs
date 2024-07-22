@@ -13,13 +13,13 @@ namespace UnitBrains.Player
         Vector2Int.Distance(fromPos, runtimeModel.RoMap.Bases[RuntimeModel.PlayerId]);
 
         public static bool IsPlayerUnitBrain => true;
-        public BaseUnitPath ActivePath => _activePath;
+        public AStarUnitPath ActivePath => _activePath;
 
         private readonly TimeUtil _timeUtil = ServiceLocator.Get<TimeUtil>();
 
         private readonly UnitCoordinator _ts = ServiceLocator.Get<UnitCoordinator>();
 
-        private BaseUnitPath _activePath = null;
+        private AStarUnitPath _activePath = null;
 
         void Awake()
         {
