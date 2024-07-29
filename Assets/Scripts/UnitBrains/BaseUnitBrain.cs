@@ -20,8 +20,9 @@ namespace UnitBrains
         protected Unit unit { get; private set; }
         protected IReadOnlyRuntimeModel runtimeModel => ServiceLocator.Get<IReadOnlyRuntimeModel>();
         private BaseUnitPath _activePath = null;
-        private UnitCoordinator _unitCoordinator => UnitCoordinator.GetInstance();
-        
+        private UnitCoordinator _unitCoordinator;
+
+
         private readonly Vector2[] _projectileShifts = new Vector2[]
         {
             new (0f, 0f),
@@ -66,6 +67,11 @@ namespace UnitBrains
         public void SetUnit(Unit unit)
         {
             this.unit = unit;
+        }
+
+        public void SetCoordinator(UnitCoordinator coordinator)
+        {
+            this._unitCoordinator = coordinator;
         }
 
         public virtual void Update(float deltaTime, float time)

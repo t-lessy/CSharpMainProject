@@ -14,11 +14,8 @@ namespace Assets.Scripts.UnitBrains
 {
     public class UnitCoordinator
     {
-        private static UnitCoordinator _instance = new UnitCoordinator();
         private IReadOnlyRuntimeModel _runtimeModel => ServiceLocator.Get<IReadOnlyRuntimeModel>();
         private TimeUtil _timeUtil => ServiceLocator.Get<TimeUtil>();
-        private UnitCoordinator() {}
-        public static UnitCoordinator GetInstance() => _instance;
 
         public Vector2Int? GetTarget(BaseUnitBrain unitBrain) 
         {
