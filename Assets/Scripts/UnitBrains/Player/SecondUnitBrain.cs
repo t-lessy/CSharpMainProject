@@ -7,6 +7,7 @@ using TMPro;
 using Unity.VisualScripting.YamlDotNet.Core.Tokens;
 using UnityEngine;
 using Utilities;
+using static UnityEditor.Experimental.AssetDatabaseExperimental.AssetDatabaseCounters;
 using static UnityEngine.GraphicsBuffer;
 
 namespace UnitBrains.Player
@@ -28,10 +29,13 @@ namespace UnitBrains.Player
 
         public List<Vector2Int> OutOfRange = new();
 
+
         public SecondUnitBrain()
         {
             Id = ++_idUnit;
+            Debug.Log($"Счетчик юнита: {Id}");
         }
+
 
 
         protected override void GenerateProjectiles(Vector2Int forTarget, List<BaseProjectile> intoList)
@@ -55,46 +59,43 @@ namespace UnitBrains.Player
 
         public override Vector2Int GetNextStep()
         {
+
             Vector2Int target;
             target = OutOfRange.Count > 0 ? OutOfRange[0] : unit.Pos;
             return IsTargetInRange(target) ? unit.Pos : unit.Pos.CalcNextStepTowards(target);
+
         }
+
 
         protected override List<Vector2Int> SelectTargets()
         {
             List<Vector2Int> result = new List<Vector2Int>();
             OutOfRange.Clear();
 
-            foreach (Vector2Int target in GetAllTargets())
+            foreach (var target in GetReachableTargets())
             {
                 OutOfRange.Add(target);
             }
-
 
             if (OutOfRange.Count == 0)
             {
                 OutOfRange.Add(runtimeModel.RoMap.Bases[IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId]);
             }
+
             SortByDistanceToOwnBase(OutOfRange);
 
-            int targetIndex = Id % _maxTargets;
+            int numberPromisingGoals = OutOfRange.Count <= _maxTargets ? OutOfRange.Count : _maxTargets;
+            int targetIndex = Id % numberPromisingGoals;
+            Vector2Int targetNumL = OutOfRange[targetIndex];
 
-            if (targetIndex < OutOfRange.Count)
-                {
-                result.Add(OutOfRange[targetIndex]);
-                }
-            else
-                {
-                result.Add(OutOfRange[OutOfRange.Count - 1]);
-
+            if (IsTargetInRange(targetNumL))
+            {
+                result.Add(targetNumL);
+                OutOfRange.Clear();
             }
 
             return result;
-        
-
         }
-
-
 
         public override void Update(float deltaTime, float time)
         {
