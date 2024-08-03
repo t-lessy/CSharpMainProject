@@ -72,7 +72,7 @@ namespace UnitBrains.Player
             List<Vector2Int> result = new List<Vector2Int>();
             OutOfRange.Clear();
 
-            foreach (var target in GetReachableTargets())
+            foreach (var target in GetAllTargets())
             {
                 OutOfRange.Add(target);
             }
