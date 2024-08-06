@@ -33,8 +33,8 @@ namespace Model.Runtime
             Pos = startPos;
             Health = config.MaxHealth;
             _brain = UnitBrainProvider.GetBrain(config);
-            _brain.SetUnit(this);
             _brain.SetCoordinator(unitCoordinator);
+            _brain.SetUnit(this);
             _runtimeModel = ServiceLocator.Get<IReadOnlyRuntimeModel>();
         }
 

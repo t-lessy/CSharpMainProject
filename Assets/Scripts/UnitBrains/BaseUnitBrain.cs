@@ -14,13 +14,14 @@ namespace UnitBrains
     {
         public virtual string TargetUnitName => string.Empty;
         public virtual bool IsPlayerUnitBrain => true;
-        public virtual BaseUnitPath ActivePath => _activePath;
+        public virtual AStarUnitPath ActivePath => _activePath;
 
         protected UnitCoordinator _unitCoordinator;
-
         protected Unit unit { get; private set; }
+
+        private Vector2Int _prevPos ;
         protected IReadOnlyRuntimeModel runtimeModel => ServiceLocator.Get<IReadOnlyRuntimeModel>();
-        private BaseUnitPath _activePath = null;
+        private AStarUnitPath _activePath = null;
         
         private readonly Vector2[] _projectileShifts = new Vector2[]
         {
@@ -35,14 +36,21 @@ namespace UnitBrains
 
         public virtual Vector2Int GetNextStep()
         {
+            if (_prevPos == null)
+            {
+                _prevPos = unit.Pos;
+            }
+
             if (HasTargetsInRange())
                 return unit.Pos;
 
-            var target = runtimeModel.RoMap.Bases[
-                IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId]; 
+            var target = _unitCoordinator.GetTargetPosRecommendation(); 
 
-            _activePath = new AStarUnitPath(runtimeModel, unit.Pos, target);
-            return _activePath.GetNextStepFrom(unit.Pos);
+            _activePath = new AStarUnitPath(runtimeModel, unit.Pos, target,_prevPos);
+            _prevPos = _activePath.GetPrevPos();
+            Vector2Int nextStep =  _activePath.GetNextStepFrom(unit.Pos);
+
+            return nextStep;
         }
 
         public List<BaseProjectile> GetProjectiles()

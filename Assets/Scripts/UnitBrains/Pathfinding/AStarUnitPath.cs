@@ -11,16 +11,19 @@ public class AStarUnitPath : BaseUnitPath
 {
     private Vector2Int _startPoint;
     private Vector2Int _endPoint;
+    private Vector2Int _prevPos;
     private IReadOnlyRuntimeModel _runTimeModel;
-    private int[] dx = { 1, 0, -1, 0 };
-    private int[] dy = { 0, 1, 0, -1 };
+    private int[] dx = { 1, 0, -1, 0};
+    private int[] dy = { 0, 1, 0, -1};
 
-    public AStarUnitPath(IReadOnlyRuntimeModel runtimeModel, Vector2Int startPoint, Vector2Int endPoint) : base(runtimeModel, startPoint, endPoint)
+    public AStarUnitPath(IReadOnlyRuntimeModel runtimeModel, Vector2Int startPoint, Vector2Int endPoint,Vector2Int prevPos) : base(runtimeModel, startPoint, endPoint)
     {
         _startPoint = startPoint;
         _endPoint = endPoint;
         _runTimeModel = runtimeModel;
+        _prevPos = prevPos;
     }
+
 
     protected override void Calculate()
     {
@@ -30,14 +33,13 @@ public class AStarUnitPath : BaseUnitPath
         // все вершины по которым прошли
         HashSet<Vector2Int> closedList = new HashSet<Vector2Int>();
         var result = new List<Vector2Int> { _startPoint };
-
         while (openList.Count > 0)
         {
             Vector2Int currentPoint = openList[0];
 
             foreach (var point in openList)
             {
-                if (CalculateValue(point) < CalculateValue(currentPoint))
+                if (CalculateValue(point) < CalculateValue(currentPoint) || currentPoint == _prevPos || currentPoint == startPoint)
                 {
                     currentPoint = point;
                 }
@@ -73,18 +75,19 @@ public class AStarUnitPath : BaseUnitPath
                 }
                 if (isUnitOnTile(newPoint))
                 {
-                    CalculateNewPoints(newPoint, openList, closedList);
-                    newNodeAdded = true;
+                    continue;
                 }
+
             }
             if (!newNodeAdded)
             {
+                
                 Debug.Log("No path found, surrounded by obstacles.");
-                result.Add(_startPoint);
-                path = result.ToArray();
+                Debug.Log(openList.Count);
+                path = closedList.ToArray();
                 return;
             }
-
+            
         }
     }
 
@@ -115,7 +118,7 @@ public class AStarUnitPath : BaseUnitPath
                     openList.Add(newPoint);
                 }
             }
-            if (isUnitOnTile(newPoint))
+            if (!runtimeModel.IsTileWalkable(newPoint))
             {
                 CalculateNewPoints(newPoint, openList, closedList,depth + 1);
             }
@@ -143,5 +146,8 @@ public class AStarUnitPath : BaseUnitPath
         return Math.Abs(Cost + CalculateEstimate(_endPoint.x, _endPoint.y, point)) ;
     }
 
-
+    public Vector2Int GetPrevPos()
+    {
+        return _startPoint;
+    }
 }

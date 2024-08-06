@@ -5,6 +5,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using UnityEditorInternal;
 using UnityEngine;
 using UnityEngine.PlayerLoop;
@@ -23,13 +24,14 @@ using Utilities;
         private Vector2Int basePoint;
 
 
-        public UnitCoordinator()
+        public UnitCoordinator(bool _isPlayerUnitBrain)
         {
-            _timeUtil.AddFixedUpdateAction(UpdateEnemies);
+        this._isPlayerUnitBrain = _isPlayerUnitBrain;
+        _timeUtil.AddFixedUpdateAction(UpdateEnemies);
         }
 
         public static UnitCoordinator GetInstance()
-        => _instance ??= new UnitCoordinator();
+        => _instance ??= new UnitCoordinator(false);
 
 
         public Vector2Int GetTargetRecommendation()
@@ -43,10 +45,10 @@ using Utilities;
 
         private void GetEnemies()
         {
-            basePoint = runtimeModel.RoMap.Bases[
+        basePoint = runtimeModel.RoMap.Bases[
                     _isPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId];
             List<IReadOnlyUnit> enemyNearBase = new List<IReadOnlyUnit>();
-        foreach (var enemy in runtimeModel.RoBotUnits)
+        foreach (var enemy in _isPlayerUnitBrain? runtimeModel.RoBotUnits : runtimeModel.RoPlayerUnits)
         {
             if (Vector2Int.Distance(basePoint,enemy.Pos) <= 5)
             {
@@ -70,7 +72,7 @@ using Utilities;
                 targetPos = new Vector2Int(basePoint.x + (_isPlayerUnitBrain ? -1 : 1), basePoint.y); //Рекомендуемая точка.
                 target = targetEnemy; // Устанавливаем Рекомендуемую цель.
             }
-          else if ( runtimeModel.RoBotUnits.Count() > 0)
+          else if (_isPlayerUnitBrain ? runtimeModel.RoBotUnits.Count() > 0 : runtimeModel.RoPlayerUnits.Count() > 0)
             {
                 int MinHealth = int.MaxValue;
                 float minDistance = float.MaxValue;
@@ -93,15 +95,12 @@ using Utilities;
             }
            else
         {
-            Debug.Log("Only base");
-            targetPos = runtimeModel.RoMap.Bases[
-                    _isPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId];
+            targetPos = basePoint;
         }
         }
 
         public void UpdateEnemies(float deltaTime)
         {
-        Debug.Log(runtimeModel.RoBotUnits.Count());
 
         if (runtimeModel.Stage != RuntimeModel.GameStage.None) 
             GetEnemies();
@@ -109,7 +108,6 @@ using Utilities;
         }
         public void GetRecommendationDelayed(Vector2Int unitPos, int playerId, float delay = 1f)
         {
-            Debug.Log("123");
             _timeUtil.RunDelayed(delay, () => GetEnemies());
         }
 
