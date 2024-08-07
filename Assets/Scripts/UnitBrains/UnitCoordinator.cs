@@ -14,7 +14,6 @@ using Utilities;
 
     public class UnitCoordinator
     {
-        private static UnitCoordinator _instance;
         private readonly TimeUtil _timeUtil = ServiceLocator.Get<TimeUtil>();
         protected static IReadOnlyRuntimeModel runtimeModel => ServiceLocator.Get<IReadOnlyRuntimeModel>();
         private bool _isPlayerUnitBrain = true;
@@ -29,9 +28,6 @@ using Utilities;
         this._isPlayerUnitBrain = _isPlayerUnitBrain;
         _timeUtil.AddFixedUpdateAction(UpdateEnemies);
         }
-
-        public static UnitCoordinator GetInstance()
-        => _instance ??= new UnitCoordinator(false);
 
 
         public Vector2Int GetTargetRecommendation()

@@ -23,8 +23,6 @@ namespace Controller
             _runtimeModel = new();
             ServiceLocator.RegisterAs(_runtimeModel, typeof(IReadOnlyRuntimeModel));
 
-            ServiceLocator.RegisterAs(_unitCoordinator, typeof(UnitCoordinator));
-
             SpawnRootVisual(targetCanvas);
             ServiceLocator.Register(_rootView);
 
