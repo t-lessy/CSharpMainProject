@@ -2,20 +2,14 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Utilities;
 using UnityEngine;
-using System.Collections;
-using UnitBrains;
 using Model.Runtime.ReadOnly;
 
-namespace Assets.Scripts.UnitBrains
-{
+namespace UnitBrains
+{ 
     public class PathAndTargetCoordinator
     {
-        private static PathAndTargetCoordinator _instance;
-
         private IReadOnlyRuntimeModel _runtimeModel;
         private TimeUtil _timeUtil;
         private Vector2Int? _priorityTargetPosition = null;
@@ -24,18 +18,13 @@ namespace Assets.Scripts.UnitBrains
         public Vector2Int? PriorityTargetPosition { get => _priorityTargetPosition; }
         public Vector2Int? PrioritySelfPosition { get => _prioritySelfPosition; }
 
-        private PathAndTargetCoordinator()
+        public PathAndTargetCoordinator()
         {
             _runtimeModel = ServiceLocator.Get<IReadOnlyRuntimeModel>();
             _timeUtil = ServiceLocator.Get<TimeUtil>();
 
             _timeUtil.AddFixedUpdateAction(getPriorityTargetPosition);
             _timeUtil.AddFixedUpdateAction(getPrioritySelfPosition);
-        }
-
-        public static PathAndTargetCoordinator GetInstance()
-        {
-            return _instance ?? (_instance = new PathAndTargetCoordinator());
         }
 
         /*

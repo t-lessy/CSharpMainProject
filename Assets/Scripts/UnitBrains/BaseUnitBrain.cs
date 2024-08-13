@@ -16,7 +16,7 @@ namespace UnitBrains
         public virtual string TargetUnitName => string.Empty;
         public virtual bool IsPlayerUnitBrain => true;
         public virtual BaseUnitPath ActivePath => _activePath;
-        
+        protected PathAndTargetCoordinator PathAndTargetCoordinator { get; private set; }
         protected Unit unit { get; private set; }
         protected IReadOnlyRuntimeModel runtimeModel => ServiceLocator.Get<IReadOnlyRuntimeModel>();
         private BaseUnitPath _activePath = null;
@@ -65,6 +65,11 @@ namespace UnitBrains
         public void SetUnit(Unit unit)
         {
             this.unit = unit;
+        }
+
+        public void SetController(PathAndTargetCoordinator pathAndTargetCoordinator)
+        {
+            this.PathAndTargetCoordinator = pathAndTargetCoordinator;
         }
 
         public virtual void Update(float deltaTime, float time)
