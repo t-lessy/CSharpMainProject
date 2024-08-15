@@ -33,7 +33,7 @@ namespace UnitBrains.Player
         public SecondUnitBrain()
         {
             Id = ++_idUnit;
-            Debug.Log($"Счетчик юнита: {Id}");
+            Debug.Log($"Unit Counter: {Id}");
         }
 
 

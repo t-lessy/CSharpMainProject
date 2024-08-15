@@ -16,11 +16,11 @@ public class ThirdUnitBrain : DefaultPlayerUnitBrain
 
     private float _temperature = 0f;
     private float _cooldownTime = 0f;
-    public float врем€ѕерехода = 1f;
+    public float TransitionTime = 1f;
 
     private bool _overheated;
-    private bool идти = true;
-    private bool выстрел = false;
+    private bool _move = true;
+    private bool _shot = false;
 
     private static int _idUnit = 0;
 
@@ -53,34 +53,34 @@ public class ThirdUnitBrain : DefaultPlayerUnitBrain
 
     }
 
-    void ѕереход()
+    void Transition()
     {
-         for (float ѕереход = 1f; ѕереход == врем€ѕерехода; ѕереход++)
+         for (float Transition = 1f; Transition == TransitionTime; Transition++)
             {
                 if (HasTargetsInRange())
             {
-                ¬ыстрел();
+                Shot();
             }
                  else
             {
-                »дти();
+                Move();
 
             }
             }
     }
 
-    void ¬ыстрел()
+    void Shot()
     {
         {
-            выстрел = true;
-            идти = false;
+            _shot = true;
+            _move = false;
         }
     }
 
-    void »дти()
+    void Move()
     {
-        выстрел = false;
-        идти = true;
+        _shot = false;
+        _move = true;
     }
 
 
@@ -115,10 +115,10 @@ public class ThirdUnitBrain : DefaultPlayerUnitBrain
 
         if (OutOfRange.Count == 0)
         {
-            if (идти == true)
+            if (_move == true)
             {
-                Vector2Int база¬рагаID = runtimeModel.RoMap.Bases[IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId];
-                OutOfRange.Add(база¬рагаID);
+                Vector2Int baseEnemyID = runtimeModel.RoMap.Bases[IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId];
+                OutOfRange.Add(baseEnemyID);
             }
         }
         else
@@ -150,7 +150,7 @@ public class ThirdUnitBrain : DefaultPlayerUnitBrain
 
     public override void Update(float deltaTime, float time)
     {
-        ѕереход();
+        Transition();
         if (_overheated)
         {
             _cooldownTime += Time.deltaTime;
