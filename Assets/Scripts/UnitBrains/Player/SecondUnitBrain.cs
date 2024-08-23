@@ -1,6 +1,9 @@
 ﻿using System.Collections.Generic;
+using Codice.Client.Common.GameUI;
+using Model;
 using Model.Runtime.Projectiles;
 using UnityEngine;
+using static UnityEngine.GraphicsBuffer;
 
 namespace UnitBrains.Player
 {
@@ -12,6 +15,8 @@ namespace UnitBrains.Player
         private float _temperature = 0f;
         private float _cooldownTime = 0f;
         private bool _overheated;
+        private List<Vector2Int> dangerous = new List<Vector2Int>();
+        
 
         protected override void GenerateProjectiles(Vector2Int forTarget, List<BaseProjectile> intoList)
         {
@@ -42,6 +47,10 @@ namespace UnitBrains.Player
 
         public override Vector2Int GetNextStep()
         {
+            if (dangerous == null)
+            {
+                return Vector2Int.zero;
+            }
             return base.GetNextStep();
         }
 
@@ -51,26 +60,40 @@ namespace UnitBrains.Player
             float minTarget = float.MaxValue;
             Vector2Int closestTarget = new Vector2Int();
 
-            List<Vector2Int> result = GetReachableTargets();
+            List<Vector2Int> result = new List<Vector2Int>();
 
-            foreach (var target in result)
+
+            IEnumerable<Vector2Int> allTargets = GetAllTargets();
+
+            if (allTargets == null)
             {
+                result.Clear();
+                result[0] = runtimeModel.RoMap.Bases[IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId];
+                Debug.Log(result);
+            }
+            
+            foreach (var target in allTargets)
+            {
+                
                 float distance = DistanceToOwnBase(target);
                 if (distance < minTarget)
                 {
                     minTarget = distance;
                     closestTarget = target;
+                    dangerous.Clear();
+                    
                 }
             }
+            
             if (minTarget != float.MaxValue)
             {
-                
-                result.Clear();
+                dangerous.Add(closestTarget);
                 result.Add(closestTarget);
-
                 return result;
-
+                
             }
+            result.Clear();
+            Debug.Log(1);
             return new List<Vector2Int>();
         }   
         public override void Update(float deltaTime, float time)
