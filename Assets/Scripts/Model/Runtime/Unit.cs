@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Assets.Scripts.BuffsAndDebuffs;
 using Model.Config;
 using Model.Runtime.Projectiles;
 using Model.Runtime.ReadOnly;
@@ -25,7 +26,9 @@ namespace Model.Runtime
         private float _nextBrainUpdateTime = 0f;
         private float _nextMoveTime = 0f;
         private float _nextAttackTime = 0f;
-        
+        private BuffAndDebuffControllSystem _buffAndDebuffControllSystem;
+
+
         public Unit(UnitConfig config, Vector2Int startPos, PathAndTargetCoordinator pathAndTargetCoordinator)
         {
             Config = config;
@@ -35,6 +38,7 @@ namespace Model.Runtime
             _brain.SetUnit(this);
             _brain.SetController(pathAndTargetCoordinator);
             _runtimeModel = ServiceLocator.Get<IReadOnlyRuntimeModel>();
+            _buffAndDebuffControllSystem = ServiceLocator.Get<BuffAndDebuffControllSystem>();
         }
 
         public void Update(float deltaTime, float time)
@@ -50,13 +54,27 @@ namespace Model.Runtime
             
             if (_nextMoveTime < time)
             {
-                _nextMoveTime = time + Config.MoveDelay;
+                var actualModifier = _buffAndDebuffControllSystem.GetActualModifier(this);
+
+                //_nextMoveTime = time + Config.MoveDelay;
+                _nextMoveTime = time + Config.MoveDelay / actualModifier.moveMod;
                 Move();
             }
             
             if (_nextAttackTime < time && Attack())
             {
-                _nextAttackTime = time + Config.AttackDelay;
+                var actualModifier = _buffAndDebuffControllSystem.GetActualModifier(this);
+                
+                //_nextAttackTime = time + Config.AttackDelay;
+                _nextAttackTime = time + Config.AttackDelay / actualModifier.attackMod;
+            }
+
+            if (Input.GetKey(KeyCode.Q))
+            {
+                _buffAndDebuffControllSystem.AddItem(this, new MovementBuff(this));
+            } else if (Input.GetKey(KeyCode.W))
+            {
+                _buffAndDebuffControllSystem.AddItem(this, new AttackBuff(this));
             }
         }
 
