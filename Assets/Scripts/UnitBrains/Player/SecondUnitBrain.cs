@@ -85,6 +85,11 @@ namespace UnitBrains.Player
                 }
             }
             
+            if (!IsTargetInRange(closestTarget))
+            {
+                return new List<Vector2Int>();
+            }
+
             if (minTarget != float.MaxValue)
             {
                 dangerous.Add(closestTarget);
