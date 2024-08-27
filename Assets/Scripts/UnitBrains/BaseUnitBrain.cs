@@ -39,9 +39,9 @@ namespace UnitBrains
 
             var target = runtimeModel.RoMap.Bases[
                 IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId];
-
-            _activePath = new SmartUnitBrain(runtimeModel, unit.Pos, target);
-            return _activePath.GetNextStepFrom(unit.Pos);
+            _activePath = new BgUnitPath(runtimeModel, unit.Pos, target);
+            var step = _activePath.GetNextStepFrom(unit.Pos);
+            return step;
         }
 
         public List<BaseProjectile> GetProjectiles()
