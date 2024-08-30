@@ -82,8 +82,6 @@ public class AStarUnitPath : BaseUnitPath
             if (!newNodeAdded)
             {
                 
-                Debug.Log("No path found, surrounded by obstacles.");
-                Debug.Log(openList.Count);
                 path = closedList.ToArray();
                 return;
             }

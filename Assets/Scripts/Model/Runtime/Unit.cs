@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Buffs;
 using Model.Config;
 using Model.Runtime.Projectiles;
 using Model.Runtime.ReadOnly;
@@ -7,6 +8,7 @@ using UnitBrains;
 using UnitBrains.Pathfinding;
 using UnityEngine;
 using Utilities;
+using static UnityEngine.UI.CanvasScaler;
 
 namespace Model.Runtime
 {
@@ -19,6 +21,8 @@ namespace Model.Runtime
         public BaseUnitPath ActivePath => _brain?.ActivePath;
         public IReadOnlyList<BaseProjectile> PendingProjectiles => _pendingProjectiles;
 
+        private BuffSystem _buffSystem;
+
         private readonly List<BaseProjectile> _pendingProjectiles = new();
         private IReadOnlyRuntimeModel _runtimeModel;
         private BaseUnitBrain _brain;
@@ -26,7 +30,9 @@ namespace Model.Runtime
         private float _nextBrainUpdateTime = 0f;
         private float _nextMoveTime = 0f;
         private float _nextAttackTime = 0f;
-        
+
+        private float attackTimeModifier = 0f;
+        private float moveTimeModifier = 0f;
         public Unit(UnitConfig config, Vector2Int startPos, UnitCoordinator unitCoordinator)
         {
             Config = config;
@@ -36,10 +42,14 @@ namespace Model.Runtime
             _brain.SetCoordinator(unitCoordinator);
             _brain.SetUnit(this);
             _runtimeModel = ServiceLocator.Get<IReadOnlyRuntimeModel>();
+            _buffSystem = ServiceLocator.Get<BuffSystem>();
+            _buffSystem.OnBuffAdded += OnBuffAdded;
+            _buffSystem.OnBuffRemoved += OnBuffRemoved;
         }
 
         public void Update(float deltaTime, float time)
         {
+            
             if (IsDead)
                 return;
             
@@ -51,13 +61,13 @@ namespace Model.Runtime
             
             if (_nextMoveTime < time)
             {
-                _nextMoveTime = time + Config.MoveDelay;
+                _nextMoveTime = time + Config.MoveDelay - moveTimeModifier;
                 Move();
             }
             
             if (_nextAttackTime < time && Attack())
             {
-                _nextAttackTime = time + Config.AttackDelay;
+                _nextAttackTime = time + Config.AttackDelay - attackTimeModifier;
             }
         }
 
@@ -89,6 +99,37 @@ namespace Model.Runtime
             
             Pos = targetPos;
         }
+
+        private void OnBuffAdded(Unit unit, Buff buff)
+        {
+            if (unit == this)
+            {
+                if (buff is MovementBuff moveBuff)
+                {
+                    moveTimeModifier += moveBuff.MoveSpeedModifier;
+                }
+                else if (buff is AttackSpeedBuff attackBuff)
+                {
+                    attackTimeModifier += attackBuff.AttackSpeedModifier;
+                }
+            }
+        }
+
+        private void OnBuffRemoved(Unit unit, Buff buff)
+        {
+            if (unit == this)
+            {
+                if (buff is MovementBuff moveBuff)
+                {
+                    moveTimeModifier -= moveBuff.MoveSpeedModifier;
+                }
+                else if (buff is AttackSpeedBuff attackBuff)
+                {
+                    attackTimeModifier -= attackBuff.AttackSpeedModifier;
+                }
+            }
+        }
+
 
         public void ClearPendingProjectiles()
         {

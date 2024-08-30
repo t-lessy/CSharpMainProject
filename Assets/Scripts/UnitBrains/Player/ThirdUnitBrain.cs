@@ -33,13 +33,6 @@ namespace UnitBrains.Player
             }
         }
 
-        public override Vector2Int GetNextStep()
-        {
-            if (_isShooting || isInTransition)
-                return unit.Pos;
-
-            return base.GetNextStep();
-        }
 
         protected override List<Vector2Int> SelectTargets()
         {

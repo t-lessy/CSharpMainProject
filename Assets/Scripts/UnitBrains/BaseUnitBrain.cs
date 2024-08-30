@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Buffs;
 using Model;
 using Model.Runtime.Projectiles;
 using Model.Runtime.ReadOnly;
@@ -15,6 +16,8 @@ namespace UnitBrains
         public virtual string TargetUnitName => string.Empty;
         public virtual bool IsPlayerUnitBrain => true;
         public virtual AStarUnitPath ActivePath => _activePath;
+
+        private BuffSystem _buffSystem => ServiceLocator.Get<BuffSystem>();
 
         protected UnitCoordinator _unitCoordinator;
         protected Unit unit { get; private set; }
@@ -169,6 +172,11 @@ namespace UnitBrains
                     continue;
                 
                 result.Add(possibleTarget);
+            }
+            if (result.Count == 0)
+            {
+                _buffSystem.ApplyBuff(unit, new MovementBuff(1, 1));
+                _buffSystem.ApplyBuff(unit, new AttackSpeedBuff(0.5f, 0.75f));
             }
 
             return result;
