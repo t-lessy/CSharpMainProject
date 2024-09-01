@@ -16,7 +16,7 @@ namespace UnitBrains.Player
     {
 
         public override string TargetUnitName => "Cobra Commando";
-        private const float OverheatTemperature = 3f;
+        public float OverheatTemperature = 3f;
         private const float OverheatCooldown = 2f;
         private float _temperature = 0f;
         private float _cooldownTime = 0f;
@@ -25,6 +25,7 @@ namespace UnitBrains.Player
         private static int _unitCounter = 0;
         private int _unitNumber = _unitCounter++;
         private const int _maxUnits = 3;
+        public int shootingCounter = 1;
 
         protected override void GenerateProjectiles(Vector2Int forTarget, List<BaseProjectile> intoList)
         {
@@ -41,13 +42,18 @@ namespace UnitBrains.Player
 
             for (int i = 0; i < GetTemperature(); i++)
             {
-                var projectile = CreateProjectile(forTarget);
-                AddProjectileToList(projectile, intoList);
+                Debug.Log(shootingCounter);
+                for (int j = 0; j < shootingCounter; j++)
+                {
+                    var projectile = CreateProjectile(forTarget);
+                    
+                    AddProjectileToList(projectile, intoList);
+                }
             }
             ///////////////////////////////////////
         }
 
-
+        
 
         public override void Update(float deltaTime, float time)
         {

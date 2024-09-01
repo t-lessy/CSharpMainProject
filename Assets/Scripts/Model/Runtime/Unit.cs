@@ -14,14 +14,12 @@ namespace Model.Runtime
 {
     public class Unit : IReadOnlyUnit
     {
-        public UnitConfig Config { get; }
+        public UnitConfig Config { get; set; }
         public Vector2Int Pos { get; private set; }
         public int Health { get; private set; }
         public bool IsDead => Health <= 0;
         public BaseUnitPath ActivePath => _brain?.ActivePath;
         public IReadOnlyList<BaseProjectile> PendingProjectiles => _pendingProjectiles;
-
-        private BuffSystem _buffSystem;
 
         private readonly List<BaseProjectile> _pendingProjectiles = new();
         private IReadOnlyRuntimeModel _runtimeModel;
@@ -42,9 +40,8 @@ namespace Model.Runtime
             _brain.SetCoordinator(unitCoordinator);
             _brain.SetUnit(this);
             _runtimeModel = ServiceLocator.Get<IReadOnlyRuntimeModel>();
-            _buffSystem = ServiceLocator.Get<BuffSystem>();
-            _buffSystem.OnBuffAdded += OnBuffAdded;
-            _buffSystem.OnBuffRemoved += OnBuffRemoved;
+            config.Brain = _brain;
+
         }
 
         public void Update(float deltaTime, float time)
@@ -98,36 +95,6 @@ namespace Model.Runtime
             }
             
             Pos = targetPos;
-        }
-
-        private void OnBuffAdded(Unit unit, Buff buff)
-        {
-            if (unit == this)
-            {
-                if (buff is MovementBuff moveBuff)
-                {
-                    moveTimeModifier += moveBuff.MoveSpeedModifier;
-                }
-                else if (buff is AttackSpeedBuff attackBuff)
-                {
-                    attackTimeModifier += attackBuff.AttackSpeedModifier;
-                }
-            }
-        }
-
-        private void OnBuffRemoved(Unit unit, Buff buff)
-        {
-            if (unit == this)
-            {
-                if (buff is MovementBuff moveBuff)
-                {
-                    moveTimeModifier -= moveBuff.MoveSpeedModifier;
-                }
-                else if (buff is AttackSpeedBuff attackBuff)
-                {
-                    attackTimeModifier -= attackBuff.AttackSpeedModifier;
-                }
-            }
         }
 
 

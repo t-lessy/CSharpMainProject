@@ -1,38 +1,57 @@
+using Buffs.Buffs;
 using Model.Runtime;
+using Model.Runtime.ReadOnly;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using UnitBrains;
+using UnitBrains.Player;
 using UnityEngine;
 using Utilities;
+using View;
 
 namespace Buffs
 {
     public class BuffSystem
     {
-        public event Action<Unit, Buff> OnBuffAdded;
-        public event Action<Unit, Buff> OnBuffRemoved;
+        private VFXView _vfxView => ServiceLocator.Get<VFXView>();
 
-        private readonly TimeUtil _timeUtil = ServiceLocator.Get<TimeUtil>();
-        public readonly Dictionary<Unit, HashSet<Buff>> unitBuffs = new();
+     private readonly TimeUtil _timeUtil = ServiceLocator.Get<TimeUtil>();
+     public readonly Dictionary<IReadOnlyUnit, HashSet<Type>> unitBuffs = new();
+     internal List<Buff<BaseUnitBrain>> availableBuffs = new List<Buff<BaseUnitBrain>>();
+        public BuffSystem()
+        {
+            // Инициализация доступных баффов
+            availableBuffs.Add(new MovementBuff<BaseUnitBrain>(1f));
+            availableBuffs.Add(new AttackSpeedBuff<BaseUnitBrain>(1f));
+            availableBuffs.Add(new DoubleShootBuff<BaseUnitBrain>(1f));
+            availableBuffs.Add(new RadiusBuff<BaseUnitBrain>(1f));
+        }
 
-        public void ApplyBuff(Unit unit, Buff buff)
+        public void ApplyBuff(IReadOnlyUnit unit, Buff<BaseUnitBrain> buff) 
         {
             if (!unitBuffs.ContainsKey(unit))
             {
-                unitBuffs[unit] = new HashSet<Buff>();
+                unitBuffs[unit] = new HashSet<Type>();
             }
-            unitBuffs[unit].Add(buff);
-
-            OnBuffAdded?.Invoke(unit, buff);
-
-            _timeUtil.RunDelayed(buff.Duration, () => UpdateBuffs(unit,buff));
+            if (buff.CanApply(UnitBrainProvider.GetBrain(unit.Config))) {
+                unitBuffs[unit].Add(buff.GetType());
+                buff.Apply(unit);
+                Debug.Log($"Apply buff {buff.GetType().Name}, unit type is --- {unit.Config.name}");
+                _vfxView.PlayVFX(unit.Pos, VFXView.VFXType.BuffApplied);
+                _timeUtil.RunDelayed(buff.Duration, () => UpdateBuffs(unit, buff));
+            }
+            else
+            {
+                Debug.Log($"Can't apply buff {buff.GetType().Name}, brain type is --- {UnitBrainProvider.GetBrain(unit.Config).GetType().Name}");
+            }
         }
 
-        public void UpdateBuffs(Unit unit, Buff buff)
+        public void UpdateBuffs<TBrain>(IReadOnlyUnit unit, Buff<TBrain> buff) where TBrain : BaseUnitBrain
         {
-            unitBuffs[unit].Remove(buff);
+            buff.Expire(unit);
+            unitBuffs[unit].Remove(buff.GetType());
 
-            OnBuffRemoved?.Invoke(unit, buff);
         }
     }
 }

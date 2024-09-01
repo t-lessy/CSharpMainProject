@@ -1,9 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Buffs;
+using Codice.Client.Common;
 using Model;
+using Model.Config;
 using Model.Runtime.Projectiles;
 using Model.Runtime.ReadOnly;
+using PlasticGui.WorkspaceWindow;
 using UnitBrains.Pathfinding;
 using UnityEngine;
 using Utilities;
@@ -25,6 +28,7 @@ namespace UnitBrains
         private Vector2Int _prevPos ;
         protected IReadOnlyRuntimeModel runtimeModel => ServiceLocator.Get<IReadOnlyRuntimeModel>();
         private AStarUnitPath _activePath = null;
+
         
         private readonly Vector2[] _projectileShifts = new Vector2[]
         {
@@ -173,12 +177,6 @@ namespace UnitBrains
                 
                 result.Add(possibleTarget);
             }
-            if (result.Count == 0)
-            {
-                _buffSystem.ApplyBuff(unit, new MovementBuff(1, 1));
-                _buffSystem.ApplyBuff(unit, new AttackSpeedBuff(0.5f, 0.75f));
-            }
-
             return result;
         }
 
@@ -187,5 +185,13 @@ namespace UnitBrains
             _unitCoordinator = unitCoordinator;
         }
 
+        internal UnitConfig GetUnitConfig()
+        {
+            return unit.Config;
+        }
+        internal Unit GetUnit()
+        {
+            return unit;
+        }
     }
 }
