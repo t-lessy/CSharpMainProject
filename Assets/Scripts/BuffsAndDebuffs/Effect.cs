@@ -1,4 +1,5 @@
 ﻿using Model.Runtime;
+using Model.Runtime.ReadOnly;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,7 +16,7 @@ namespace Assets.Scripts.BuffsAndDebuffs
     public abstract class Effect
 
     {
-        private Unit _effectOwner;
+        private IReadOnlyUnit _effectOwner;
         private float _effectDuration;
         private float _modifier;
         private EffectType _effectType;
@@ -23,7 +24,7 @@ namespace Assets.Scripts.BuffsAndDebuffs
         public float EffectDuration { get { return _effectDuration; }  set { _effectDuration = value; } }
         public float Modifier { get { return _modifier; } set { _modifier = value; } }
         public EffectType EffectType { get { return _effectType; } }
-        public Effect(Unit unit, EffectType effectType)
+        public Effect(IReadOnlyUnit unit, EffectType effectType)
         {
             _effectOwner = unit;
             _effectType = effectType;

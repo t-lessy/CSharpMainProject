@@ -8,6 +8,8 @@ using UnitBrains;
 using UnitBrains.Pathfinding;
 using UnityEngine;
 using Utilities;
+using static UnityEngine.UI.CanvasScaler;
+using View;
 
 namespace Model.Runtime
 {
@@ -27,6 +29,7 @@ namespace Model.Runtime
         private float _nextMoveTime = 0f;
         private float _nextAttackTime = 0f;
         private BuffAndDebuffControllSystem _buffAndDebuffControllSystem;
+        private VFXView _vfxView;
 
 
         public Unit(UnitConfig config, Vector2Int startPos, PathAndTargetCoordinator pathAndTargetCoordinator)
@@ -39,6 +42,7 @@ namespace Model.Runtime
             _brain.SetController(pathAndTargetCoordinator);
             _runtimeModel = ServiceLocator.Get<IReadOnlyRuntimeModel>();
             _buffAndDebuffControllSystem = ServiceLocator.Get<BuffAndDebuffControllSystem>();
+            _vfxView = ServiceLocator.Get<VFXView>();
         }
 
         public void Update(float deltaTime, float time)
@@ -56,7 +60,6 @@ namespace Model.Runtime
             {
                 var actualModifier = _buffAndDebuffControllSystem.GetActualModifier(this);
 
-                //_nextMoveTime = time + Config.MoveDelay;
                 _nextMoveTime = time + Config.MoveDelay / actualModifier.moveMod;
                 Move();
             }
@@ -65,16 +68,12 @@ namespace Model.Runtime
             {
                 var actualModifier = _buffAndDebuffControllSystem.GetActualModifier(this);
                 
-                //_nextAttackTime = time + Config.AttackDelay;
                 _nextAttackTime = time + Config.AttackDelay / actualModifier.attackMod;
             }
 
-            if (Input.GetKey(KeyCode.Q))
+            if (_buffAndDebuffControllSystem.CheckUnitInEffectList(this))
             {
-                _buffAndDebuffControllSystem.AddItem(this, new MovementBuff(this));
-            } else if (Input.GetKey(KeyCode.W))
-            {
-                _buffAndDebuffControllSystem.AddItem(this, new AttackBuff(this));
+                _vfxView.PlayVFX(Pos, VFXView.VFXType.BuffApplied);
             }
         }
 

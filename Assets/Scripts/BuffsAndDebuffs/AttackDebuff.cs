@@ -4,12 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Model.Runtime;
+using Model.Runtime.ReadOnly;
 
 namespace Assets.Scripts.BuffsAndDebuffs
 {
     public class AttackDebuff : Effect
     {
-        public AttackDebuff(Unit _unit) : base(_unit, EffectType.Attack)
+        public AttackDebuff(IReadOnlyUnit _unit) : base(_unit, EffectType.Attack)
         {
             Modifier = 0.5f;
             EffectDuration = 30f;

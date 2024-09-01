@@ -3,40 +3,24 @@
   "WorkspaceRootPath": "E:\\dev\\CSharpMainProject\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{30E4A36B-DBC1-3EB5-7C27-41F2EDC2C301}|Root.csproj|E:\\dev\\CSharpMainProject\\assets\\scripts\\utilities\\servicelocator.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{30E4A36B-DBC1-3EB5-7C27-41F2EDC2C301}|Root.csproj|solutionrelative:assets\\scripts\\utilities\\servicelocator.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{30E4A36B-DBC1-3EB5-7C27-41F2EDC2C301}|Root.csproj|e:\\dev\\csharpmainproject\\assets\\scripts\\unitbrains\\player\\unitbuffer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{30E4A36B-DBC1-3EB5-7C27-41F2EDC2C301}|Root.csproj|solutionrelative:assets\\scripts\\unitbrains\\player\\unitbuffer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{30E4A36B-DBC1-3EB5-7C27-41F2EDC2C301}|Root.csproj|E:\\dev\\CSharpMainProject\\assets\\scripts\\controller\\rootcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{30E4A36B-DBC1-3EB5-7C27-41F2EDC2C301}|Root.csproj|solutionrelative:assets\\scripts\\controller\\rootcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{30E4A36B-DBC1-3EB5-7C27-41F2EDC2C301}|Root.csproj|e:\\dev\\csharpmainproject\\assets\\scripts\\buffsanddebuffs\\movementbuff.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{30E4A36B-DBC1-3EB5-7C27-41F2EDC2C301}|Root.csproj|solutionrelative:assets\\scripts\\buffsanddebuffs\\movementbuff.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{30E4A36B-DBC1-3EB5-7C27-41F2EDC2C301}|Root.csproj|E:\\dev\\CSharpMainProject\\assets\\scripts\\buffsanddebuffs\\attackbuff.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{30E4A36B-DBC1-3EB5-7C27-41F2EDC2C301}|Root.csproj|solutionrelative:assets\\scripts\\buffsanddebuffs\\attackbuff.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{30E4A36B-DBC1-3EB5-7C27-41F2EDC2C301}|Root.csproj|E:\\dev\\CSharpMainProject\\assets\\scripts\\buffsanddebuffs\\attackdebuff.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{30E4A36B-DBC1-3EB5-7C27-41F2EDC2C301}|Root.csproj|solutionrelative:assets\\scripts\\buffsanddebuffs\\attackdebuff.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{30E4A36B-DBC1-3EB5-7C27-41F2EDC2C301}|Root.csproj|E:\\dev\\CSharpMainProject\\assets\\scripts\\buffsanddebuffs\\buffanddebuffcontrollsystem.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{30E4A36B-DBC1-3EB5-7C27-41F2EDC2C301}|Root.csproj|solutionrelative:assets\\scripts\\buffsanddebuffs\\buffanddebuffcontrollsystem.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{30E4A36B-DBC1-3EB5-7C27-41F2EDC2C301}|Root.csproj|E:\\dev\\CSharpMainProject\\assets\\scripts\\buffsanddebuffs\\movementdebuff.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{30E4A36B-DBC1-3EB5-7C27-41F2EDC2C301}|Root.csproj|solutionrelative:assets\\scripts\\buffsanddebuffs\\movementdebuff.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{30E4A36B-DBC1-3EB5-7C27-41F2EDC2C301}|Root.csproj|E:\\dev\\CSharpMainProject\\assets\\scripts\\model\\runtime\\unit.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{30E4A36B-DBC1-3EB5-7C27-41F2EDC2C301}|Root.csproj|e:\\dev\\csharpmainproject\\assets\\scripts\\model\\runtime\\unit.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{30E4A36B-DBC1-3EB5-7C27-41F2EDC2C301}|Root.csproj|solutionrelative:assets\\scripts\\model\\runtime\\unit.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{30E4A36B-DBC1-3EB5-7C27-41F2EDC2C301}|Root.csproj|E:\\dev\\CSharpMainProject\\assets\\scripts\\buffsanddebuffs\\effect.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{30E4A36B-DBC1-3EB5-7C27-41F2EDC2C301}|Root.csproj|e:\\dev\\csharpmainproject\\assets\\scripts\\buffsanddebuffs\\buffanddebuffcontrollsystem.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{30E4A36B-DBC1-3EB5-7C27-41F2EDC2C301}|Root.csproj|solutionrelative:assets\\scripts\\buffsanddebuffs\\buffanddebuffcontrollsystem.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{30E4A36B-DBC1-3EB5-7C27-41F2EDC2C301}|Root.csproj|e:\\dev\\csharpmainproject\\assets\\scripts\\buffsanddebuffs\\effect.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{30E4A36B-DBC1-3EB5-7C27-41F2EDC2C301}|Root.csproj|solutionrelative:assets\\scripts\\buffsanddebuffs\\effect.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{30E4A36B-DBC1-3EB5-7C27-41F2EDC2C301}|Root.csproj|e:\\dev\\csharpmainproject\\assets\\scripts\\view\\gameplay3dview.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{30E4A36B-DBC1-3EB5-7C27-41F2EDC2C301}|Root.csproj|solutionrelative:assets\\scripts\\view\\gameplay3dview.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -46,7 +30,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 166,
-          "SelectedChildIndex": 9,
+          "SelectedChildIndex": 5,
           "Children": [
             {
               "$type": "Bookmark",
@@ -57,124 +41,68 @@
               "Name": "ST:128:0:{13b12e3e-c1b4-4539-9371-4fe9a0d523fc}"
             },
             {
-              "$type": "Bookmark",
-              "Name": "ST:0:0:{cce594b6-0c39-4442-ba28-10c64ac7e89f}"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "MovementBuff.cs",
-              "DocumentMoniker": "E:\\dev\\CSharpMainProject\\Assets\\Scripts\\BuffsAndDebuffs\\MovementBuff.cs",
-              "RelativeDocumentMoniker": "Assets\\Scripts\\BuffsAndDebuffs\\MovementBuff.cs",
-              "ToolTip": "E:\\dev\\CSharpMainProject\\Assets\\Scripts\\BuffsAndDebuffs\\MovementBuff.cs",
-              "RelativeToolTip": "Assets\\Scripts\\BuffsAndDebuffs\\MovementBuff.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAABEAAAABAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-24T21:00:08.001Z",
-              "EditorCaption": ""
-            },
-            {
               "$type": "Document",
               "DocumentIndex": 4,
-              "Title": "AttackDebuff.cs",
-              "DocumentMoniker": "E:\\dev\\CSharpMainProject\\Assets\\Scripts\\BuffsAndDebuffs\\AttackDebuff.cs",
-              "RelativeDocumentMoniker": "Assets\\Scripts\\BuffsAndDebuffs\\AttackDebuff.cs",
-              "ToolTip": "E:\\dev\\CSharpMainProject\\Assets\\Scripts\\BuffsAndDebuffs\\AttackDebuff.cs",
-              "RelativeToolTip": "Assets\\Scripts\\BuffsAndDebuffs\\AttackDebuff.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAA4AAAAhAAAA",
+              "Title": "Gameplay3dView.cs",
+              "DocumentMoniker": "E:\\dev\\CSharpMainProject\\Assets\\Scripts\\View\\Gameplay3dView.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\View\\Gameplay3dView.cs",
+              "ToolTip": "E:\\dev\\CSharpMainProject\\Assets\\Scripts\\View\\Gameplay3dView.cs",
+              "RelativeToolTip": "Assets\\Scripts\\View\\Gameplay3dView.cs",
+              "ViewState": "AQIAAAgAAAAAAAAAAAAhwA8AAAAhAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-24T21:14:32.737Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "AttackBuff.cs",
-              "DocumentMoniker": "E:\\dev\\CSharpMainProject\\Assets\\Scripts\\BuffsAndDebuffs\\AttackBuff.cs",
-              "RelativeDocumentMoniker": "Assets\\Scripts\\BuffsAndDebuffs\\AttackBuff.cs",
-              "ToolTip": "E:\\dev\\CSharpMainProject\\Assets\\Scripts\\BuffsAndDebuffs\\AttackBuff.cs",
-              "RelativeToolTip": "Assets\\Scripts\\BuffsAndDebuffs\\AttackBuff.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAA8AAAAJAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-24T21:12:59.958Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 6,
-              "Title": "MovementDebuff.cs",
-              "DocumentMoniker": "E:\\dev\\CSharpMainProject\\Assets\\Scripts\\BuffsAndDebuffs\\MovementDebuff.cs",
-              "RelativeDocumentMoniker": "Assets\\Scripts\\BuffsAndDebuffs\\MovementDebuff.cs",
-              "ToolTip": "E:\\dev\\CSharpMainProject\\Assets\\Scripts\\BuffsAndDebuffs\\MovementDebuff.cs",
-              "RelativeToolTip": "Assets\\Scripts\\BuffsAndDebuffs\\MovementDebuff.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAA8AAAAJAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-24T21:09:32.391Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 8,
-              "Title": "Effect.cs",
-              "DocumentMoniker": "E:\\dev\\CSharpMainProject\\Assets\\Scripts\\BuffsAndDebuffs\\Effect.cs",
-              "RelativeDocumentMoniker": "Assets\\Scripts\\BuffsAndDebuffs\\Effect.cs",
-              "ToolTip": "E:\\dev\\CSharpMainProject\\Assets\\Scripts\\BuffsAndDebuffs\\Effect.cs",
-              "RelativeToolTip": "Assets\\Scripts\\BuffsAndDebuffs\\Effect.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAABMAAAAgAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-24T11:01:36.471Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 5,
-              "Title": "BuffAndDebuffControllSystem.cs",
-              "DocumentMoniker": "E:\\dev\\CSharpMainProject\\Assets\\Scripts\\BuffsAndDebuffs\\BuffAndDebuffControllSystem.cs",
-              "RelativeDocumentMoniker": "Assets\\Scripts\\BuffsAndDebuffs\\BuffAndDebuffControllSystem.cs",
-              "ToolTip": "E:\\dev\\CSharpMainProject\\Assets\\Scripts\\BuffsAndDebuffs\\BuffAndDebuffControllSystem.cs",
-              "RelativeToolTip": "Assets\\Scripts\\BuffsAndDebuffs\\BuffAndDebuffControllSystem.cs",
-              "ViewState": "AQIAAEQAAAAAAAAAAAAIwF0AAAA8AAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-24T10:38:48.689Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "ServiceLocator.cs",
-              "DocumentMoniker": "E:\\dev\\CSharpMainProject\\Assets\\Scripts\\Utilities\\ServiceLocator.cs",
-              "RelativeDocumentMoniker": "Assets\\Scripts\\Utilities\\ServiceLocator.cs",
-              "ToolTip": "E:\\dev\\CSharpMainProject\\Assets\\Scripts\\Utilities\\ServiceLocator.cs",
-              "RelativeToolTip": "Assets\\Scripts\\Utilities\\ServiceLocator.cs",
-              "ViewState": "AQIAAAoAAAAAAAAAAAAAwB8AAAAsAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-23T17:24:33.679Z",
+              "WhenOpened": "2024-09-01T17:03:30.021Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 1,
-              "Title": "RootController.cs",
-              "DocumentMoniker": "E:\\dev\\CSharpMainProject\\Assets\\Scripts\\Controller\\RootController.cs",
-              "RelativeDocumentMoniker": "Assets\\Scripts\\Controller\\RootController.cs",
-              "ToolTip": "E:\\dev\\CSharpMainProject\\Assets\\Scripts\\Controller\\RootController.cs",
-              "RelativeToolTip": "Assets\\Scripts\\Controller\\RootController.cs",
-              "ViewState": "AQIAAAkAAAAAAAAAAAAqwB8AAAApAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-23T17:24:54.109Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 7,
               "Title": "Unit.cs",
               "DocumentMoniker": "E:\\dev\\CSharpMainProject\\Assets\\Scripts\\Model\\Runtime\\Unit.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\Model\\Runtime\\Unit.cs",
               "ToolTip": "E:\\dev\\CSharpMainProject\\Assets\\Scripts\\Model\\Runtime\\Unit.cs",
               "RelativeToolTip": "Assets\\Scripts\\Model\\Runtime\\Unit.cs",
-              "ViewState": "AQIAACQAAAAAAAAAAAAIwDsAAAAAAAAA",
+              "ViewState": "AQIAAAMAAAAAAAAAAAAAAFgAAAAAAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-06T20:31:02.743Z",
+              "WhenOpened": "2024-09-01T16:39:58.225Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "Effect.cs",
+              "DocumentMoniker": "E:\\dev\\CSharpMainProject\\Assets\\Scripts\\BuffsAndDebuffs\\Effect.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\BuffsAndDebuffs\\Effect.cs",
+              "ToolTip": "E:\\dev\\CSharpMainProject\\Assets\\Scripts\\BuffsAndDebuffs\\Effect.cs",
+              "RelativeToolTip": "Assets\\Scripts\\BuffsAndDebuffs\\Effect.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAB0AAAAlAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-09-01T13:57:27.666Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "UnitBuffer.cs",
+              "DocumentMoniker": "E:\\dev\\CSharpMainProject\\Assets\\Scripts\\UnitBrains\\Player\\UnitBuffer.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\UnitBrains\\Player\\UnitBuffer.cs",
+              "ToolTip": "E:\\dev\\CSharpMainProject\\Assets\\Scripts\\UnitBrains\\Player\\UnitBuffer.cs",
+              "RelativeToolTip": "Assets\\Scripts\\UnitBrains\\Player\\UnitBuffer.cs",
+              "ViewState": "AQIAACwAAAAAAAAAAAAIwB8AAAAlAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-09-01T13:12:38.366Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "BuffAndDebuffControllSystem.cs",
+              "DocumentMoniker": "E:\\dev\\CSharpMainProject\\Assets\\Scripts\\BuffsAndDebuffs\\BuffAndDebuffControllSystem.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\BuffsAndDebuffs\\BuffAndDebuffControllSystem.cs",
+              "ToolTip": "E:\\dev\\CSharpMainProject\\Assets\\Scripts\\BuffsAndDebuffs\\BuffAndDebuffControllSystem.cs",
+              "RelativeToolTip": "Assets\\Scripts\\BuffsAndDebuffs\\BuffAndDebuffControllSystem.cs",
+              "ViewState": "AQIAABUAAAAAAAAAAAA5wBEAAAAJAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-09-01T13:08:05.689Z",
               "EditorCaption": ""
             }
           ]

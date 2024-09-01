@@ -30,6 +30,7 @@ namespace UnitBrains
             new (0.15f, -0.15f),
             new (-0.15f, 0.15f),
             new (-0.15f, -0.15f),
+
         };
 
         public virtual Vector2Int GetNextStep()
