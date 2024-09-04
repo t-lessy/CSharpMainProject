@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UnitBrains;
+using UnityEngine;
 using Utilities;
 
 namespace Assets.Scripts.BuffsAndDebuffs
@@ -12,18 +14,20 @@ namespace Assets.Scripts.BuffsAndDebuffs
     public class BuffAndDebuffControllSystem
     {
         private TimeUtil _timeUtil;
-        private Dictionary<IReadOnlyUnit, (List<Effect> attackEffects, List<Effect> moveEffects)> _effectsDictionary = new Dictionary<IReadOnlyUnit, (List<Effect> attackEffects, List<Effect> moveEffect)>();
+        private Dictionary<Unit, (List<Effect<Unit>> attackEffects, List<Effect<Unit>> moveEffects)> _effectsDictionary =
+            new Dictionary<Unit, (List<Effect<Unit>> attackEffects, List<Effect<Unit>> moveEffect)>();
 
         public BuffAndDebuffControllSystem()
         {
             _timeUtil = ServiceLocator.Get<TimeUtil>();
-            _timeUtil.AddFixedUpdateAction(updateEffects);
+            _timeUtil.AddFixedUpdateAction(UpdateEffects);
         }
-        public void AddItem(IReadOnlyUnit unit, Effect effect)
+        public void AddItem(Unit unit, Effect<Unit> effect)
         {
             if (!_effectsDictionary.ContainsKey(unit))
             {
-                (List<Effect> attackEffects, List<Effect> moveEffect) newTupple = (new List<Effect>(), new List<Effect>());
+                (List<Effect<Unit>> attackEffects, List<Effect<Unit>> moveEffect) newTupple = 
+                    (new List<Effect<Unit>>(), new List<Effect<Unit>>());
                 _effectsDictionary[unit] = newTupple;
             }
             switch(effect.EffectType)
@@ -37,28 +41,30 @@ namespace Assets.Scripts.BuffsAndDebuffs
             }
         }
 
-        public void RemoveItem(IReadOnlyUnit unit, Effect effect)
+        public void RemoveItem(Unit unit, Effect<Unit> effect)
         {
             if (_effectsDictionary.ContainsKey(unit))
             {
                 switch (effect.EffectType)
                 {
                     case EffectType.Attack:
+                        effect.ClearEffect(unit);
                         _effectsDictionary[unit].attackEffects.Remove(effect);
                         break;
                     case EffectType.Move:
+                        effect.ClearEffect(unit);
                         _effectsDictionary[unit].moveEffects.Remove(effect);
                         break;
                 }
             }
         }
 
-        public bool CheckUnitInEffectList(IReadOnlyUnit unit)
+        public bool CheckUnitInEffectList(Unit unit)
         {
             return _effectsDictionary.ContainsKey(unit) ? true : false;
         }
 
-        public (float attackMod, float moveMod) GetActualModifier(IReadOnlyUnit unit)
+        public (float attackMod, float moveMod) GetActualModifier(Unit unit)
         {
             float initialAttackMod = 0f;
             float initialMoveMod = 0f;
@@ -79,31 +85,40 @@ namespace Assets.Scripts.BuffsAndDebuffs
                     }
                 }
             }
-
             return (initialAttackMod == 0 ? 1 : initialAttackMod, initialMoveMod == 0 ? 1 : initialMoveMod);
         }
 
-        public void updateEffects(float deLtaTime)
+        public void UpdateEffects(float deLtaTime)
         {
             foreach (var unitEffects in _effectsDictionary)
             {
-                foreach (Effect effect in unitEffects.Value.attackEffects.ToArray())
+                foreach (Effect<Unit> effect in unitEffects.Value.attackEffects.ToArray())
                 {
-                    effect.EffectDuration -= deLtaTime;
-                    if (effect.EffectDuration <= 0)
-                        RemoveItem(unitEffects.Key, effect);
+                    ManageLifeEffect(effect, deLtaTime, unitEffects);
                 }
-                foreach (Effect effect in unitEffects.Value.moveEffects.ToArray())
+                foreach (Effect<Unit> effect in unitEffects.Value.moveEffects.ToArray())
                 {
-                    effect.EffectDuration -= deLtaTime;
-                    if (effect.EffectDuration <= 0)
-                        RemoveItem(unitEffects.Key, effect);
+                    ManageLifeEffect(effect, deLtaTime, unitEffects);
                 }
             }
         }
+
+        public void ManageLifeEffect(Effect<Unit> effect, float deLtaTime, KeyValuePair<Unit, (List<Effect<Unit>> attackEffects, List<Effect<Unit>> moveEffect)> unitEffects)
+        {
+            if (effect.CheckApply(unitEffects.Key))
+            {
+                effect.ApplyEffect(unitEffects.Key, effect.Modifier, deLtaTime);
+            }
+            effect.EffectDuration -= deLtaTime;
+            if (effect.EffectDuration <= 0)
+            {
+                RemoveItem(unitEffects.Key, effect);
+            }
+        }
+
         public void Dispose()
         {
-            _timeUtil.RemoveFixedUpdateAction(updateEffects);
+            _timeUtil.RemoveFixedUpdateAction(UpdateEffects);
         }
     }
 }

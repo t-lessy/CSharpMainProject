@@ -6,26 +6,27 @@ using System.Threading.Tasks;
 using Model.Runtime;
 using Model.Runtime.ReadOnly;
 using UnitBrains;
+using UnitBrains.Player;
+using static UnityEngine.UI.GridLayoutGroup;
 
 namespace Assets.Scripts.BuffsAndDebuffs
 {
-    public class MovementBuff<T> : Effect<T> where T : Unit
+    public class DoubleShotBuff<T> : Effect<T> where T : Unit
     {
-        public MovementBuff(T _unit) : base(_unit, EffectType.Move)
+        public DoubleShotBuff(T _unit) : base(_unit, EffectType.Attack)
         {
-            Modifier = 2f;
+            Modifier = 1.0f;
             EffectDuration = 30f;
         }
 
         public override void ApplyEffect(T _owner, float modifier, float time)
         {
-            var moveModifier = time + _owner.Config.MoveDelay / modifier;
-            _owner.SetNextMoveTime(moveModifier);
+            _owner.SetDoubleShootMode(true);
         }
 
         public override void ClearEffect(T _owner)
         {
-            _owner.SetNextMoveTime(null);
+            _owner.SetDoubleShootMode(false);
         }
     }
 }

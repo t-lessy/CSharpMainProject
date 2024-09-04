@@ -9,7 +9,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>10.0.20506</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <RootNamespace></RootNamespace>
+    <RootNamespace>
+    </RootNamespace>
     <ProjectGuid>{30E4A36B-DBC1-3EB5-7C27-41F2EDC2C301}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
@@ -59,6 +60,7 @@
     <Analyzer Include="C:\Program Files\Unity 2022.3.12f1\Editor\Data\Tools\Unity.SourceGenerators\Unity.Properties.SourceGenerator.dll" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\Scripts\BuffsAndDebuffs\DoubleShotBuff.cs" />
     <Compile Include="Assets\Scripts\View\TileView.cs" />
     <Compile Include="Assets\Scripts\Model\Runtime\Projectiles\BaseProjectile.cs" />
     <Compile Include="Assets\Scripts\View\UnitView.cs" />
@@ -102,6 +104,7 @@
     <Compile Include="Assets\Scripts\View\VFXView.cs" />
     <Compile Include="Assets\Scripts\Controller\IPlayerUnitChoosingListener.cs" />
     <Compile Include="Assets\Scripts\Utilities\Extensions.cs" />
+    <Compile Include="Assets\Scripts\BuffsAndDebuffs\AttackRadiusBuff.cs" />
     <Compile Include="Assets\Scripts\UnitBrains\PathAndTargetCoordinator.cs" />
     <Compile Include="Assets\Scripts\Utilities\ServiceLocator.cs" />
     <Compile Include="Assets\Scripts\Model\Runtime\Projectiles\ArchToTileProjectile.cs" />
