@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Assets.Scripts.UnitBrains;
 using Assets.Scripts.UnitBrains.Player;
 using Model;
 using Model.Runtime.Projectiles;
@@ -17,6 +18,7 @@ namespace UnitBrains
         public virtual bool IsPlayerUnitBrain => true;
         public virtual BaseUnitPath ActivePath => _activePath;
         
+        protected PathAndTargetCoordinator PathAndTargetCoordinator { get; private set; }
         protected Unit unit { get; private set; }
         protected IReadOnlyRuntimeModel runtimeModel => ServiceLocator.Get<IReadOnlyRuntimeModel>();
         private BaseUnitPath _activePath = null;
@@ -59,6 +61,11 @@ namespace UnitBrains
             }
 
             return result;
+        }
+
+        public void SetControler(PathAndTargetCoordinator pathAndTargetCoordinator)
+        {
+            this.PathAndTargetCoordinator = pathAndTargetCoordinator;
         }
 
         public void SetUnit(Unit unit)

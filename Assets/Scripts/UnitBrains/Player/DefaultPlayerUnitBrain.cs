@@ -2,6 +2,7 @@
 using Assets.Scripts.UnitBrains;
 using Model;
 using Model.Runtime.Projectiles;
+using UnitBrains.Pathfinding;
 using UnityEngine;
 
 namespace UnitBrains.Player
@@ -24,26 +25,23 @@ namespace UnitBrains.Player
         }
         public override Vector2Int GetNextStep()
         {
-            PathAndTargetCoordinator pathAndTargetCoordinator = PathAndTargetCoordinator.GetInstance();
-            Vector2Int? priorityTarget = pathAndTargetCoordinator.PriorityTargetPosition;
-            Vector2Int? priorityPosition = pathAndTargetCoordinator.PrioritySelfPosition;
-
-            if (priorityTarget.HasValue)
+            Vector2Int? priorityTarget = PathAndTargetCoordinator.PriorityTargetPosition;
+            Vector2Int? priorityPosition = PathAndTargetCoordinator.PrioritySelfPosition;
+            BaseUnitPath activePath;
+            var target = runtimeModel.RoMap.Bases[
+                IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId];
+            if (priorityTarget != null)
             {
-                return priorityTarget.Value;
+                target = priorityTarget.Value;
             }
 
-            if (priorityPosition.HasValue)
-            {
-                return priorityPosition.Value;
-            }
-            return base.GetNextStep();
+            activePath = new BgUnitPath(runtimeModel, unit.Pos, target);
+            return activePath.GetNextStepFrom(unit.Pos) != null ? activePath.GetNextStepFrom(unit.Pos) : base.GetNextStep();
         }
 
         ~DefaultPlayerUnitBrain()
         {
-            PathAndTargetCoordinator pathAndTargetCoordinator = PathAndTargetCoordinator.GetInstance();
-            pathAndTargetCoordinator.Dispose();
+            PathAndTargetCoordinator.Dispose();
         }
     }
 }

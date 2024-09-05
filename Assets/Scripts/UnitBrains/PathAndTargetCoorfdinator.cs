@@ -24,18 +24,13 @@ namespace Assets.Scripts.UnitBrains
         public Vector2Int? PriorityTargetPosition { get => _priorityTargetPosition; }
         public Vector2Int? PrioritySelfPosition { get => _prioritySelfPosition; }
 
-        private PathAndTargetCoordinator()
+        public PathAndTargetCoordinator()
         {
             _runtimeModel = ServiceLocator.Get<IReadOnlyRuntimeModel>();
             _timeUtil = ServiceLocator.Get<TimeUtil>();
 
             _timeUtil.AddFixedUpdateAction(getPriorityTargetPosition);
             _timeUtil.AddFixedUpdateAction(getPrioritySelfPosition);
-        }
-
-        public static PathAndTargetCoordinator GetInstance()
-        {
-            return _instance ?? (_instance = new PathAndTargetCoordinator());
         }
 
         
