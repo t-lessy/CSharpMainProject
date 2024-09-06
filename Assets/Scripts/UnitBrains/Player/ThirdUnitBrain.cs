@@ -87,6 +87,10 @@ public class ThirdUnitBrain : DefaultPlayerUnitBrain
 
     public override Vector2Int GetNextStep()
     {
+        Vector2Int target;
+        target = OutOfRange.Count > 0 ? OutOfRange[0] : unit.Pos;
+        return IsTargetInRange(target) ? unit.Pos : unit.Pos.CalcNextStepTowards(target);
+
         //Vector2Int target = OutOfRange[0];
         //Vector2Int nextPosition = Vector2Int.right;
         //if (OutOfRange.Count > 0 && !IsTargetInRange(target))
@@ -98,7 +102,7 @@ public class ThirdUnitBrain : DefaultPlayerUnitBrain
         //{
         //    return unit.Pos;
         //}
-        return base.GetNextStep();
+        //return base.GetNextStep();
     }
 
     protected override List<Vector2Int> SelectTargets()
