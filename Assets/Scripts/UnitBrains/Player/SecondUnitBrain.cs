@@ -7,8 +7,6 @@ using TMPro;
 using Unity.VisualScripting.YamlDotNet.Core.Tokens;
 using UnityEngine;
 using Utilities;
-using static UnityEditor.Experimental.AssetDatabaseExperimental.AssetDatabaseCounters;
-using static UnityEngine.GraphicsBuffer;
 
 namespace UnitBrains.Player
 {

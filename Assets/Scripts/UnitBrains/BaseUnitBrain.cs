@@ -63,15 +63,16 @@ namespace UnitBrains
             return result;
         }
 
+        public void SetUnit(Unit unit)
+        {
+            this.unit = unit;
+        }
+
         public void SetControler(PathAndTargetCoordinator pathAndTargetCoordinator)
         {
             this.PathAndTargetCoordinator = pathAndTargetCoordinator;
         }
 
-        public void SetUnit(Unit unit)
-        {
-            this.unit = unit;
-        }
 
         public virtual void Update(float deltaTime, float time)
         {

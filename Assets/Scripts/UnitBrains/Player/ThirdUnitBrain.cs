@@ -1,170 +1,68 @@
-using Model;
-using Model.Runtime.Projectiles;
 using System.Collections;
 using System.Collections.Generic;
 using UnitBrains.Player;
 using UnityEditor.Graphs;
 using UnityEngine;
-using Utilities;
+
+enum UnitState
+{
+    Move,
+    Shoot
+}
 
 public class ThirdUnitBrain : DefaultPlayerUnitBrain
 {
     public override string TargetUnitName => "Ironclad Behemoth";
-    private const float OverheatTemperature = 3f;
-    private const float OverheatCooldown = 2f;
-    private const int _maxTargets = 3;
+    private UnitState _state = UnitState.Move;
+    private bool _isChangingState;
+    private float _stateChangeTime = .1f;
 
-    private float _temperature = 0f;
-    private float _cooldownTime = 0f;
-    public float TransitionTime = 1f;
-
-    private bool _overheated;
-    private bool _move = true;
-    private bool _shot = false;
-
-    private static int _idUnit = 0;
-
-    public int Id { get; private set; }
-
-    public List<Vector2Int> OutOfRange = new();
-
-    public ThirdUnitBrain()
+    public override void Update(float deltaTime, float time)
     {
-        Id = ++_idUnit;
-    }
-
-
-    protected override void GenerateProjectiles(Vector2Int forTarget, List<BaseProjectile> intoList)
-    {
-        float overheatTemperature = OverheatTemperature;
-        float t = GetTemperature();
-        IncreaseTemperature();
-        if (t >= overheatTemperature)
+        if (_isChangingState)
         {
-            return;
-        }
-
-        for (float i = GetTemperature(); i <= 3 && i > 0; i--)
-        {
-            var projectile = CreateProjectile(forTarget);
-            AddProjectileToList(projectile, intoList);
-        }
-        IncreaseTemperature();
-
-    }
-
-    void Transition()
-    {
-         for (float Transition = 1f; Transition == TransitionTime; Transition++)
+            _stateChangeTime -= deltaTime;
+            if (_stateChangeTime <= 0f)
             {
-                if (HasTargetsInRange())
-            {
-                Shot();
+                _isChangingState = false;
+                _stateChangeTime = .1f;
             }
-                 else
-            {
-                Move();
-
-            }
-            }
-    }
-
-    void Shot()
-    {
-        {
-            _shot = true;
-            _move = false;
         }
+        ChangeUnitType();
+        base.Update(deltaTime, time);
     }
-
-    void Move()
-    {
-        _shot = false;
-        _move = true;
-    }
-
-
 
     public override Vector2Int GetNextStep()
     {
-        Vector2Int target;
-        target = OutOfRange.Count > 0 ? OutOfRange[0] : unit.Pos;
-        return IsTargetInRange(target) ? unit.Pos : unit.Pos.CalcNextStepTowards(target);
+        return _isChangingState ? unit.Pos : base.GetNextStep();
     }
 
     protected override List<Vector2Int> SelectTargets()
     {
-        List<Vector2Int> result = new List<Vector2Int>();
-        Vector2Int TargetPosition;
-        OutOfRange.Clear();
+        if (_isChangingState)
+            return new List<Vector2Int>();
+        if (_state == UnitState.Shoot)
+            return base.SelectTargets();
+        return new List<Vector2Int>();
+    }
 
-        foreach (Vector2Int target in GetAllTargets())
+    private void checkCurrentUnitState(UnitState state)
+    {
+        _isChangingState = state != _state ? true : false;
+    }
+
+    private void ChangeUnitType()
+    {
+        var currentPosition = base.GetNextStep();
+        if (currentPosition == unit.Pos)
         {
-            OutOfRange.Add(target);
-        }
-
-
-        if (OutOfRange.Count == 0)
-        {
-            if (_move == true)
-            {
-                Vector2Int baseEnemyID = runtimeModel.RoMap.Bases[IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId];
-                OutOfRange.Add(baseEnemyID);
-            }
+            checkCurrentUnitState(UnitState.Shoot);
+            _state = UnitState.Shoot;
         }
         else
         {
-            SortByDistanceToOwnBase(OutOfRange);
-
-            int targetIndex = Id % _maxTargets;
-
-            if (targetIndex < OutOfRange.Count)
-            {
-                TargetPosition = OutOfRange[targetIndex];
-            }
-            else
-            {
-                TargetPosition = OutOfRange[OutOfRange.Count - 1];
-
-            }
-            if (IsTargetInRange(TargetPosition))
-            {
-                result.Add(TargetPosition);
-            }
-        }
-        return result;
-
-
-    }
-
-
-
-    public override void Update(float deltaTime, float time)
-    {
-        Transition();
-        if (_overheated)
-        {
-            _cooldownTime += Time.deltaTime;
-            float t = _cooldownTime / (OverheatCooldown / 10);
-            _temperature = Mathf.Lerp(OverheatTemperature, 0, t);
-            if (t >= 1)
-            {
-                _cooldownTime = 0;
-                _overheated = false;
-            }
+            checkCurrentUnitState(UnitState.Move);
+            _state = UnitState.Move;
         }
     }
-
-    private int GetTemperature()
-    {
-        if (_overheated) return (int)OverheatTemperature;
-        else return (int)_temperature;
-    }
-
-    private void IncreaseTemperature()
-    {
-        _temperature += 1f;
-        if (_temperature >= OverheatTemperature) _overheated = true;
-    }
-
 }

@@ -14,7 +14,6 @@ namespace Assets.Scripts.UnitBrains
 {
     public class PathAndTargetCoordinator
     {
-        private static PathAndTargetCoordinator _instance;
 
         private IReadOnlyRuntimeModel _runtimeModel;
         private TimeUtil _timeUtil;
