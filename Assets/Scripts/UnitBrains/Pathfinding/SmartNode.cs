@@ -17,9 +17,9 @@ namespace Assets.Scripts.UnitBrains.Pathfinding
             Position = position;
         }
 
-        public void CalculateEstimate(int targetPosX, int targetPosY)// Расчёт расстояния до цели
+        public void CalculateEstimate(Vector2Int targetPosition)// Расчёт расстояния до цели
         {
-            Estimate = Math.Abs(Position.x - targetPosX) + Math.Abs(Position.y - targetPosY);// Функция Math.Abs берёт только модуль числа, убирая знак -
+            Estimate = Math.Abs(Position.x - targetPosition.x) + Math.Abs(Position.x - targetPosition.x);// Функция Math.Abs берёт только модуль числа, убирая знак -
         }
 
         public void CalculateValue()// Расчёт эвристической функции, исходя из стоимости и расстояния до цели)

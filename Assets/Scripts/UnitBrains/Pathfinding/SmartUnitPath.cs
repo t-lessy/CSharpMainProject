@@ -59,25 +59,25 @@ namespace Assets.Scripts.UnitBrains.Pathfinding
                     // Складывают координату текущей ноды и её смещение по оси, и выдает новую координату по Х и Y соответственно
                     int newX = currentNode.Position.x + dx[i];
                     int newY = currentNode.Position.y + dy[i];
-                    var newPoint = new Vector2Int(newX, newY);
+                    var newPosition = new Vector2Int(newX, newY);//Новая позиция 
 
-                    if (newPoint == targetNode.Position)
+                    if (newPosition == targetNode.Position)// Проверяет, будет ли следующая позиция целевой
                         _isTarget = true;
 
-                    if (IsValid(newPoint) || _isTarget)// Если клетка доступна для хода
+                    if (IsValid(newPosition) || _isTarget)// Если клетка доступна для хода и она является целевой
                     {
-                        SmartNode neighbor = new SmartNode(newPoint);// Для неё создаётся нода
+                        SmartNode neighbor = new SmartNode(newPosition);// Для неё создаётся нода
 
                         if (closedList.Contains(neighbor))// Проверяем, что этой ноды нет в закрытом списке
                             continue;
 
                         neighbor.Parent = currentNode;// Указываем в направлении текущую ноду
-                        neighbor.CalculateEstimate(targetNode.Position.x, targetNode.Position.y);// Рассчитываем расстояние
+                        neighbor.CalculateEstimate(targetNode.Position);// Рассчитываем расстояние
                         neighbor.CalculateValue();// И стоимость эвристической функции
 
                         openList.Add(neighbor);// Добавляем ноду в открытый список
                     }
-                    if (CheckCollisionWithEnemy(newPoint) && !_isEnemyUnitClose)
+                    if (CheckCollisionWithEnemy(newPosition) && !_isEnemyUnitClose)
                     {
                         _isEnemyUnitClose = true;
                         _nextToEnemyUnit = currentNode;
