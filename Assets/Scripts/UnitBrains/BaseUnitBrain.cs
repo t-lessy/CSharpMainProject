@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Assets.Scripts.UnitBrains.Pathfinding;
+using Assets.Scripts.Utilities;
 using Model;
 using Model.Runtime.Projectiles;
 using Model.Runtime.ReadOnly;
@@ -20,6 +22,7 @@ namespace UnitBrains
         protected Unit unit { get; private set; }// Ссылка на юнита, которому принадлежит UnitBrain
         protected IReadOnlyRuntimeModel runtimeModel => ServiceLocator.Get<IReadOnlyRuntimeModel>();// runtimeModel хранит сведения о текущей сессии
         private BaseUnitPath _activePath = null;
+        protected UnitCoordinator _unitCoordinator;
 
         private readonly Vector2[] _projectileShifts = new Vector2[]
         {
@@ -65,6 +68,11 @@ namespace UnitBrains
         public void SetUnit(Unit unit)
         {
             this.unit = unit;
+        }
+
+        public void SetCoordinator(UnitCoordinator coordinator)
+        {
+            _unitCoordinator = coordinator;
         }
 
         public virtual void Update(float deltaTime, float time)

@@ -1,8 +1,6 @@
 ﻿using System.Collections.Generic;
 using Assets.Scripts.UnitBrains.Pathfinding;
-using Assets.Scripts.Utilities;
 using Model;
-using Model.Runtime.Projectiles;
 using Model.Runtime.ReadOnly;
 using UnityEngine;
 
@@ -30,7 +28,7 @@ namespace UnitBrains.Player
             if (HasTargetsInRange())
                 return unit.Pos;
 
-            IReadOnlyUnit recommendTarget = UnitCoordinator.GetInstance().recommendTarget;
+            IReadOnlyUnit recommendTarget = _unitCoordinator.recommendTarget;
             if (recommendTarget != null)
             {
                 SmartUnitPath path = new SmartUnitPath(runtimeModel, unit.Pos, recommendTarget.Pos);
