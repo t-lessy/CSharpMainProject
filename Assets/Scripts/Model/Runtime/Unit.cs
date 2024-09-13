@@ -9,6 +9,8 @@ using UnitBrains;
 using UnitBrains.Pathfinding;
 using UnityEngine;
 using Utilities;
+using static UnityEngine.UI.CanvasScaler;
+using View;
 
 namespace Model.Runtime
 {
@@ -29,6 +31,7 @@ namespace Model.Runtime
         private float _nextMoveTime = 0f;
         private float _nextAttackTime = 0f;
         private BuffAndDebuffControllSystem _buffAndDebuffControllSystem;
+        private VFXView _vFXView;
 
         public Unit(UnitConfig config, Vector2Int startPos, PathAndTargetCoordinator pathAndTargetCoordinator)
         {
@@ -40,6 +43,7 @@ namespace Model.Runtime
             _brain.SetControler(pathAndTargetCoordinator);
             _runtimeModel = ServiceLocator.Get<IReadOnlyRuntimeModel>();
             _buffAndDebuffControllSystem = ServiceLocator.Get<BuffAndDebuffControllSystem>();
+            _vFXView = ServiceLocator.Get<VFXView>();
         }
 
         public void Update(float deltaTime, float time)
@@ -67,24 +71,10 @@ namespace Model.Runtime
                 _nextAttackTime = time + Config.AttackDelay/actualModifier.attackMod;
             }
 
-           
-                if (Input.GetKey(KeyCode.Q))
-                {
-                    _buffAndDebuffControllSystem.AddItem(this, new MovementBuff(this));
-                }
-                else if (Input.GetKey(KeyCode.W))
-                {
-                    _buffAndDebuffControllSystem.AddItem(this, new AttackBuff(this));
-                }
-
-            if (Input.GetKey(KeyCode.A))
-                {
-                     _buffAndDebuffControllSystem.RemoveItem(this, new MovementDebuff(this));
-                }
-            else if (Input.GetKey(KeyCode.S))
-                {
-                     _buffAndDebuffControllSystem.RemoveItem(this, new AttackDebuff(this));
-                }
+           if (_buffAndDebuffControllSystem.CheckUnitInEffectList(this))
+            {
+                _vFXView.PlayVFX(Pos, VFXView.VFXType.BuffApplied);
+            }
         }
 
         private bool Attack()

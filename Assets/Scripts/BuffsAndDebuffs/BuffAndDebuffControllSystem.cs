@@ -12,14 +12,14 @@ namespace Assets.Scripts.BuffsAndDebuffs
     public class BuffAndDebuffControllSystem
     {
         private TimeUtil _timeUtil;
-        private Dictionary<Unit, (List<Effect> attackEffects, List<Effect> moveEffects)> _effectsDictionary = new Dictionary<Unit, (List<Effect> attackEffects, List<Effect> moveEffect)>();
+        private Dictionary<IReadOnlyUnit, (List<Effect> attackEffects, List<Effect> moveEffects)> _effectsDictionary = new Dictionary<IReadOnlyUnit, (List<Effect> attackEffects, List<Effect> moveEffect)>();
 
         public BuffAndDebuffControllSystem()
         {
             _timeUtil = ServiceLocator.Get<TimeUtil>();
             _timeUtil.AddFixedUpdateAction(updateEffects);
         }
-        public void AddItem(Unit unit, Effect effect)
+        public void AddItem(IReadOnlyUnit unit, Effect effect)
         {
             if (!_effectsDictionary.ContainsKey(unit))
             {
@@ -37,7 +37,7 @@ namespace Assets.Scripts.BuffsAndDebuffs
             }
         }
 
-        public void RemoveItem(Unit unit, Effect effect)
+        public void RemoveItem(IReadOnlyUnit unit, Effect effect)
         {
             if (_effectsDictionary.ContainsKey(unit))
             {
@@ -53,12 +53,12 @@ namespace Assets.Scripts.BuffsAndDebuffs
             }
         }
 
-        public bool CheckUnitInEffectList(Unit unit)
+        public bool CheckUnitInEffectList(IReadOnlyUnit unit)
         {
             return _effectsDictionary.ContainsKey(unit) ? true : false;
         }
 
-        public (float attackMod, float moveMod) GetActualModifier(Unit unit)
+        public (float attackMod, float moveMod) GetActualModifier(IReadOnlyUnit unit)
         {
             float initialAttackMod = 0f;
             float initialMoveMod = 0f;
