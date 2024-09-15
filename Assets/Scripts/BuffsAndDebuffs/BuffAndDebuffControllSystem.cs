@@ -34,6 +34,7 @@ namespace Assets.Scripts.BuffsAndDebuffs
                 case EffectType.Move:
                     _effectsDictionary[unit].moveEffects.Add(effect);
                     break;
+               
             }
         }
 
@@ -43,10 +44,10 @@ namespace Assets.Scripts.BuffsAndDebuffs
             {
                 switch (effect.EffectType)
                 {
-                    case EffectType.Attack:
+                    case EffectType.DAttack:
                         _effectsDictionary[unit].attackEffects.Remove(effect);
                         break;
-                    case EffectType.Move:
+                    case EffectType.DMove:
                         _effectsDictionary[unit].moveEffects.Remove(effect);
                         break;
                 }

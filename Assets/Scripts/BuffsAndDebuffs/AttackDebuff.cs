@@ -10,7 +10,7 @@ namespace Assets.Scripts.BuffsAndDebuffs
 {
     public class AttackDebuff : Effect
     {
-        public AttackDebuff(IReadOnlyUnit _unit) : base(_unit, EffectType.Attack)
+        public AttackDebuff(IReadOnlyUnit _unit) : base(_unit, EffectType.DAttack)
         {
             Modifier = 0.5f;
             EffectDuration = 30f;

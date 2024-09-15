@@ -12,7 +12,9 @@ namespace Assets.Scripts.BuffsAndDebuffs
     public enum EffectType
     {
         Attack,
-        Move
+        Move,
+        DAttack,
+        DMove
     }
     public abstract class Effect
 

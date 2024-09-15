@@ -11,7 +11,7 @@ namespace Assets.Scripts.BuffsAndDebuffs
 {
     public class MovementDebuff : Effect
     {
-        public MovementDebuff(IReadOnlyUnit _unit) : base (_unit, EffectType.Move)
+        public MovementDebuff(IReadOnlyUnit _unit) : base (_unit, EffectType.DMove)
         {
             Modifier = 0.5f;
             EffectDuration = 30f;

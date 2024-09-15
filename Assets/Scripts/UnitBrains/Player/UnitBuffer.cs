@@ -109,6 +109,7 @@ namespace Assets.Scripts.UnitBrains.Player
             {
                 float randomNumber = UnityEngine.Random.Range(0, 10);
                 _buffAndDebuffControllSystem.AddItem(unit, randomNumber >= 5 ? new MovementBuff(unit) : new AttackBuff(unit));
+                _buffAndDebuffControllSystem.RemoveItem(unit, randomNumber <=4 ? new MovementDebuff(unit) : new AttackDebuff(unit));
             }
         }
     }
