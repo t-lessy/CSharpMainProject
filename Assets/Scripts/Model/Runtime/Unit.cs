@@ -8,7 +8,7 @@ using UnitBrains.Pathfinding;
 using UnityEngine;
 using Utilities;
 using Assets.Scripts.Utilities;
-using Assets.Scripts.UnitBrains;
+using Assets.Scripts.Utilities.Buffs;
 
 namespace Model.Runtime
 {
@@ -24,6 +24,7 @@ namespace Model.Runtime
         private readonly List<BaseProjectile> _pendingProjectiles = new();
         private IReadOnlyRuntimeModel _runtimeModel;
         private BaseUnitBrain _brain;
+        private BuffController _buffController;
 
         private float _nextBrainUpdateTime = 0f;
         private float _nextMoveTime = 0f;
@@ -38,6 +39,7 @@ namespace Model.Runtime
             _brain.SetUnit(this);
             _brain.SetCoordinator(coordinator);
             _runtimeModel = ServiceLocator.Get<IReadOnlyRuntimeModel>();
+            _buffController = ServiceLocator.Get<BuffController>();
         }
 
         public void Update(float deltaTime, float time)
@@ -59,7 +61,11 @@ namespace Model.Runtime
             
             if (_nextAttackTime < time && Attack())
             {
-                _nextAttackTime = time + Config.AttackDelay;
+                if (Random.Range(1, 100) <= 5)
+                {
+                    ServiceLocator.Get<BuffController>().addEffect(this, new RapidFireBuff(this));
+                }
+                _nextAttackTime = time + Config.AttackDelay * _buffController.getAttackDelayMod(this);
             }
         }
 
@@ -100,6 +106,10 @@ namespace Model.Runtime
         public void TakeDamage(int projectileDamage)
         {
             Health -= projectileDamage;
+            if (Random.Range(1, 100) <= 40)
+            {
+                ServiceLocator.Get<BuffController>().addEffect(this, new SlowdownBuff(this));
+            }
         }
     }
 }

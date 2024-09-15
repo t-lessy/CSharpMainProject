@@ -74,6 +74,7 @@
     <Compile Include="Assets\Scripts\EnterPoint.cs" />
     <Compile Include="Assets\Scripts\Model\Runtime\MainBase.cs" />
     <Compile Include="Assets\Scripts\Model\Runtime\ReadOnly\IReadOnlyMap.cs" />
+    <Compile Include="Assets\Scripts\Controller\Buffs\AbstractBuff.cs" />
     <Compile Include="Assets\Scripts\Model\Runtime\Projectiles\ProjectileType.cs" />
     <Compile Include="Assets\Scripts\UnitBrains\UnitBrainProvider.cs" />
     <Compile Include="Assets\Scripts\Model\Runtime\Map.cs" />
@@ -88,14 +89,17 @@
     <Compile Include="Assets\Scripts\Model\Runtime\ReadOnly\IReadOnlyBase.cs" />
     <Compile Include="Assets\Scripts\UnitBrains\Pathfinding\SmartUnitPath.cs" />
     <Compile Include="Assets\Scripts\Utilities\TimeUtil.cs" />
+    <Compile Include="Assets\Scripts\Controller\Buffs\SlowdownBuff.cs" />
     <Compile Include="Assets\Scripts\UnitBrains\Player\ThirdUnitBrain.cs" />
     <Compile Include="Assets\Scripts\Controller\LevelController.cs" />
     <Compile Include="Assets\Scripts\Model\Runtime\ReadOnly\IReadOnlyProjectile.cs" />
     <Compile Include="Assets\Scripts\UnitBrains\Enemy\DefaultEnemyUnitBrain.cs" />
+    <Compile Include="Assets\Scripts\Controller\Buffs\BuffController.cs" />
     <Compile Include="Assets\Scripts\View\ProjectileView.cs" />
     <Compile Include="Assets\Scripts\View\StartMenuView.cs" />
     <Compile Include="Assets\Scripts\Model\RuntimeModel.cs" />
     <Compile Include="Assets\Scripts\View\HealthBar.cs" />
+    <Compile Include="Assets\Scripts\Controller\Buffs\RapidFireBuff.cs" />
     <Compile Include="Assets\Scripts\View\VFXView.cs" />
     <Compile Include="Assets\Scripts\Controller\IPlayerUnitChoosingListener.cs" />
     <Compile Include="Assets\Scripts\Utilities\Extensions.cs" />

@@ -21,6 +21,7 @@ namespace Controller
         private readonly TimeUtil _timeUtil;
         private UnitCoordinator _playerUnitCoordinator;
         private UnitCoordinator _botUnitCoordinator;
+        private readonly BuffController _buffController;
 
         public LevelController(RuntimeModel runtimeModel, RootController rootController)
         {
@@ -33,6 +34,7 @@ namespace Controller
             _gameplayView = ServiceLocator.Get<Gameplay3dView>();
             _settings = ServiceLocator.Get<Settings>();
             _timeUtil = ServiceLocator.Get<TimeUtil>();
+            _buffController = ServiceLocator.Get<BuffController>();
 
             _playerUnitCoordinator = new UnitCoordinator(_runtimeModel, _timeUtil, RuntimeModel.PlayerId);
             _botUnitCoordinator = new UnitCoordinator(_runtimeModel, _timeUtil, RuntimeModel.BotPlayerId);
