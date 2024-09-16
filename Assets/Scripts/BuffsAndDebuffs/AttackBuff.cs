@@ -12,8 +12,8 @@ namespace Assets.Scripts.BuffsAndDebuffs
     {
         public AttackBuff(IReadOnlyUnit _unit) : base(_unit, EffectType.Attack)
         {
-            Modifier = 1.5f;
-            EffectDuration = 30f;
+            Modifier = 4.5f;
+            EffectDuration = 60f;
         }
     }
 }

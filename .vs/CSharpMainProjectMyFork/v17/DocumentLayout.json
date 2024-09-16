@@ -3,12 +3,32 @@
   "WorkspaceRootPath": "D:\\Git Hub\\CSharpMainProjectMyFork\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{C12C09C7-888C-7364-148B-3BC33A05AB3F}|Root.csproj|d:\\git hub\\csharpmainprojectmyfork\\assets\\scripts\\unitbrains\\player\\unitbuffer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{C12C09C7-888C-7364-148B-3BC33A05AB3F}|Root.csproj|solutionrelative:assets\\scripts\\unitbrains\\player\\unitbuffer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{C12C09C7-888C-7364-148B-3BC33A05AB3F}|Root.csproj|D:\\Git Hub\\CSharpMainProjectMyFork\\assets\\scripts\\buffsanddebuffs\\attackbuff.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{C12C09C7-888C-7364-148B-3BC33A05AB3F}|Root.csproj|solutionrelative:assets\\scripts\\buffsanddebuffs\\attackbuff.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{C12C09C7-888C-7364-148B-3BC33A05AB3F}|Root.csproj|D:\\Git Hub\\CSharpMainProjectMyFork\\assets\\scripts\\buffsanddebuffs\\movementdebuff.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{C12C09C7-888C-7364-148B-3BC33A05AB3F}|Root.csproj|solutionrelative:assets\\scripts\\buffsanddebuffs\\movementdebuff.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{C12C09C7-888C-7364-148B-3BC33A05AB3F}|Root.csproj|D:\\Git Hub\\CSharpMainProjectMyFork\\assets\\scripts\\buffsanddebuffs\\movementbuff.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{C12C09C7-888C-7364-148B-3BC33A05AB3F}|Root.csproj|solutionrelative:assets\\scripts\\buffsanddebuffs\\movementbuff.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{C12C09C7-888C-7364-148B-3BC33A05AB3F}|Root.csproj|D:\\Git Hub\\CSharpMainProjectMyFork\\assets\\scripts\\buffsanddebuffs\\effect.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{C12C09C7-888C-7364-148B-3BC33A05AB3F}|Root.csproj|solutionrelative:assets\\scripts\\buffsanddebuffs\\effect.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{C12C09C7-888C-7364-148B-3BC33A05AB3F}|Root.csproj|D:\\Git Hub\\CSharpMainProjectMyFork\\assets\\scripts\\buffsanddebuffs\\buffanddebuffcontrollsystem.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{C12C09C7-888C-7364-148B-3BC33A05AB3F}|Root.csproj|solutionrelative:assets\\scripts\\buffsanddebuffs\\buffanddebuffcontrollsystem.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{C12C09C7-888C-7364-148B-3BC33A05AB3F}|Root.csproj|D:\\Git Hub\\CSharpMainProjectMyFork\\assets\\scripts\\buffsanddebuffs\\attackdebuff.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{C12C09C7-888C-7364-148B-3BC33A05AB3F}|Root.csproj|solutionrelative:assets\\scripts\\buffsanddebuffs\\attackdebuff.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{C12C09C7-888C-7364-148B-3BC33A05AB3F}|Root.csproj|d:\\git hub\\csharpmainprojectmyfork\\assets\\scripts\\unitbrains\\player\\unitbuffer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{C12C09C7-888C-7364-148B-3BC33A05AB3F}|Root.csproj|solutionrelative:assets\\scripts\\unitbrains\\player\\unitbuffer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{C12C09C7-888C-7364-148B-3BC33A05AB3F}|Root.csproj|D:\\Git Hub\\CSharpMainProjectMyFork\\assets\\scripts\\model\\runtime\\unit.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -21,26 +41,6 @@
     {
       "AbsoluteMoniker": "D:0:0:{C12C09C7-888C-7364-148B-3BC33A05AB3F}|Root.csproj|D:\\Git Hub\\CSharpMainProjectMyFork\\assets\\scripts\\unitbrains\\player\\smartunitbrain.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{C12C09C7-888C-7364-148B-3BC33A05AB3F}|Root.csproj|solutionrelative:assets\\scripts\\unitbrains\\player\\smartunitbrain.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{C12C09C7-888C-7364-148B-3BC33A05AB3F}|Root.csproj|D:\\Git Hub\\CSharpMainProjectMyFork\\assets\\scripts\\buffsanddebuffs\\attackdebuff.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{C12C09C7-888C-7364-148B-3BC33A05AB3F}|Root.csproj|solutionrelative:assets\\scripts\\buffsanddebuffs\\attackdebuff.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{C12C09C7-888C-7364-148B-3BC33A05AB3F}|Root.csproj|D:\\Git Hub\\CSharpMainProjectMyFork\\assets\\scripts\\buffsanddebuffs\\effect.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{C12C09C7-888C-7364-148B-3BC33A05AB3F}|Root.csproj|solutionrelative:assets\\scripts\\buffsanddebuffs\\effect.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{C12C09C7-888C-7364-148B-3BC33A05AB3F}|Root.csproj|D:\\Git Hub\\CSharpMainProjectMyFork\\assets\\scripts\\buffsanddebuffs\\attackbuff.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{C12C09C7-888C-7364-148B-3BC33A05AB3F}|Root.csproj|solutionrelative:assets\\scripts\\buffsanddebuffs\\attackbuff.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{C12C09C7-888C-7364-148B-3BC33A05AB3F}|Root.csproj|D:\\Git Hub\\CSharpMainProjectMyFork\\assets\\scripts\\buffsanddebuffs\\movementdebuff.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{C12C09C7-888C-7364-148B-3BC33A05AB3F}|Root.csproj|solutionrelative:assets\\scripts\\buffsanddebuffs\\movementdebuff.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{C12C09C7-888C-7364-148B-3BC33A05AB3F}|Root.csproj|D:\\Git Hub\\CSharpMainProjectMyFork\\assets\\scripts\\buffsanddebuffs\\movementbuff.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{C12C09C7-888C-7364-148B-3BC33A05AB3F}|Root.csproj|solutionrelative:assets\\scripts\\buffsanddebuffs\\movementbuff.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{C12C09C7-888C-7364-148B-3BC33A05AB3F}|Root.csproj|D:\\Git Hub\\CSharpMainProjectMyFork\\assets\\scripts\\unitbrains\\player\\defaultplayerunitbrain.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -118,11 +118,11 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 0,
+          "SelectedChildIndex": 10,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 6,
               "Title": "UnitBuffer.cs",
               "DocumentMoniker": "D:\\Git Hub\\CSharpMainProjectMyFork\\Assets\\Scripts\\UnitBrains\\Player\\UnitBuffer.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\UnitBrains\\Player\\UnitBuffer.cs",
@@ -159,8 +159,7 @@
               "RelativeToolTip": "Assets\\Scripts\\View\\VFXView.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-09-13T16:09:48.558Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-09-13T16:09:48.558Z"
             },
             {
               "$type": "Document",
@@ -172,8 +171,7 @@
               "RelativeToolTip": "Assets\\Scripts\\Model\\Config\\UnitConfig.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABEAAAAxAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-09-13T16:04:33.274Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-09-13T16:04:33.274Z"
             },
             {
               "$type": "Document",
@@ -189,7 +187,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 4,
               "Title": "BuffAndDebuffControllSystem.cs",
               "DocumentMoniker": "D:\\Git Hub\\CSharpMainProjectMyFork\\Assets\\Scripts\\BuffsAndDebuffs\\BuffAndDebuffControllSystem.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\BuffsAndDebuffs\\BuffAndDebuffControllSystem.cs",
@@ -202,26 +200,26 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 8,
+              "DocumentIndex": 1,
               "Title": "MovementDebuff.cs",
               "DocumentMoniker": "D:\\Git Hub\\CSharpMainProjectMyFork\\Assets\\Scripts\\BuffsAndDebuffs\\MovementDebuff.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\BuffsAndDebuffs\\MovementDebuff.cs",
               "ToolTip": "D:\\Git Hub\\CSharpMainProjectMyFork\\Assets\\Scripts\\BuffsAndDebuffs\\MovementDebuff.cs",
               "RelativeToolTip": "Assets\\Scripts\\BuffsAndDebuffs\\MovementDebuff.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAABOAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA8AAAAaAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-09-06T15:47:09.711Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 9,
+              "DocumentIndex": 2,
               "Title": "MovementBuff.cs",
               "DocumentMoniker": "D:\\Git Hub\\CSharpMainProjectMyFork\\Assets\\Scripts\\BuffsAndDebuffs\\MovementBuff.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\BuffsAndDebuffs\\MovementBuff.cs",
               "ToolTip": "D:\\Git Hub\\CSharpMainProjectMyFork\\Assets\\Scripts\\BuffsAndDebuffs\\MovementBuff.cs",
               "RelativeToolTip": "Assets\\Scripts\\BuffsAndDebuffs\\MovementBuff.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAqwAwAAAApAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAqwA4AAAAbAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-09-06T15:44:52.364Z",
               "EditorCaption": ""
@@ -234,27 +232,27 @@
               "RelativeDocumentMoniker": "Assets\\Scripts\\BuffsAndDebuffs\\AttackDebuff.cs",
               "ToolTip": "D:\\Git Hub\\CSharpMainProjectMyFork\\Assets\\Scripts\\BuffsAndDebuffs\\AttackDebuff.cs",
               "RelativeToolTip": "Assets\\Scripts\\BuffsAndDebuffs\\AttackDebuff.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAABLAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA8AAAAeAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-09-06T15:42:16.901Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 7,
+              "DocumentIndex": 0,
               "Title": "AttackBuff.cs",
               "DocumentMoniker": "D:\\Git Hub\\CSharpMainProjectMyFork\\Assets\\Scripts\\BuffsAndDebuffs\\AttackBuff.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\BuffsAndDebuffs\\AttackBuff.cs",
               "ToolTip": "D:\\Git Hub\\CSharpMainProjectMyFork\\Assets\\Scripts\\BuffsAndDebuffs\\AttackBuff.cs",
               "RelativeToolTip": "Assets\\Scripts\\BuffsAndDebuffs\\AttackBuff.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA8AAAAhAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABMAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-09-06T15:39:53.362Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 3,
               "Title": "Effect.cs",
               "DocumentMoniker": "D:\\Git Hub\\CSharpMainProjectMyFork\\Assets\\Scripts\\BuffsAndDebuffs\\Effect.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\BuffsAndDebuffs\\Effect.cs",
@@ -275,8 +273,7 @@
               "RelativeToolTip": "Assets\\Scripts\\View\\UnitView.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-09-06T13:58:30.179Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-09-06T13:58:30.179Z"
             },
             {
               "$type": "Document",
@@ -292,7 +289,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 8,
               "Title": "ThirdUnitBrain.cs",
               "DocumentMoniker": "D:\\Git Hub\\CSharpMainProjectMyFork\\Assets\\Scripts\\UnitBrains\\Player\\ThirdUnitBrain.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\UnitBrains\\Player\\ThirdUnitBrain.cs",
@@ -300,8 +297,7 @@
               "RelativeToolTip": "Assets\\Scripts\\UnitBrains\\Player\\ThirdUnitBrain.cs",
               "ViewState": "AgIAAAMAAAAAAAAAAAAAACYAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-07-24T11:38:17.974Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-07-24T11:38:17.974Z"
             },
             {
               "$type": "Document",
@@ -313,8 +309,7 @@
               "RelativeToolTip": "Assets\\Scripts\\UnitBrains\\Pathfinding\\BaseUnitPath.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAYAAAAaAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-27T12:40:33.201Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-08-27T12:40:33.201Z"
             },
             {
               "$type": "Document",
@@ -326,12 +321,11 @@
               "RelativeToolTip": "Assets\\Scripts\\UnitBrains\\BaseUnitBrain.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAB0AAAAcAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-06-30T09:06:16.729Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-06-30T09:06:16.729Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 7,
               "Title": "Unit.cs",
               "DocumentMoniker": "D:\\Git Hub\\CSharpMainProjectMyFork\\Assets\\Scripts\\Model\\Runtime\\Unit.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\Model\\Runtime\\Unit.cs",
@@ -339,8 +333,7 @@
               "RelativeToolTip": "Assets\\Scripts\\Model\\Runtime\\Unit.cs",
               "ViewState": "AgIAAAkAAAAAAAAAAAAAAD0AAABaAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-27T19:07:16.668Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-08-27T19:07:16.668Z"
             },
             {
               "$type": "Document",
@@ -400,8 +393,7 @@
               "RelativeToolTip": "Assets\\Scripts\\UnitBrains\\Pathfinding\\BgUnitPath.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAHMAAAAJAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-27T18:07:22.375Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-08-27T18:07:22.375Z"
             },
             {
               "$type": "Document",
@@ -413,8 +405,7 @@
               "RelativeToolTip": "Assets\\Scripts\\UnitBrains\\Player\\DefaultPlayerUnitBrain.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAARAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-08-27T18:45:33.017Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-08-27T18:45:33.017Z"
             },
             {
               "$type": "Document",
@@ -442,7 +433,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 9,
               "Title": "SmartUnitBrain.cs",
               "DocumentMoniker": "D:\\Git Hub\\CSharpMainProjectMyFork\\Assets\\Scripts\\UnitBrains\\Player\\SmartUnitBrain.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\UnitBrains\\Player\\SmartUnitBrain.cs",
@@ -450,8 +441,7 @@
               "RelativeToolTip": "Assets\\Scripts\\UnitBrains\\Player\\SmartUnitBrain.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABwAAAAlAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-07-30T12:35:09.041Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-07-30T12:35:09.041Z"
             },
             {
               "$type": "Document",
