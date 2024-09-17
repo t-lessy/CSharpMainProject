@@ -19,7 +19,7 @@ namespace UnitBrains
         public virtual BaseUnitPath ActivePath => _activePath;
         
         protected PathAndTargetCoordinator PathAndTargetCoordinator { get; private set; }
-        protected Unit unit { get; private set; }
+        public Unit unit { get; private set; }
         protected IReadOnlyRuntimeModel runtimeModel => ServiceLocator.Get<IReadOnlyRuntimeModel>();
         private BaseUnitPath _activePath = null;
         
@@ -126,7 +126,7 @@ namespace UnitBrains
 
         protected bool HasTargetsInRange()
         {
-            var attackRangeSqr = unit.Config.AttackRange * unit.Config.AttackRange;
+            var attackRangeSqr = unit.Config.AttackRange * unit.Config.AttackRange*unit.RangeModifier;
             foreach (var possibleTarget in GetAllTargets())
             {
                 var diff = possibleTarget - unit.Pos;

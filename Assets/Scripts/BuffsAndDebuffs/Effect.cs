@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Model.Runtime.ReadOnly;
+using UnitBrains;
 
 namespace Assets.Scripts.BuffsAndDebuffs
 {
@@ -16,10 +17,10 @@ namespace Assets.Scripts.BuffsAndDebuffs
         DAttack,
         DMove
     }
-    public abstract class Effect
+    public abstract class Effect <T> where T : Unit
 
     {
-        private IReadOnlyUnit _effectOwner;
+        private T _effectOwner;
         private float _effectDuration;
         private float _modifier;
         private EffectType _effectType;
@@ -27,10 +28,24 @@ namespace Assets.Scripts.BuffsAndDebuffs
         public float EffectDuration { get { return _effectDuration; } set { _effectDuration = value; } }
         public float Modifier { get { return _modifier; } set { _modifier = value; } }
         public EffectType EffectType { get { return _effectType; } }
-        public Effect(IReadOnlyUnit unit, EffectType effectType)
+        public Effect(T unit, EffectType effectType)
         {
             _effectOwner = unit;
             _effectType = effectType;
+        }
+
+        public virtual bool CheckApply (T _owner)
+        { 
+            return true;
+        }
+
+        public virtual void ApplyEffect(T _owner, float modifier, float time)
+        {
+
+        }
+
+        public virtual void ClearEffect(T _owner)
+        {
         }
     }
 }

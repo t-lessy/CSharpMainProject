@@ -81,7 +81,7 @@ namespace Assets.Scripts.UnitBrains.Player
                     {
                         foreach (var unit in unitsInRadius)
                         {
-                            TryApplyAnEffect(unit);
+                            TryApplyAnEffect(unit as Unit);
                         }
                         _state = UnitBufferState.MoveCooldown;
                     }
@@ -103,13 +103,13 @@ namespace Assets.Scripts.UnitBrains.Player
             }
         }
 
-        public void TryApplyAnEffect(IReadOnlyUnit unit)
+        public void TryApplyAnEffect(Unit unit)
         {
             if (!_buffAndDebuffControllSystem.CheckUnitInEffectList(unit))
             {
                 float randomNumber = UnityEngine.Random.Range(0, 10);
-                _buffAndDebuffControllSystem.AddItem(unit, randomNumber >= 5 ? new MovementBuff(unit) : new AttackBuff(unit));
-                _buffAndDebuffControllSystem.RemoveItem(unit, randomNumber <=4 ? new MovementDebuff(unit) : new AttackDebuff(unit));
+                _buffAndDebuffControllSystem.AddItem(unit, randomNumber >= 5 ? new MovementBuff<Unit>(unit) : new AttackBuff<Unit>(unit));
+                _buffAndDebuffControllSystem.RemoveItem(unit, randomNumber <=4 ? new MovementDebuff<Unit>(unit) : new AttackDebuff<Unit>(unit));
             }
         }
     }

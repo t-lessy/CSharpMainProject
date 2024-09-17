@@ -5,15 +5,27 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UnitBrains;
 
 namespace Assets.Scripts.BuffsAndDebuffs
 {
-    public class AttackDebuff : Effect
+    public class AttackDebuff <T> : Effect<T> where T : Unit
     {
-        public AttackDebuff(IReadOnlyUnit _unit) : base(_unit, EffectType.DAttack)
+        public AttackDebuff(T _unit) : base(_unit, EffectType.DAttack)
         {
             Modifier = 0.5f;
             EffectDuration = 10f;
+        }
+
+        public override void ApplyEffect(T owner, float modifier, float time)
+        {
+            var attackModifier = time + owner.Config.AttackDelay * modifier;
+            owner.SetNextAttackTime(attackModifier);
+        }
+
+        public override void ClearEffect(T _owner)
+        {
+            _owner.SetNextAttackTime(null);
         }
     }
 }

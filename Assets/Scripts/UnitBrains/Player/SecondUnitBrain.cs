@@ -50,6 +50,11 @@ namespace UnitBrains.Player
             {
                 var projectile = CreateProjectile(forTarget);
                 AddProjectileToList(projectile, intoList);
+                if (unit.DoubleShootMode)
+                {
+                    var projectileAnother = CreateProjectile(forTarget);
+                    AddProjectileToList(projectileAnother, intoList);
+                }
             }
             IncreaseTemperature();
 

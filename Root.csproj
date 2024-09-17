@@ -68,6 +68,7 @@
     <Compile Include="Assets\Scripts\BuffsAndDebuffs\MovementBuff.cs" />
     <Compile Include="Assets\Scripts\View\ChooseUnitView.cs" />
     <Compile Include="Assets\Scripts\View\UnitCardView.cs" />
+    <Compile Include="Assets\Scripts\BuffsAndDebuffs\DoubleShotBuff.cs" />
     <Compile Include="Assets\Scripts\BuffsAndDebuffs\MovementDebuff.cs" />
     <Compile Include="Assets\Scripts\UnitBrains\Player\DefaultPlayerUnitBrain.cs" />
     <Compile Include="Assets\Scripts\View\LevelFinishedView.cs" />
@@ -102,6 +103,7 @@
     <Compile Include="Assets\Scripts\View\VFXView.cs" />
     <Compile Include="Assets\Scripts\Controller\IPlayerUnitChoosingListener.cs" />
     <Compile Include="Assets\Scripts\Utilities\Extensions.cs" />
+    <Compile Include="Assets\Scripts\BuffsAndDebuffs\AttackRadiusBuff.cs" />
     <Compile Include="Assets\Scripts\Utilities\ServiceLocator.cs" />
     <Compile Include="Assets\Scripts\UnitBrains\Player\Point.cs" />
     <Compile Include="Assets\Scripts\Model\Runtime\Projectiles\ArchToTileProjectile.cs" />
