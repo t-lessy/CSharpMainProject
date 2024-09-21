@@ -36,7 +36,6 @@ namespace UnitBrains.Player
             }
 
             return base.GetNextStep();
-
         }
     }
 }
