@@ -65,7 +65,7 @@ namespace Model.Runtime
                 {
                     ServiceLocator.Get<BuffController>().addEffect(this, new RapidFireBuff(this));
                 }
-                _nextAttackTime = time + Config.AttackDelay * _buffController.getAttackDelayMod(this);
+                _nextAttackTime = time + Config.AttackDelay;
             }
         }
 
@@ -106,10 +106,6 @@ namespace Model.Runtime
         public void TakeDamage(int projectileDamage)
         {
             Health -= projectileDamage;
-            if (Random.Range(1, 100) <= 40)
-            {
-                ServiceLocator.Get<BuffController>().addEffect(this, new SlowdownBuff(this));
-            }
         }
     }
 }

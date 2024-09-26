@@ -72,6 +72,7 @@ MonoBehaviour:
   _attackRange: 3.5
   _projectileType: 0
   _damage: 15
+  _unitType: 3
 --- !u!1 &526913648782850647
 GameObject:
   m_ObjectHideFlags: 0
