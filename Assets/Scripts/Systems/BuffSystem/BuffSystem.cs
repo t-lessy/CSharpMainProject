@@ -24,6 +24,14 @@ public class BuffSystem
         return foundedBuff;
     }
 
+     public AbstractBuff[] getBuffs(Unit unit)
+    {
+        List<AbstractBuff> buffs = _unitBuffs.TryGetValue(unit, out List<AbstractBuff> buff) ? buff : new List<AbstractBuff>();
+        _unitBuffs.TryAdd(unit, buffs);
+
+        return buffs.ToArray();
+    }
+
     public void setBuff(Unit unit, AbstractBuff buff)
     {
         List<AbstractBuff> buffs = _unitBuffs.TryGetValue(unit, out List<AbstractBuff> foundedBuffs) ? foundedBuffs : new List<AbstractBuff>();

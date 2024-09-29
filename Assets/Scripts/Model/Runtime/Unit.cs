@@ -40,7 +40,7 @@ namespace Model.Runtime
             _runtimeModel = ServiceLocator.Get<IReadOnlyRuntimeModel>();
             _buffSystem = ServiceLocator.Get<BuffSystem>();
 
-            int randomNumber = Random.Range(1, 6);
+            int randomNumber = Random.Range(1, 99999);
             switch (randomNumber)
             {
                 case 1:
@@ -55,7 +55,7 @@ namespace Model.Runtime
                 case 4:
                     _buffSystem.setBuff(this, new DownAttackSpeedBuff());
                     break;
-                case 5:
+                default:
                     // no buff for unit
                     break;
             }
