@@ -23,11 +23,12 @@ namespace Model.Runtime
         private readonly List<BaseProjectile> _pendingProjectiles = new();
         private IReadOnlyRuntimeModel _runtimeModel;
         private BaseUnitBrain _brain;
-        private BuffSystem _buffSystem;
 
         private float _nextBrainUpdateTime = 0f;
         private float _nextMoveTime = 0f;
         private float _nextAttackTime = 0f;
+        private float _moveModifier = 1f;
+        private float _attackModifier = 1f;
 
         public Unit(UnitConfig config, Vector2Int startPos, UnitCoordinator unitCoordinator)
         {
@@ -38,33 +39,10 @@ namespace Model.Runtime
             _brain.SetUnit(this);
             _brain.SetCoordinator(unitCoordinator);
             _runtimeModel = ServiceLocator.Get<IReadOnlyRuntimeModel>();
-            _buffSystem = ServiceLocator.Get<BuffSystem>();
-
-            int randomNumber = Random.Range(1, 99999);
-            switch (randomNumber)
-            {
-                case 1:
-                    _buffSystem.setBuff(this, new UpMoveSpeedBuff());
-                    break;
-                case 2:
-                    _buffSystem.setBuff(this, new DownMoveSpeedBuff());
-                    break;
-                case 3:
-                    _buffSystem.setBuff(this,new UpAttackSpeedBuff());
-                    break;
-                case 4:
-                    _buffSystem.setBuff(this, new DownAttackSpeedBuff());
-                    break;
-                default:
-                    // no buff for unit
-                    break;
-            }
         }
 
         public void Update(float deltaTime, float time)
         {
-            _buffSystem.UpdateBuffDuration();
-
             if (IsDead)
                 return;
 
@@ -76,21 +54,13 @@ namespace Model.Runtime
 
             if (_nextMoveTime < time)
             {
-                BuffNames[] moveBuffs = { BuffNames.UpMoveSpeed, BuffNames.DownMoveSpeed };
-                AbstractBuff[] buffs = this._buffSystem.getBuffs(this, moveBuffs);
-                float modifier = (buffs != null) ? buffs.Aggregate(1.0f, (current, buff) => current * buff.Modifier) : 1;
-
-                _nextMoveTime = (time + Config.MoveDelay) * modifier;
+                _nextMoveTime = (time + Config.MoveDelay) * _moveModifier;
                 Move();
             }
 
             if (_nextAttackTime < time && Attack())
             {
-                BuffNames[] moveBuffs = { BuffNames.UpAttackSpeed, BuffNames.DownAttackSpeed };
-                AbstractBuff[] buffs = this._buffSystem.getBuffs(this, moveBuffs);
-                float modifier = (buffs != null) ? buffs.Aggregate(1.0f, (current, buff) => current * buff.Modifier) : 1;
-
-                _nextAttackTime = (time + Config.AttackDelay) * modifier;
+                _nextAttackTime = (time + Config.AttackDelay) * _attackModifier;
             }
         }
 
@@ -131,6 +101,21 @@ namespace Model.Runtime
         public void TakeDamage(int projectileDamage)
         {
             Health -= projectileDamage;
+        }
+
+        public void setAttackModifier(float modifier = 1)
+        {
+            this._attackModifier = modifier;
+        }
+
+        public void setMoveModifier(float modifier = 1)
+        {
+            this._moveModifier = modifier;
+        }
+
+        public BaseUnitBrain getBrain()
+        {
+            return this._brain;
         }
     }
 }

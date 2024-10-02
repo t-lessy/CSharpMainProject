@@ -1,19 +1,75 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using Model;
 using Model.Runtime;
+using Model.Runtime.ReadOnly;
 using UnityEngine;
+using Utilities;
 
 public enum BuffNames
 {
     UpMoveSpeed,
     DownMoveSpeed,
     UpAttackSpeed,
-    DownAttackSpeed
+    DownAttackSpeed,
+    DoubleAttackBuff,
+    UpRangeBuff
 };
 
 public class BuffSystem
 {
-    private Dictionary<Unit, List<AbstractBuff>> _unitBuffs = new Dictionary<Unit, List<AbstractBuff>>();
+    private Dictionary<IReadOnlyUnit, List<AbstractBuff>> _unitBuffs = new Dictionary<IReadOnlyUnit, List<AbstractBuff>>();
+    private IReadOnlyRuntimeModel _runtimeModel;
+    private TimeUtil _timeUtil;
+
+    public BuffSystem()
+    {
+        _runtimeModel = ServiceLocator.Get<IReadOnlyRuntimeModel>();
+        _timeUtil = ServiceLocator.Get<TimeUtil>();
+        _timeUtil.AddFixedUpdateAction(Update);
+    }
+
+    private void Update(float deltaTime)
+    {
+        UpdateBuffDuration();
+        if (UnityEngine.Random.Range(0, 1) == 0)
+        {
+            Debug.Log("You are lucky! Set random buff for random unit");
+            SetRandomBuffForRandomUnit();
+        }
+    }
+
+    private void SetRandomBuffForRandomUnit()
+    {
+        IReadOnlyUnit[] units = _runtimeModel.RoPlayerUnits.ToArray();
+        if (units.Length == 0) return;
+
+        int randomNumber = UnityEngine.Random.Range(0, units.Count());
+        Unit randomUnit = (Unit)units[randomNumber];
+        int randomBuff = UnityEngine.Random.Range(1, 10);
+        switch (randomBuff)
+        {
+            case 1:
+                setBuff(new UpRangeBuff(randomUnit));
+                break;
+            case 2:
+                setBuff(new DownMoveSpeedBuff(randomUnit));
+                break;
+            case 3:
+                setBuff(new UpAttackSpeedBuff(randomUnit));
+                break;
+            case 4:
+                setBuff(new DownAttackSpeedBuff(randomUnit));
+                break;
+            case 5:
+                setBuff(new DoubleAttackBuff(randomUnit));
+                break;
+            default:
+                // no buff for unit
+                break;
+        }
+    }
 
     public AbstractBuff[] getBuffs(Unit unit, BuffNames[] buffNames)
     {
@@ -24,7 +80,7 @@ public class BuffSystem
         return foundedBuff;
     }
 
-     public AbstractBuff[] getBuffs(Unit unit)
+    public AbstractBuff[] getBuffs(Unit unit)
     {
         List<AbstractBuff> buffs = _unitBuffs.TryGetValue(unit, out List<AbstractBuff> buff) ? buff : new List<AbstractBuff>();
         _unitBuffs.TryAdd(unit, buffs);
@@ -32,11 +88,13 @@ public class BuffSystem
         return buffs.ToArray();
     }
 
-    public void setBuff(Unit unit, AbstractBuff buff)
+    public void setBuff(AbstractBuff buff)
     {
+        IReadOnlyUnit unit = buff.unit;
         List<AbstractBuff> buffs = _unitBuffs.TryGetValue(unit, out List<AbstractBuff> foundedBuffs) ? foundedBuffs : new List<AbstractBuff>();
         buffs.Add(buff);
         _unitBuffs.TryAdd(unit, buffs);
+        buff.Apply();
     }
 
     public void UpdateBuffDuration()
@@ -50,6 +108,7 @@ public class BuffSystem
                 buff.Duration -= Time.deltaTime;
                 if (buff.Duration <= 0)
                 {
+                    buff.Dispose();
                     _unitBuffs[unit].Remove(buff);
                 }
             }

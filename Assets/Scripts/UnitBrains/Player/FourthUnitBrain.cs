@@ -11,7 +11,7 @@ namespace UnitBrains.Player
 {
     public class FourthUnitBrain : DefaultPlayerUnitBrain
     {
-        private BuffSystem _buffSystem;
+        private BuffSystem _buffSystem => ServiceLocator.Get<BuffSystem>();
         private VFXView _vfxView;
         private float _timeSinceLastBuff = 0f;
         private readonly float _BUFF_OVERCHARGE_TIME = 4f; // seconds
@@ -20,7 +20,6 @@ namespace UnitBrains.Player
 
         public FourthUnitBrain()
         {
-            _buffSystem = ServiceLocator.Get<BuffSystem>();
             _vfxView = ServiceLocator.Get<VFXView>();
         }
 
@@ -61,9 +60,10 @@ namespace UnitBrains.Player
                 return;
             }
 
-            Debug.Log("Set buff!");
+            AbstractBuff buff = new UpAttackSpeedBuff(unitForBuff);
+            Debug.Log("Set buff " + buff.Type);
             _vfxView.PlayVFX(unitForBuff.Pos, VFXView.VFXType.BuffApplied);
-            _buffSystem.setBuff(unitForBuff, new UpAttackSpeedBuff());
+            _buffSystem.setBuff(new UpAttackSpeedBuff(unitForBuff));
         }
 
         protected override List<Vector2Int> SelectTargets()

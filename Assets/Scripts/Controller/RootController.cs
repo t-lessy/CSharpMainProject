@@ -30,7 +30,7 @@ namespace Controller
 
             var vfxView = SpawnVFXView();
             ServiceLocator.Register(vfxView);
-
+            
             BuffSystem buffSystem = new BuffSystem();
             ServiceLocator.Register(buffSystem);
             

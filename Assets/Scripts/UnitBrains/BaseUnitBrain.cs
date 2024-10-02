@@ -16,7 +16,9 @@ namespace UnitBrains
         public virtual string TargetUnitName => string.Empty;
         public virtual bool IsPlayerUnitBrain => true;
         public virtual BaseUnitPath ActivePath => _activePath;
-        
+        private int _projectilesModifier = 1;
+        private int _rangeModifier = 1;
+
         protected Unit unit { get; private set; }
         protected IReadOnlyRuntimeModel runtimeModel => ServiceLocator.Get<IReadOnlyRuntimeModel>();
         private BaseUnitPath _activePath = null;
@@ -41,7 +43,7 @@ namespace UnitBrains
 
             Vector2Int? target = _unitCoordinator.GetTarget(this) ?? _unitCoordinator.GetPosition(this);
             Vector2Int enemyBase = runtimeModel.RoMap.Bases[IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId];
-            
+
             _activePath = new SmartUnitPath(runtimeModel, unit.Pos, target ?? enemyBase);
 
             return _activePath.GetNextStepFrom(unit.Pos);
@@ -52,7 +54,7 @@ namespace UnitBrains
             List<BaseProjectile> result = new ();
             foreach (var target in SelectTargets())
             {
-                GenerateProjectiles(target, result);
+                GenerateProjectiles(target, result, _projectilesModifier);
             }
 
             for (int i = 0; i < result.Count; i++)
@@ -62,6 +64,16 @@ namespace UnitBrains
             }
 
             return result;
+        }
+
+        public void setProjectilesModifier(int modifier = 1)
+        {
+            this._projectilesModifier = modifier;
+        }
+
+        public void setRangeModifier(int modifier = 1)
+        {
+            this._rangeModifier = modifier;
         }
 
         public void SetUnit(Unit unit)
@@ -78,9 +90,12 @@ namespace UnitBrains
         {
         }
 
-        protected virtual void GenerateProjectiles(Vector2Int forTarget, List<BaseProjectile> intoList)
+        protected virtual void GenerateProjectiles(Vector2Int forTarget, List<BaseProjectile> intoList, int count = 1)
         {
-            AddProjectileToList(CreateProjectile(forTarget), intoList);
+            for (int i = 0; i < count; i++)
+            {
+                AddProjectileToList(CreateProjectile(forTarget), intoList);    
+            }
         }
 
         protected virtual List<Vector2Int> SelectTargets()
@@ -90,10 +105,10 @@ namespace UnitBrains
                 result.RemoveAt(result.Count - 1);
             return result;
         }
-        
+
         protected BaseProjectile CreateProjectile(Vector2Int target) =>
             BaseProjectile.Create(unit.Config.ProjectileType, unit, unit.Pos, target, unit.Config.Damage);
-        
+
         protected void AddProjectileToList(BaseProjectile projectile, List<BaseProjectile> list) =>
             list.Add(projectile);
 
@@ -105,7 +120,7 @@ namespace UnitBrains
             var units = new List<IReadOnlyUnit>();
             var pos = unit.Pos;
             var distanceSqr = radius * radius;
-            
+
             foreach (var otherUnit in runtimeModel.RoUnits)
             {
                 if (otherUnit == unit)
@@ -126,7 +141,7 @@ namespace UnitBrains
 
         protected bool HasTargetsInRange()
         {
-            var attackRangeSqr = unit.Config.AttackRange * unit.Config.AttackRange;
+            var attackRangeSqr = unit.Config.AttackRange * unit.Config.AttackRange * _rangeModifier;
             foreach (var possibleTarget in GetAllTargets())
             {
                 var diff = possibleTarget - unit.Pos;
@@ -153,7 +168,7 @@ namespace UnitBrains
 
         protected bool IsTargetInRange(Vector2Int targetPos)
         {
-            var attackRangeSqr = unit.Config.AttackRange * unit.Config.AttackRange;
+            var attackRangeSqr = unit.Config.AttackRange * unit.Config.AttackRange * _rangeModifier;
             var diff = targetPos - unit.Pos;
             return diff.sqrMagnitude <= attackRangeSqr;
         }
@@ -161,12 +176,12 @@ namespace UnitBrains
         protected List<Vector2Int> GetReachableTargets()
         {
             var result = new List<Vector2Int>();
-            var attackRangeSqr = unit.Config.AttackRange * unit.Config.AttackRange;
+            var attackRangeSqr = unit.Config.AttackRange * unit.Config.AttackRange * _rangeModifier;
             foreach (var possibleTarget in GetAllTargets())
             {
                 if (!IsTargetInRange(possibleTarget))
                     continue;
-                
+
                 result.Add(possibleTarget);
             }
 
