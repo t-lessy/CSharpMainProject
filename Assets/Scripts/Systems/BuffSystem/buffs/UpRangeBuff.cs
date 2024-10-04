@@ -7,7 +7,7 @@ public class UpRangeBuff : AbstractBuff
 {
     public override BuffNames Type => BuffNames.UpRangeBuff;
 
-    public override float Modifier => 10f;
+    public override float Modifier => 3f;
     private BaseUnitBrain _unitBrain;
 
     public UpRangeBuff(IReadOnlyUnit unit) : base(unit)

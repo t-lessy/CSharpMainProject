@@ -35,7 +35,6 @@ public class BuffSystem
         UpdateBuffDuration();
         if (UnityEngine.Random.Range(0, 1) == 0)
         {
-            Debug.Log("You are lucky! Set random buff for random unit");
             SetRandomBuffForRandomUnit();
         }
     }
@@ -47,6 +46,7 @@ public class BuffSystem
 
         int randomNumber = UnityEngine.Random.Range(0, units.Count());
         Unit randomUnit = (Unit)units[randomNumber];
+        if (getBuffs(randomUnit).Length > 2) return;
         int randomBuff = UnityEngine.Random.Range(1, 10);
         switch (randomBuff)
         {
@@ -64,6 +64,9 @@ public class BuffSystem
                 break;
             case 5:
                 setBuff(new DoubleAttackBuff(randomUnit));
+                break;
+            case 6:
+                setBuff(new UpMoveSpeedBuff(randomUnit));
                 break;
             default:
                 // no buff for unit
