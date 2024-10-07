@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Codice.Client.Common.GameUI;
 using Model;
 using Model.Runtime.Projectiles;
@@ -16,7 +17,19 @@ namespace UnitBrains.Player
         private float _cooldownTime = 0f;
         private bool _overheated;
         private List<Vector2Int> dangerous = new List<Vector2Int>();
-        
+        private static int count = 0;
+        private Vector2Int selectedTarget;
+
+        public int UnitID { get; private set; }
+        public const int MaxTarget = 4;
+
+
+        public SecondUnitBrain()
+        {
+            UnitID = count++;
+        }
+
+
 
         protected override void GenerateProjectiles(Vector2Int forTarget, List<BaseProjectile> intoList)
         {
@@ -60,46 +73,83 @@ namespace UnitBrains.Player
             float minTarget = float.MaxValue;
             Vector2Int closestTarget = new Vector2Int();
 
-            List<Vector2Int> result = new List<Vector2Int>();
+            IEnumerable<Vector2Int> allTargets = GetReachableTargets();
 
+            List<Vector2Int> result = new List<Vector2Int>(allTargets);
 
-            IEnumerable<Vector2Int> allTargets = GetAllTargets();
-
-            if (allTargets == null)
+            if (!result.Any())
             {
                 result.Clear();
-                result[0] = runtimeModel.RoMap.Bases[IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId];
+                Vector2Int enemyBase = runtimeModel.RoMap.Bases[IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId];
+                result.Add(enemyBase);
+                closestTarget = enemyBase;
                 Debug.Log(result);
+
             }
-            
-            foreach (var target in allTargets)
+            else
             {
+                SortByDistanceToOwnBase(result);
+
+                List<Vector2Int> targetList = result.ToList();
+
+
+                int targetIndex = targetList.Count > 1 ? UnitID % targetList.Count : 0;
+                Vector2Int selectedTarget = targetList[targetIndex];
                 
-                float distance = DistanceToOwnBase(target);
-                if (distance < minTarget)
+                foreach (var target in result)
                 {
-                    minTarget = distance;
-                    closestTarget = target;
-                    dangerous.Clear();
-                    
+
+                    float distance = DistanceToOwnBase(target);
+                    if (distance < minTarget)
+                    {
+                        minTarget = distance;
+                        closestTarget = target;
+                        dangerous.Clear();
+
+                    }
                 }
             }
-            
-            if (!IsTargetInRange(closestTarget))
-            {
-                return new List<Vector2Int>();
-            }
+                
 
+
+            if (!IsTargetInRange(selectedTarget))
+            {
+                Debug.Log(1111111);
+                selectedTarget = closestTarget;
+                return new List<Vector2Int>();
+
+            }
             if (minTarget != float.MaxValue)
             {
-                dangerous.Add(closestTarget);
-                result.Add(closestTarget);
-                return result;
-                
+                dangerous.Add(selectedTarget); 
+                result.Add(selectedTarget);
             }
-            result.Clear();
-            Debug.Log(1);
-            return new List<Vector2Int>();
+            else
+            {
+                result.Clear();
+            }
+            return result;
+
+
+
+
+
+
+            //if (!IsTargetInRange(closestTarget))
+            //{
+            //    return new List<Vector2Int>();
+            //}
+
+            //if (minTarget != float.MaxValue)
+            //{
+            //    dangerous.Add(closestTarget);
+            //    result.Add(closestTarget);
+            //    return result;
+
+            //}
+            //result.Clear();
+            //Debug.Log(1);
+            //return new List<Vector2Int>();
         }   
         public override void Update(float deltaTime, float time)
         {
