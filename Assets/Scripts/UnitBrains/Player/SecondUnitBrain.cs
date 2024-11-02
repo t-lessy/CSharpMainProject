@@ -56,7 +56,7 @@ namespace UnitBrains.Player
             }
 
             IncreaseTemperature();
-            }
+        }
 
         public override Vector2Int GetNextStep()
         {
@@ -114,7 +114,6 @@ namespace UnitBrains.Player
 
             if (!IsTargetInRange(selectedTarget))
             {
-                Debug.Log(1111111);
                 selectedTarget = closestTarget;
                 return new List<Vector2Int>();
 
@@ -129,27 +128,6 @@ namespace UnitBrains.Player
                 result.Clear();
             }
             return result;
-
-
-
-
-
-
-            //if (!IsTargetInRange(closestTarget))
-            //{
-            //    return new List<Vector2Int>();
-            //}
-
-            //if (minTarget != float.MaxValue)
-            //{
-            //    dangerous.Add(closestTarget);
-            //    result.Add(closestTarget);
-            //    return result;
-
-            //}
-            //result.Clear();
-            //Debug.Log(1);
-            //return new List<Vector2Int>();
         }   
         public override void Update(float deltaTime, float time)
         {
