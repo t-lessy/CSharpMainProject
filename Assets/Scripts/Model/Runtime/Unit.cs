@@ -1,10 +1,11 @@
-﻿using Model.Config;
+﻿using System.Collections.Generic;
+using System.Linq;
+using Assets.Scripts.UnitBrains.Player;
+using Model.Config;
 using Model.Runtime.Projectiles;
 using Model.Runtime.ReadOnly;
-using System.Collections.Generic;
-using System.Linq;
-using UnitBrains.Pathfinding;
 using UnitBrains;
+using UnitBrains.Pathfinding;
 using UnityEngine;
 using Utilities;
 
@@ -27,19 +28,21 @@ namespace Model.Runtime
         private float _nextMoveTime = 0f;
         private float _nextAttackTime = 0f;
 
-        public Unit(UnitConfig config, Vector2Int startPos)
+        public Unit(UnitConfig config, Vector2Int startPos, TargetAdviser targetAdviser)
         {
             Config = config;
             Pos = startPos;
             Health = config.MaxHealth;
             _brain = UnitBrainProvider.GetBrain(config);
             _brain.SetUnit(this);
+            _brain.SetTargetAdviser(targetAdviser);
             _runtimeModel = ServiceLocator.Get<IReadOnlyRuntimeModel>();
         }
 
         public void Update(float deltaTime, float time)
         {
-            if (IsDead) return;
+            if (IsDead)
+                return;
 
             if (_nextBrainUpdateTime < time)
             {
@@ -62,7 +65,8 @@ namespace Model.Runtime
         private bool Attack()
         {
             var projectiles = _brain.GetProjectiles();
-            if (projectiles == null || projectiles.Count == 0) return false;
+            if (projectiles == null || projectiles.Count == 0)
+                return false;
 
             _pendingProjectiles.AddRange(projectiles);
             return true;
@@ -72,24 +76,29 @@ namespace Model.Runtime
         {
             var targetPos = _brain.GetNextStep();
             var delta = targetPos - Pos;
-
-            if (delta.sqrMagnitude > 2) //Допустимый шаг
+            if (delta.sqrMagnitude > 2)
             {
                 Debug.LogError($"Brain for unit {Config.Name} returned invalid move: {delta}");
                 return;
             }
 
-            // Проверка на свободное поле для движения
-            if (_runtimeModel.RoMap[targetPos] || _runtimeModel.RoUnits.Any(u => u.Pos == targetPos))
+            if (_runtimeModel.RoMap[targetPos] ||
+                _runtimeModel.RoUnits.Any(u => u.Pos == targetPos))
             {
-                return; // Не двигаться на занятые тайлы
+                return;
             }
 
-            Pos = targetPos; // Обновляю позицию юнита
+            Pos = targetPos;
         }
 
-        public void ClearPendingProjectiles() => _pendingProjectiles.Clear();
+        public void ClearPendingProjectiles()
+        {
+            _pendingProjectiles.Clear();
+        }
 
-        public void TakeDamage(int projectileDamage) => Health -= projectileDamage;
+        public void TakeDamage(int projectileDamage)
+        {
+            Health -= projectileDamage;
+        }
     }
 }

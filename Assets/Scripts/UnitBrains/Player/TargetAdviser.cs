@@ -25,30 +25,16 @@ namespace Assets.Scripts.UnitBrains.Player
 
         public IReadOnlyUnit RecomendedTarget { get; private set; }
         public Vector2Int RecomendedPosition { get; private set; }
-        public static TargetAdviser Instance
-        {
-            get
-            {
-                if (_instance == null)
-                {
-                    _instance = new TargetAdviser();
-                }
-                return _instance;
-            }
-        }
 
-        private TargetAdviser()
+        public TargetAdviser(IReadOnlyRuntimeModel runtimeModel, TimeUtil timeUtil)
         {
-            _runtimeModel = ServiceLocator.Get<IReadOnlyRuntimeModel>();
-
-            var timeUtil = ServiceLocator.Get<TimeUtil>();
+            _runtimeModel = runtimeModel;
 
             timeUtil.AddFixedUpdateAction(Update);
-            RecomendedPosition = EnemyBase;
-
         }
         private void Update(float deltaTime)
         {
+            if (_runtimeModel.RoMap == null) { return; }
             RecomendedTarget = CalculateTargetUnit();
             RecomendedPosition = CalculateTargetPosition();
         }
