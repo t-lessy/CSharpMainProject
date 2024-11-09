@@ -1,4 +1,5 @@
 ﻿using Model.Runtime;
+using Model.Runtime.ReadOnly;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -8,14 +9,17 @@ using System.Threading.Tasks;
 using UnitBrains;
 using UnityEngine;
 using Utilities;
+using View;
 
 namespace Assets.Scripts.UnitBrains.Buffs
 {
     public class BuffController : MonoBehaviour
     {
-        private Dictionary<Unit, Dictionary<string, Buff>> _buffs = new Dictionary<Unit, Dictionary<string, Buff>>();
+        private Dictionary<IReadOnlyUnit, Dictionary<string, Buff>> _buffs = new Dictionary<IReadOnlyUnit, Dictionary<string, Buff>>();
 
         private Coroutine _coroutine;
+
+        private VFXView _vfxView;
         public static BuffController Create()
         {
             var go = new GameObject("BuffController");
@@ -27,6 +31,7 @@ namespace Assets.Scripts.UnitBrains.Buffs
         {
             _coroutine = StartCoroutine(UpdateBuffs());
             ServiceLocator.Register<BuffController>(this);
+            _vfxView = ServiceLocator.Get<VFXView>();
             Debug.Log("[BUFFS] Registered buff controller");
         }
 
@@ -35,18 +40,19 @@ namespace Assets.Scripts.UnitBrains.Buffs
             _buffs.Clear();
         }
 
-        public void AddBuffToUnit(Unit unit,Buff buff) {
+        public void AddBuffToUnit(IReadOnlyUnit unit,Buff buff) {
             if(!_buffs.ContainsKey(unit)) {
                 _buffs.Add(unit, new Dictionary<string, Buff>());
             }
             var unitBuffs = _buffs[unit];
             if (!unitBuffs.ContainsKey(buff.Id)) {
                 unitBuffs.Add(buff.Id, buff);
+                _vfxView.PlayVFX(unit.Pos, VFXView.VFXType.BuffApplied);
                 Debug.Log($"Added buff: {buff.Id}");
             }
         }
 
-        public float GetBuffModifierForUnit(Unit unit, Buff.BuffType buffType) {
+        public float GetBuffModifierForUnit(IReadOnlyUnit unit, Buff.BuffType buffType) {
             float modifier = 1f;
             if(!_buffs.ContainsKey(unit)) { 
                 return modifier;
@@ -58,6 +64,21 @@ namespace Assets.Scripts.UnitBrains.Buffs
                 }
             }
             return modifier;
+        }
+        public bool IsUnitHaveBuff<T>(IReadOnlyUnit unit)
+        {
+            if (!_buffs.ContainsKey(unit))
+            {
+                return false;
+            }
+            foreach (var buff in _buffs[unit].Values)
+            {
+                if (buff.GetType().Equals(typeof(T)))
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
         private void OnDestroy()
@@ -76,7 +97,7 @@ namespace Assets.Scripts.UnitBrains.Buffs
             }
         }
 
-        private void UpdateUnitBuffs(Unit unit) {
+        private void UpdateUnitBuffs(IReadOnlyUnit unit) {
             var unitBuffs = new Dictionary<string, Buff>(_buffs[unit]);
 
             foreach (var item in unitBuffs) {

@@ -136,19 +136,6 @@ namespace UnitBrains.Player
                     _overheated = false;
                 }
             }
-            if(IsAnyBehemotsNear()) {
-                BuffController.AddBuffToUnit(unit, new HelpingHandBuff());
-            }
-        }
-
-        protected bool IsAnyBehemotsNear()
-        {
-            var attackRangeSqr = unit.Config.AttackRange * unit.Config.AttackRange;
-            return runtimeModel.RoUnits
-                .Where(u => u.Config.IsPlayerUnit)
-                .Where(u => u.Config.Name == "Ironclad Behemoth")
-                .Where(u => (u.Pos - this.unit.Pos).sqrMagnitude < attackRangeSqr)
-                .Any();
         }
 
         private int GetTemperature()
