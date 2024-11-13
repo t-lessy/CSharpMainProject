@@ -1,3 +1,4 @@
+using Assets.Scripts.UnitBrains.Buffs.UnitBuffs;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -65,6 +66,7 @@ public class Third : DefaultPlayerUnitBrain
             if (haveReacheableTargets && _currentState == State.Moving)
             {
                 StartTransitionToState(State.Attacking);
+                BuffController.AddBuffToUnit(unit, new ThirdUnitIcreaseRangeBuff());
             }
             else if (!haveReacheableTargets && _currentState == State.Attacking)
             {

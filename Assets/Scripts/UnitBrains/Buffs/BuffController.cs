@@ -15,7 +15,7 @@ namespace Assets.Scripts.UnitBrains.Buffs
 {
     public class BuffController : MonoBehaviour
     {
-        private Dictionary<IReadOnlyUnit, Dictionary<string, Buff>> _buffs = new Dictionary<IReadOnlyUnit, Dictionary<string, Buff>>();
+        private Dictionary<IReadOnlyUnit, Dictionary<string, BaseBuff>> _buffs = new Dictionary<IReadOnlyUnit, Dictionary<string, BaseBuff>>();
 
         private Coroutine _coroutine;
 
@@ -40,9 +40,13 @@ namespace Assets.Scripts.UnitBrains.Buffs
             _buffs.Clear();
         }
 
-        public void AddBuffToUnit(IReadOnlyUnit unit,Buff buff) {
+        public void AddBuffToUnit<T>(IReadOnlyUnit unit, Buff<T> buff) where T : BaseUnitBrain {
+            if(!buff.CanBeAppliedTo(unit)) {
+                return;
+            }
             if(!_buffs.ContainsKey(unit)) {
-                _buffs.Add(unit, new Dictionary<string, Buff>());
+                _buffs.Add(unit, new Dictionary<string, BaseBuff>());
+                buff.Apply(unit);
             }
             var unitBuffs = _buffs[unit];
             if (!unitBuffs.ContainsKey(buff.Id)) {
@@ -52,19 +56,6 @@ namespace Assets.Scripts.UnitBrains.Buffs
             }
         }
 
-        public float GetBuffModifierForUnit(IReadOnlyUnit unit, Buff.BuffType buffType) {
-            float modifier = 1f;
-            if(!_buffs.ContainsKey(unit)) { 
-                return modifier;
-            }
-            foreach (var buff in _buffs[unit].Values)
-            {
-                if(buff.Type == buffType) {
-                    modifier *= buff.Modifier;
-                }
-            }
-            return modifier;
-        }
         public bool IsUnitHaveBuff<T>(IReadOnlyUnit unit)
         {
             if (!_buffs.ContainsKey(unit))
@@ -98,7 +89,7 @@ namespace Assets.Scripts.UnitBrains.Buffs
         }
 
         private void UpdateUnitBuffs(IReadOnlyUnit unit) {
-            var unitBuffs = new Dictionary<string, Buff>(_buffs[unit]);
+            var unitBuffs = new Dictionary<string, BaseBuff>(_buffs[unit]);
 
             foreach (var item in unitBuffs) {
             
@@ -115,6 +106,7 @@ namespace Assets.Scripts.UnitBrains.Buffs
                 {
                     if (unitBuffs.ContainsKey(id))
                     {
+                        _buffs[unit][id].Remove(unit);
                         _buffs[unit].Remove(id);
                     }
                 }

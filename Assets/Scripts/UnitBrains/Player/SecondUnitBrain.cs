@@ -14,7 +14,7 @@ namespace UnitBrains.Player
     public class SecondUnitBrain : DefaultPlayerUnitBrain
     {
         private static int UnitCount = 0;
-        private const int MaxTargets = 3;
+        private int MaxTargets => unit.Config.MaxTargets + unit.Modifiers.MaxTargets;
         public override string TargetUnitName => "Cobra Commando";
         private const float OverheatTemperature = 3f;
         private const float OverheatCooldown = 2f;

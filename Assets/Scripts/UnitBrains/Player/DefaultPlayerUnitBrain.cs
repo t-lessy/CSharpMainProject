@@ -46,7 +46,7 @@ namespace UnitBrains.Player
         }
         protected bool IsTargetInDoubleRange(Vector2Int possibleTarget)
         {
-            var attackRangeSqr = unit.Config.AttackRange * unit.Config.AttackRange * 2;
+            var attackRangeSqr = unit.Config.SquaredAttackRange * 2;
             var diff = possibleTarget - unit.Pos;
             return diff.sqrMagnitude < attackRangeSqr;
         }

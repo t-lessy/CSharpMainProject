@@ -5,6 +5,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using UnitBrains;
 using UnitBrains.Player;
 using UnityEngine;
 using Utilities;
@@ -52,11 +53,10 @@ public class FourthUnitBrain : DefaultPlayerUnitBrain
 
     protected IReadOnlyUnit GetBuffTarget()
     {
-        var attackRangeSqr = unit.Config.AttackRange * unit.Config.AttackRange;
         return runtimeModel.RoUnits
             .Where(u => u.Config.IsPlayerUnit)
             .Where(u => !TargetUnitName.Equals(u.Config.Name))
-            .Where(u => (u.Pos - unit.Pos).sqrMagnitude < attackRangeSqr)
+            .Where(u => (u.Pos - unit.Pos).sqrMagnitude < unit.Config.SquaredAttackRange)
             .Where(u => !BuffController.IsUnitHaveBuff<HelpingHandBuff>(u))
             .FirstOrDefault();
     }

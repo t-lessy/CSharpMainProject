@@ -15,8 +15,10 @@ namespace Model.Runtime
     public class Unit : IReadOnlyUnit
     {
         public UnitConfig Config { get; }
+        public UnitConfigModifiers Modifiers { get; }
         public Vector2Int Pos { get; private set; }
         public int Health { get; private set; }
+        public BaseUnitBrain UnitBrain =>_brain;
         public bool IsDead => Health <= 0;
         public BaseUnitPath ActivePath => _brain?.ActivePath;
         public IReadOnlyList<BaseProjectile> PendingProjectiles => _pendingProjectiles;
@@ -33,6 +35,7 @@ namespace Model.Runtime
         public Unit(UnitConfig config, Vector2Int startPos, TargetAdviser targetAdviser)
         {
             Config = config;
+            Modifiers = new UnitConfigModifiers();
             Pos = startPos;
             Health = config.MaxHealth;
             _brain = UnitBrainProvider.GetBrain(config);
@@ -55,13 +58,13 @@ namespace Model.Runtime
             
             if (_nextMoveTime < time)
             {
-                _nextMoveTime = time + Config.MoveDelay * _buffController.GetBuffModifierForUnit(this, Buff.BuffType.MoveSpeed);
+                _nextMoveTime = time + Config.MoveDelay + Modifiers.MoveDelay;
                 Move();
             }
             
             if (_nextAttackTime < time && Attack())
             {
-                _nextAttackTime = time + Config.AttackDelay * _buffController.GetBuffModifierForUnit(this, Buff.BuffType.AttackSpeed);
+                _nextAttackTime = time + Config.AttackDelay + Modifiers.AttackDelay;
             }
         }
 
