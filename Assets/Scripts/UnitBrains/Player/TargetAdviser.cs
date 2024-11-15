@@ -2,22 +2,17 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine.Playables;
 using Utilities;
 using Model.Runtime;
 using Model.Runtime.ReadOnly;
 using UnityEngine;
-using static UnityEngine.UI.CanvasScaler;
 using UnitBrains.Pathfinding;
 
 namespace Assets.Scripts.UnitBrains.Player
 {
     public class TargetAdviser
     {
-
-        private static TargetAdviser _instance;
         private IReadOnlyRuntimeModel _runtimeModel;
 
         public Vector2Int PlayerBase => _runtimeModel.RoMap.Bases[RuntimeModel.PlayerId];
@@ -29,9 +24,9 @@ namespace Assets.Scripts.UnitBrains.Player
         public TargetAdviser(IReadOnlyRuntimeModel runtimeModel, TimeUtil timeUtil)
         {
             _runtimeModel = runtimeModel;
-
             timeUtil.AddFixedUpdateAction(Update);
         }
+
         private void Update(float deltaTime)
         {
             if (_runtimeModel.RoMap == null) { return; }
@@ -56,6 +51,7 @@ namespace Assets.Scripts.UnitBrains.Player
             }
             return botUnits.Any() ? botUnits[0] : null;
         }
+
         private Vector2Int CalculateTargetPosition()
         {
             var botUnits = _runtimeModel.RoBotUnits.ToList();
@@ -96,6 +92,7 @@ namespace Assets.Scripts.UnitBrains.Player
 
         protected float DistanceToOwnBase(IReadOnlyUnit fromPos) =>
             Vector2Int.Distance(fromPos.Pos, _runtimeModel.RoMap.Bases[RuntimeModel.PlayerId]);
+
         protected float DistanceToBotBase(IReadOnlyUnit fromPos) =>
             Vector2Int.Distance(fromPos.Pos, _runtimeModel.RoMap.Bases[RuntimeModel.BotPlayerId]);
 

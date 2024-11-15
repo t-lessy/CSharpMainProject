@@ -77,6 +77,7 @@
     <Compile Include="Assets\Scripts\Model\Runtime\ReadOnly\IReadOnlyMap.cs" />
     <Compile Include="Assets\Scripts\Model\Runtime\Projectiles\ProjectileType.cs" />
     <Compile Include="Assets\Scripts\UnitBrains\UnitBrainProvider.cs" />
+    <Compile Include="Assets\Scripts\UnitBrains\Buffs\BuffControler.cs" />
     <Compile Include="Assets\Scripts\Model\Runtime\Map.cs" />
     <Compile Include="Assets\Scripts\UnitBrains\Pathfinding\DebugPathOutput.cs" />
     <Compile Include="Assets\Scripts\Model\Config\Settings.cs" />
@@ -87,6 +88,7 @@
     <Compile Include="Assets\Scripts\UnitBrains\Player\SecondUnitBrain.cs" />
     <Compile Include="Assets\Scripts\Model\PersistedModel.cs" />
     <Compile Include="Assets\Scripts\Model\Runtime\ReadOnly\IReadOnlyBase.cs" />
+    <Compile Include="Assets\Scripts\UnitBrains\Buffs\Buff.cs" />
     <Compile Include="Assets\Scripts\Utilities\TimeUtil.cs" />
     <Compile Include="Assets\Scripts\Controller\LevelController.cs" />
     <Compile Include="Assets\Scripts\Model\Runtime\ReadOnly\IReadOnlyProjectile.cs" />
