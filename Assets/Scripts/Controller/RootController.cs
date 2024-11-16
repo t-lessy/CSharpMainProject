@@ -12,6 +12,7 @@ namespace Controller
         private readonly RuntimeModel _runtimeModel;
         private readonly LevelController _levelController;
         
+        
         private RootView _rootView;
 
         public RootController(Settings settings, Canvas targetCanvas)

@@ -30,6 +30,11 @@ namespace UnitBrains
             new (-0.15f, 0.15f),
             new (-0.15f, -0.15f),
         };
+        
+        public virtual void ModifyAttackRadius(float modifier) { }
+        public virtual void EnableDoubleShoot() { }
+        public virtual void ModifySpeed(float modifier) { }
+        public virtual void ModifyShootSpeed(float modifier) { }
 
         public virtual Vector2Int GetNextStep()
         {
@@ -69,9 +74,12 @@ namespace UnitBrains
         {
         }
 
-        protected virtual void GenerateProjectiles(Vector2Int forTarget, List<BaseProjectile> intoList)
+        protected virtual void GenerateProjectiles(Vector2Int forTarget, List<BaseProjectile> intoList) // тут будет индекс двойного выстрела
         {
-            AddProjectileToList(CreateProjectile(forTarget), intoList);
+            for (int i = 0; i < unit.ShootIndex; i++)
+            {
+                AddProjectileToList(CreateProjectile(forTarget), intoList);
+            }
         }
 
         protected virtual List<Vector2Int> SelectTargets()
@@ -142,14 +150,14 @@ namespace UnitBrains
                 .Append(runtimeModel.RoMap.Bases[IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId]);
         }
 
-        protected bool IsTargetInRange(Vector2Int targetPos)
+        protected bool IsTargetInRange(Vector2Int targetPos) // тут будем увеличивать радиус атаки
         {
-            var attackRangeSqr = unit.Config.AttackRange * unit.Config.AttackRange;
+            var attackRangeSqr = unit.Config.AttackRange * unit.Config.AttackRange * unit.AttackRadius;
             var diff = targetPos - unit.Pos;
             return diff.sqrMagnitude <= attackRangeSqr;
         }
 
-        protected List<Vector2Int> GetReachableTargets()
+        protected List<Vector2Int> GetReachableTargets() 
         {
             var result = new List<Vector2Int>();
             var attackRangeSqr = unit.Config.AttackRange * unit.Config.AttackRange;

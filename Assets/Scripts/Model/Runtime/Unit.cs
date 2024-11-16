@@ -24,8 +24,17 @@ namespace Model.Runtime
         private BaseUnitBrain _brain;
 
         private float _nextBrainUpdateTime = 0f;
+        
         private float _nextMoveTime = 0f;
         private float _nextAttackTime = 0f;
+
+
+        public float ShootIndex { get; private set; } = 1f;
+        public float AttackRadius { get; set; } = 1f;
+
+        public float SpeedAtack { get; private set; } 
+
+        public float MoveSpeed { get; private set; } 
         
         public Unit(UnitConfig config, Vector2Int startPos)
         {
@@ -35,10 +44,14 @@ namespace Model.Runtime
             _brain = UnitBrainProvider.GetBrain(config);
             _brain.SetUnit(this);
             _runtimeModel = ServiceLocator.Get<IReadOnlyRuntimeModel>();
+
+            SpeedAtack = Config.AttackDelay;
+            MoveSpeed = Config.MoveDelay;
         }
 
         public void Update(float deltaTime, float time)
         {
+            
             if (IsDead)
                 return;
             
@@ -50,13 +63,13 @@ namespace Model.Runtime
             
             if (_nextMoveTime < time)
             {
-                _nextMoveTime = time + Config.MoveDelay;
+                _nextMoveTime = time + MoveSpeed;
                 Move();
             }
             
             if (_nextAttackTime < time && Attack())
             {
-                _nextAttackTime = time + Config.AttackDelay;
+                _nextAttackTime = time + SpeedAtack;
             }
         }
 
