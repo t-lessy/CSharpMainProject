@@ -1,4 +1,4 @@
-﻿using Assets.Scripts.UnitBrains.Buffs;
+﻿using Assets.Scripts.BuffsAndDebuffs;
 using Model;
 using Model.Config;
 using UnityEngine;
@@ -19,7 +19,6 @@ namespace Controller
         {
             _persisted = PersistanceUtils.LoadSingleton(new PersistedModel());
             ServiceLocator.Register(TimeUtil.Create());
-            ServiceLocator.Register(BuffController.Create());
 
             _runtimeModel = new();
             ServiceLocator.RegisterAs(_runtimeModel, typeof(IReadOnlyRuntimeModel));
@@ -32,6 +31,9 @@ namespace Controller
 
             var vfxView = SpawnVFXView();
             ServiceLocator.Register(vfxView);
+
+            var _buffAndDebuffControllSystem = new BuffAndDebuffControllSystem();
+            ServiceLocator.Register(_buffAndDebuffControllSystem);
 
             _levelController = new(_runtimeModel, this);
 

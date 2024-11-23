@@ -1,55 +1,57 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Model;
+using Unity.Plastic.Newtonsoft.Json;
 using UnityEngine;
 
 namespace UnitBrains.Pathfinding
 {
     public abstract class BaseUnitPath
     {
-        // Свойства для получения начальной и конечной точки пути
         public Vector2Int StartPoint => startPoint;
         public Vector2Int EndPoint => endPoint;
 
-        // Защищенные поля, для модели и точек
         protected readonly IReadOnlyRuntimeModel runtimeModel;
         protected readonly Vector2Int startPoint;
         protected readonly Vector2Int endPoint;
-        protected Vector2Int[] path = null; 
+        protected Vector2Int[] path = null;
+        public IEnumerable<Vector2Int> Node { get; private set; }
 
-        // Абстрактный метод для расчета пути
         protected abstract void Calculate();
 
-        // Получение пути 
         public IEnumerable<Vector2Int> GetPath()
         {
             if (path == null)
-                Calculate(); // Выполнение расчета, если путь отсутствует
-
-            return path; // Возврат рассчитанного пути
-        }
-
-        // Получение следующего шага на пути от текущей позиции юнита
-        public Vector2Int GetNextStepFrom(Vector2Int unitPos)
-        {
-            var found = false; 
-            foreach (var cell in GetPath()) // Проходим по всем ячейкам пути
             {
-                if (found)
-                    return cell; // Возвращаем следующую ячейку, если предыдущая найдена
-
-                found = cell == unitPos; // Проверяем, равна ли текущая ячейка позиции юнита
+                Calculate();
             }
 
-            Debug.LogError($"Unit {unitPos} is not on the path"); 
-            return unitPos; 
+            return path;
         }
 
-        // Конструктор для инициализации пути с заданной моделью и точками
+        public Vector2Int GetNextStepFrom(Vector2Int unitPos)
+        {
+            var found = false;
+
+            foreach (var cell in GetPath())
+            {
+                if (found)
+                {
+                    return cell;
+                }
+
+                found = cell == unitPos;
+            }
+
+            Debug.LogError($"Unit {unitPos} is not on the path");
+            return unitPos;
+        }
+
         protected BaseUnitPath(IReadOnlyRuntimeModel runtimeModel, Vector2Int startPoint, Vector2Int endPoint)
         {
-            this.runtimeModel = runtimeModel; // Инициализация модели
-            this.startPoint = startPoint; // обоз. начальную точку
-            this.endPoint = endPoint; // обоз. конечную точку 
+            this.runtimeModel = runtimeModel;
+            this.startPoint = startPoint;
+            this.endPoint = endPoint;
         }
     }
 }

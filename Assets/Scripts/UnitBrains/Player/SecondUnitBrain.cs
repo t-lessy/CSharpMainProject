@@ -2,99 +2,99 @@
 using System.Collections.Generic;
 using System.Linq;
 using Model;
+using Model.Runtime;
 using Model.Runtime.Projectiles;
-using UnitBrains.Pathfinding;
+using Unity.Plastic.Newtonsoft.Json;
 using UnityEngine;
+using Utilities;
 
 namespace UnitBrains.Player
 {
     public class SecondUnitBrain : DefaultPlayerUnitBrain
     {
-        private static int _unitsCounter = 0;
-        private const int MaxTargets = 3;
         public override string TargetUnitName => "Cobra Commando";
         private const float OverheatTemperature = 3f;
         private const float OverheatCooldown = 2f;
         private float _temperature = 0f;
         private float _cooldownTime = 0f;
         private bool _overheated;
-        private List<Vector2Int> _dangerousTargets = new();
-        public int UnitID { get; private set; }
+        private List<Vector2Int> _priorityTargets = new List<Vector2Int>();
+
+        public static int unitСounter = 0;
+        private int unitNumber;
+        private const int maxTargetsCount = 3;
 
         public SecondUnitBrain()
         {
-            UnitID = _unitsCounter++;
+            unitNumber = unitСounter;
+            unitСounter++;
         }
 
         protected override void GenerateProjectiles(Vector2Int forTarget, List<BaseProjectile> intoList)
         {
-            if (GetTemperature() >= OverheatTemperature)
+            float overheatTemperature = OverheatTemperature;
+     
+            float currentTemperature = GetTemperature();
+            if (currentTemperature >= overheatTemperature)
             {
-                return; 
+                return;
             }
 
-          
-            for (int i = 0; i <= GetTemperature(); i++)
+            for (int i = 0; i <= currentTemperature; i++)
             {
                 var projectile = CreateProjectile(forTarget);
                 AddProjectileToList(projectile, intoList);
+                if (unit.DoubleShootMode)
+                {
+                    var projectileAnother = CreateProjectile(forTarget);
+                    AddProjectileToList(projectileAnother, intoList);
+                }
             }
-            IncreaseTemperature(); 
+
+            IncreaseTemperature();
+     
         }
 
         public override Vector2Int GetNextStep()
         {
-            if (_dangerousTargets.Count == 0)
-            {
-                return unit.Pos; // Если нет опасных целей, остаемся на месте
-            }
-
-            var targetNumber = GetTargetNumber();
-            if (GetReachableTargets().Contains(_dangerousTargets[targetNumber]))
-            {
-                return unit.Pos;
-            }
-            else
-            {
-                ActivePath = new SmartUnitPath(runtimeModel, unit.Pos, _dangerousTargets[targetNumber]);
-                return ActivePath.GetNextStepFrom(unit.Pos);
-            }
+            Vector2Int targetPosition;
+            targetPosition = _priorityTargets.Count > 0 ? _priorityTargets[0] : unit.Pos;
+            return IsTargetInRange(targetPosition) ? unit.Pos : base.GetNextStep();
         }
 
         protected override List<Vector2Int> SelectTargets()
         {
-            List<Vector2Int> result = new();
-            List<Vector2Int> allTargets = new List<Vector2Int>(GetAllTargets());
-            allTargets.Remove(GetEnemyBase());
-            _dangerousTargets.Clear();
+            
+            var iD = IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.BotPlayerId;
+            var baseCoords = runtimeModel.RoMap.Bases[iD];
 
-            if (allTargets.Any())
+            _priorityTargets.Clear();
+            List<Vector2Int> allTargets = GetAllTargets().ToList();
+            List<Vector2Int> reachableTargets = GetReachableTargets();
+            List<Vector2Int> closestTargets = new List<Vector2Int>();
+
+            SortByDistanceToOwnBase(allTargets);
+
+            var closestCount = maxTargetsCount > allTargets.Count ? allTargets.Count : maxTargetsCount;
+            closestTargets.AddRange(allTargets.GetRange(0, closestCount));
+
+            var targetIndex = unitNumber % maxTargetsCount;
+            var indexIsExist = targetIndex < closestTargets.Count && targetIndex > 0;
+            if (indexIsExist)
             {
-                SortByDistanceToOwnBase(allTargets); // Сортируем цели
-                _dangerousTargets.AddRange(allTargets.GetRange(0, Math.Min(allTargets.Count, MaxTargets)));
+                _priorityTargets.Add(closestTargets[targetIndex]);
+            }
+            else if (closestTargets.Count > 0)
+            {
+                _priorityTargets.Add(closestTargets[0]);
             }
             else
             {
-                _dangerousTargets.Add(GetEnemyBase());
+                _priorityTargets.Add(baseCoords);
             }
 
-            var targetNumber = GetTargetNumber();
-            if (GetReachableTargets().Contains(_dangerousTargets[targetNumber]))
-            {
-                result.Add(_dangerousTargets[targetNumber]);
-            }
-            return result;
-        }
-
-        private int GetTargetNumber()
-        {
-            return Math.Min(_dangerousTargets.Count - 1, UnitID % MaxTargets);
-        }
-
-        protected Vector2Int GetEnemyBase()
-        {
-            return runtimeModel.RoMap.Bases[
-                IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId];
+            return reachableTargets.Contains(_priorityTargets.LastOrDefault()) ? _priorityTargets : reachableTargets;
+            
         }
 
         public override void Update(float deltaTime, float time)
@@ -114,16 +114,14 @@ namespace UnitBrains.Player
 
         private int GetTemperature()
         {
-            return _overheated ? (int)OverheatTemperature : (int)_temperature;
+            if (_overheated) return (int)OverheatTemperature;
+            else return (int)_temperature;
         }
 
         private void IncreaseTemperature()
         {
             _temperature += 1f;
-            if (_temperature >= OverheatTemperature)
-            {
-                _overheated = true;
-            }
+            if (_temperature >= OverheatTemperature) _overheated = true;
         }
     }
 }

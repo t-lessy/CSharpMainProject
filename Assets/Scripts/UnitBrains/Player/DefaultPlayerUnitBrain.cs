@@ -1,8 +1,7 @@
-﻿using System.Collections.Generic;
-using Assets.Scripts.UnitBrains.Player;
+﻿using System;
+using System.Collections.Generic;
 using Model;
 using Model.Runtime.Projectiles;
-using Model.Runtime.ReadOnly;
 using UnitBrains.Pathfinding;
 using UnityEngine;
 
@@ -25,31 +24,26 @@ namespace UnitBrains.Player
             return distanceA.CompareTo(distanceB);
         }
 
-
         public override Vector2Int GetNextStep()
         {
-            if (HasTargetsInRange())
+
+            Vector2Int? priorityTarget = PathAndTargetCoordinator.PriorityTargetPosition;
+            Vector2Int? priorityPosition = PathAndTargetCoordinator.PrioritySelfPosition;
+            BaseUnitPath activePath;
+            var target = runtimeModel.RoMap.Bases[
+                IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId];
+            if (priorityTarget != null)
             {
-                return unit.Pos;
+                target = priorityTarget.Value;
             }
-            IReadOnlyUnit recomendedUnit = targetAdviser.RecomendedTarget;
-            Vector2Int recomendedPosition = recomendedUnit == null ? targetAdviser.EnemyBase : recomendedUnit.Pos;
-            if (!IsTargetInDoubleRange(recomendedPosition))
-            {
-                recomendedPosition = targetAdviser.RecomendedPosition;
-            }
-            if (unit.Pos.Equals(recomendedPosition))
-            {
-                return recomendedPosition;
-            }
-            _activePath = new SmartUnitPath(runtimeModel, unit.Pos, recomendedPosition);
-            return _activePath.GetNextStepFrom(unit.Pos);
+
+            activePath = new BgUnitPath(runtimeModel, unit.Pos, target);
+            return activePath.GetNextStepFrom(unit.Pos) != null ? activePath.GetNextStepFrom(unit.Pos) : base.GetNextStep();
         }
-        protected bool IsTargetInDoubleRange(Vector2Int possibleTarget)
+
+        ~DefaultPlayerUnitBrain()
         {
-            var attackRangeSqr = unit.Config.AttackRange * unit.Config.AttackRange * 2;
-            var diff = possibleTarget - unit.Pos;
-            return diff.sqrMagnitude * 2 < attackRangeSqr;
+            PathAndTargetCoordinator.Dispose();
         }
     }
 }
