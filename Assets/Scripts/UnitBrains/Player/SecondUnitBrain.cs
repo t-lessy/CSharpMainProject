@@ -18,8 +18,7 @@ namespace UnitBrains.Player
         {
             float overheatTemperature = OverheatTemperature;
             ///////////////////////////////////////
-            if (_overheated ) 
-                return;
+            
             if (projectileCount >= 3)
             {
                 _overheated = true;
@@ -28,7 +27,7 @@ namespace UnitBrains.Player
 
             }
 
-            IncreaseTemperature();
+            GetTemperature();
             for (int i = 0; i < projectileCount; i++)
             {
 
