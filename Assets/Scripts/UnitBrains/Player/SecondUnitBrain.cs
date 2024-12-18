@@ -49,9 +49,10 @@ namespace UnitBrains.Player
                     value = distance;
                     i = target;
                 }
+                result.Clear();
+                result.Add(i);
             }
-            result.Clear();
-            result.Add(i);
+            
             ////while (result.Count > 1)
             //{
             //    result.RemoveAt(result.Count - 1);
