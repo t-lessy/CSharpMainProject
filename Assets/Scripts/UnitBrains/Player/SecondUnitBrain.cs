@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Model;
 using Model.Runtime.Projectiles;
 using UnityEngine;
+using Utilities;
 using static UnityEngine.GraphicsBuffer;
 
 namespace UnitBrains.Player
@@ -14,7 +16,9 @@ namespace UnitBrains.Player
         private float _temperature = 0f;
         private float _cooldownTime = 0f;
         private bool _overheated;
-        
+
+        private List<Vector2Int> _targetsOutsideReach = new List<Vector2Int>();
+
         protected override void GenerateProjectiles(Vector2Int forTarget, List<BaseProjectile> intoList)
         {
             float overheatTemperature = OverheatTemperature;
@@ -34,7 +38,15 @@ namespace UnitBrains.Player
 
         public override Vector2Int GetNextStep()
         {
-            return base.GetNextStep();
+            // Если есть цели вне зоны досягаемости, двигаемся к ближайшей
+            if (_targetsOutsideReach.Count > 0)
+            {
+                Vector2Int target = _targetsOutsideReach[0];
+                return unit.Pos.CalcNextStepTowards(target);
+            }
+
+            // Если целей нет или цель в зоне досягаемости, остаемся на месте
+            return unit.Pos;
         }
 
         protected override List<Vector2Int> SelectTargets()
@@ -42,31 +54,49 @@ namespace UnitBrains.Player
             ///////////////////////////////////////
             // Homework 1.4 (1st block, 4rd module)
             ///////////////////////////////////////           
-            List<Vector2Int> result = GetReachableTargets();
+            List<Vector2Int> result = new List<Vector2Int>();
+            _targetsOutsideReach.Clear();
 
-            if (result.Count == 0)
+            // Получаем все цели
+            List<Vector2Int> allTargets = GetAllTargets().ToList();
+
+            if (allTargets.Count > 0)
             {
-                return new List<Vector2Int>();
-            }
+                // Находим ближайшую цель к нашей базе
+                Vector2Int mostDangerousTarget = allTargets[0];
+                float minDistance = DistanceToOwnBase(mostDangerousTarget);
 
-            Vector2Int minTarget = result[0];
-            float minDist = float.MinValue;
-
-            foreach (Vector2Int target in result)
-            {
-                float distance = DistanceToOwnBase(target);
-                if (distance < minDist)
+                foreach (Vector2Int target in allTargets)
                 {
-                    minDist = distance;
-                    minTarget = target;
+                    float distance = DistanceToOwnBase(target);
+                    if (distance < minDistance)
+                    {
+                        minDistance = distance;
+                        mostDangerousTarget = target;
+                    }
+                }
+
+                // Проверяем, находится ли цель в зоне досягаемости
+                if (IsTargetInRange(mostDangerousTarget))
+                {
+                    result.Add(mostDangerousTarget);
+                }
+                else
+                {
+                    _targetsOutsideReach.Add(mostDangerousTarget);
                 }
             }
-            result.Clear();
-            result.Add(minTarget);
-            
+            else
+            {
+                // Если целей нет, добавляем базу противника
+                int enemyBaseId = IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId;
+                Vector2Int enemyBasePosition = runtimeModel.RoMap.Bases[enemyBaseId];
+                result.Add(enemyBasePosition);
+            }
+
             return result;
             ///////////////////////////////////////
-        }
+        }       
 
         public override void Update(float deltaTime, float time)
         {
