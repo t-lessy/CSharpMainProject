@@ -16,8 +16,17 @@ namespace UnitBrains.Player
         private float _temperature = 0f;
         private float _cooldownTime = 0f;
         private bool _overheated;
+        private static int _unitCounter = 0; // Счетчик юнитов
+        private readonly int _unitNumber; // Номер текущего юнита
+        private const int MaxTargets = 3; // Максимум целей для умного выбора
+        private static readonly List<int> AliveSecondUnits = new List<int>();// Статический список для отслеживания живых юнитов
 
         private List<Vector2Int> _targetsOutsideReach = new List<Vector2Int>();
+        public SecondUnitBrain()
+        {
+            _unitNumber = _unitCounter;
+            _unitCounter++;
+        }
 
         protected override void GenerateProjectiles(Vector2Int forTarget, List<BaseProjectile> intoList)
         {
@@ -54,6 +63,8 @@ namespace UnitBrains.Player
             ///////////////////////////////////////
             // Homework 1.4 (1st block, 4rd module)
             ///////////////////////////////////////           
+
+            // Очищаем список текущих целей
             List<Vector2Int> result = new List<Vector2Int>();
             _targetsOutsideReach.Clear();
 
@@ -62,28 +73,22 @@ namespace UnitBrains.Player
 
             if (allTargets.Count > 0)
             {
-                // Находим ближайшую цель к нашей базе
-                Vector2Int mostDangerousTarget = allTargets[0];
-                float minDistance = DistanceToOwnBase(mostDangerousTarget);
+                // Сортируем цели по дистанции до базы
+                SortByDistanceToOwnBase(allTargets);
 
-                foreach (Vector2Int target in allTargets)
-                {
-                    float distance = DistanceToOwnBase(target);
-                    if (distance < minDistance)
-                    {
-                        minDistance = distance;
-                        mostDangerousTarget = target;
-                    }
-                }
+                // Определяем, какую цель должен атаковать текущий юнит
+                int aliveUnitIndex = AliveSecondUnits.IndexOf(_unitNumber); // Индекс текущего юнита среди живых
+                int targetIndex = aliveUnitIndex % Mathf.Min(MaxTargets, allTargets.Count);
+                Vector2Int selectedTarget = allTargets[targetIndex];
 
                 // Проверяем, находится ли цель в зоне досягаемости
-                if (IsTargetInRange(mostDangerousTarget))
+                if (IsTargetInRange(selectedTarget))
                 {
-                    result.Add(mostDangerousTarget);
+                    result.Add(selectedTarget);
                 }
                 else
                 {
-                    _targetsOutsideReach.Add(mostDangerousTarget);
+                    _targetsOutsideReach.Add(selectedTarget);
                 }
             }
             else
@@ -96,7 +101,8 @@ namespace UnitBrains.Player
 
             return result;
             ///////////////////////////////////////
-        }       
+        }
+        
 
         public override void Update(float deltaTime, float time)
         {
@@ -110,6 +116,18 @@ namespace UnitBrains.Player
                     _cooldownTime = 0;
                     _overheated = false;
                 }
+            }
+            base.Update(deltaTime, time);
+
+            // Если юнит мертв, удаляем его из списка живых
+            if (unit.IsDead && AliveSecondUnits.Contains(_unitNumber))
+            {
+                AliveSecondUnits.Remove(_unitNumber);
+            }
+            // Если юнит жив, добавляем его в список живых (если его там еще нет)
+            else if (!unit.IsDead && !AliveSecondUnits.Contains(_unitNumber))
+            {
+                AliveSecondUnits.Add(_unitNumber);
             }
         }
 
