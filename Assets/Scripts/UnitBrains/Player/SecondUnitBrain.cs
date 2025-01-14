@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Model;
 using Model.Runtime.Projectiles;
@@ -17,6 +18,14 @@ namespace UnitBrains.Player
         private float _cooldownTime = 0f;
         private bool _overheated;
         private List<Vector2Int> TargetList = new List<Vector2Int>();
+        private static int unitCount = 0;
+        private int unitID;
+        private const int maxTargets = 3; 
+        
+        public SecondUnitBrain()
+        {
+            unitID = unitCount++;
+        }
 
         protected override void GenerateProjectiles(Vector2Int forTarget, List<BaseProjectile> intoList)
         {
@@ -39,7 +48,7 @@ namespace UnitBrains.Player
         {
             if (TargetList.Count > 0)
             {
-                return unit.Pos.CalcNextStepTowards(TargetList[0]);
+                return unit.Pos.CalcNextStepTowards(TargetList[unitID % TargetList.Count]);
             }
 
             return unit.Pos;
@@ -48,36 +57,37 @@ namespace UnitBrains.Player
         protected override List<Vector2Int> SelectTargets()
         {
             ///////////////////////////////////////
-            List<Vector2Int> result = GetAllTargets().ToList();
-            float minDis = float.MaxValue;
-            List<Vector2Int> NextStepList = new List<Vector2Int>();
+            List<Vector2Int> result = new List<Vector2Int>();
+            List<Vector2Int> allTargets = GetAllTargets().ToList();
+
+            TargetList.Clear();
+
+            if (allTargets.Count == 0)
+            {
+                Vector2Int enemyBase = runtimeModel.RoMap.Bases[IsPlayerUnitBrain ? RuntimeModel.PlayerId : RuntimeModel.BotPlayerId];
+                allTargets.Add(enemyBase);
+                return TargetList;
+            }
+
+            SortByDistanceToOwnBase(allTargets);
+
+            for (int i = 0; i < Mathf.Min(maxTargets, allTargets.Count); i++)
+            {
+                if (IsTargetInRange(allTargets[i]))
+                {
+                    result.Add(allTargets[i]);
+                }
+                else
+                {
+                    TargetList.Add(allTargets[i]);
+                }
+            }
 
             if (result.Count > 0)
             {
-                Vector2Int MinDistancesObject = result[0];
-                foreach (Vector2Int target in result)
-                {
-                    float TmpDistansToBase = DistanceToOwnBase(target);
-                    if (TmpDistansToBase < minDis)
-                    {
-                        minDis = TmpDistansToBase;
-                        MinDistancesObject = target;
-                    }
-                }
+                TargetList.AddRange(result);
+            }
 
-                    result.Clear();
-                TargetList.Clear();
-                if (IsTargetInRange(MinDistancesObject))
-                    result.Add(MinDistancesObject);
-                else
-                    TargetList.Add(MinDistancesObject);
-            }
-            else
-            {
-                TargetList.Clear();
-                Vector2Int enemyBase = runtimeModel.RoMap.Bases[IsPlayerUnitBrain ? RuntimeModel.PlayerId : RuntimeModel.BotPlayerId];
-                TargetList.Add(enemyBase);
-            }
             return result;
             ///////////////////////////////////////
         }
