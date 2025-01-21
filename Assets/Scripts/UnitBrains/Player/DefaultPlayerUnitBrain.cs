@@ -4,6 +4,7 @@ using Model.Runtime.ReadOnly;
 using UnitBrains.Pathfinding;
 using Model.Runtime.Projectiles;
 using UnityEngine;
+using Assets.Scripts.UnitBrains.Player;
 
 namespace UnitBrains.Player
 {
@@ -29,13 +30,13 @@ namespace UnitBrains.Player
             {
                 return unit.Pos;
             }
-            IReadOnlyUnit recomendedUnit = TargetAdviser.Instance.RecomendedTarget;
-            Vector2Int recomendedPosition = recomendedUnit == null ? TargetAdviser.Instance.EnemyBase : recomendedUnit.Pos;
+            IReadOnlyUnit recomendedUnit = UnitScore.Instance.RecomendedTarget;
+            Vector2Int recomendedPosition = recomendedUnit == null ? UnitScore.Instance.EnemyBase : recomendedUnit.Pos;
             if (!IsTargetInDoubleRange(recomendedPosition))
             {
-                recomendedPosition = TargetAdviser.Instance.RecomendedPosition;
+                recomendedPosition = UnitScore.Instance.RecomendedPosition;
             }
-            if (unit.Pos.Equals(recomendedPosition))
+            if (unit.Pos.Equals(recomendedPosition))        
             {
                 return recomendedPosition;
             }
