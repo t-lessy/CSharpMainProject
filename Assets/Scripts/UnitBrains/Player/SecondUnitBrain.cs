@@ -15,7 +15,7 @@ namespace UnitBrains.Player
         private float _temperature = 0f;
         private float _cooldownTime = 0f;
         private bool _overheated;
-        private List<Vector2Int> dangerTargets = new();
+        private List<Vector2Int> futureTargets = new();
 
         protected override void GenerateProjectiles(Vector2Int forTarget, List<BaseProjectile> intoList)
         {
@@ -44,9 +44,13 @@ namespace UnitBrains.Player
 
         public override Vector2Int GetNextStep()
         {
-            if (this.dangerTargets.Count > 0)
+            if (this.futureTargets.Count > 0)
             {
-                Vector2Int target = this.dangerTargets[0];
+                Vector2Int target = this.futureTargets[0];
+                if (IsTargetInRange(target))
+                {
+                    return unit.Pos;
+                }
                 Vector2Int currentPosition = unit.Pos;
                 return currentPosition.CalcNextStepTowards(target);
             }
@@ -60,7 +64,7 @@ namespace UnitBrains.Player
             ///////////////////////////////////////
             List<Vector2Int> result = new();
             IEnumerable<Vector2Int> allTargets = GetAllTargets();
-            this.dangerTargets.Clear();
+            this.futureTargets.Clear();
 
             if (allTargets.Count() > 0)
             {
@@ -76,7 +80,7 @@ namespace UnitBrains.Player
                         nearestToBaseTarget = target;
                     }
                 }
-                this.dangerTargets.Add(nearestToBaseTarget);
+                this.futureTargets.Add(nearestToBaseTarget);
                 bool isNearestToBaseTargetInRange = IsTargetInRange(nearestToBaseTarget);
                 if (isNearestToBaseTargetInRange)
                 {
@@ -86,6 +90,7 @@ namespace UnitBrains.Player
             else
             {
                 Vector2Int enemyBase = runtimeModel.RoMap.Bases[RuntimeModel.BotPlayerId];
+                this.futureTargets.Add(enemyBase);
                 result.Add(enemyBase);
             }
             return result;
@@ -94,9 +99,9 @@ namespace UnitBrains.Player
         public override void Update(float deltaTime, float time)
         {
             if (_overheated)
-            {              
+            {
                 _cooldownTime += Time.deltaTime;
-                float t = _cooldownTime / (OverheatCooldown/10);
+                float t = _cooldownTime / (OverheatCooldown / 10);
                 _temperature = Mathf.Lerp(OverheatTemperature, 0, t);
                 if (t >= 1)
                 {
@@ -108,7 +113,7 @@ namespace UnitBrains.Player
 
         private int GetTemperature()
         {
-            if(_overheated) return (int) OverheatTemperature;
+            if (_overheated) return (int)OverheatTemperature;
             else return (int)_temperature;
         }
 
