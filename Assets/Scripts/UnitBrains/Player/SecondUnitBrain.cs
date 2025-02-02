@@ -9,6 +9,9 @@ namespace UnitBrains.Player
 {
     public class SecondUnitBrain : DefaultPlayerUnitBrain
     {
+        static int idCounter = 0;
+        static readonly int maxTargetsToSelect = 3;
+
         public override string TargetUnitName => "Cobra Commando";
         private const float OverheatTemperature = 3f;
         private const float OverheatCooldown = 2f;
@@ -16,6 +19,13 @@ namespace UnitBrains.Player
         private float _cooldownTime = 0f;
         private bool _overheated;
         private List<Vector2Int> futureTargets = new();
+        private int unitId;
+
+        public SecondUnitBrain()
+        {
+            this.unitId = SecondUnitBrain.idCounter;
+            SecondUnitBrain.idCounter++;
+        }
 
         protected override void GenerateProjectiles(Vector2Int forTarget, List<BaseProjectile> intoList)
         {
@@ -46,7 +56,15 @@ namespace UnitBrains.Player
         {
             if (this.futureTargets.Count > 0)
             {
-                Vector2Int target = this.futureTargets[0];
+                Vector2Int target;
+                if (this.unitId < this.futureTargets.Count())
+                {
+                    target = this.futureTargets[this.unitId];
+                }
+                else
+                {
+                    target = this.futureTargets[0];
+                }
                 if (IsTargetInRange(target))
                 {
                     return unit.Pos;
@@ -64,27 +82,37 @@ namespace UnitBrains.Player
             ///////////////////////////////////////
             List<Vector2Int> result = new();
             IEnumerable<Vector2Int> allTargets = GetAllTargets();
+            List<Vector2Int> targetsBuffer = new();
             this.futureTargets.Clear();
 
             if (allTargets.Count() > 0)
             {
-                Vector2Int nearestToBaseTarget = allTargets.First();
-                float distance = float.MaxValue;
-
                 foreach (Vector2Int target in allTargets)
                 {
-                    float currentTargetDistance = DistanceToOwnBase(target);
-                    if (currentTargetDistance < distance)
-                    {
-                        distance = currentTargetDistance;
-                        nearestToBaseTarget = target;
-                    }
+                    targetsBuffer.Add(target);
                 }
-                this.futureTargets.Add(nearestToBaseTarget);
-                bool isNearestToBaseTargetInRange = IsTargetInRange(nearestToBaseTarget);
-                if (isNearestToBaseTargetInRange)
+                SortByDistanceToOwnBase(targetsBuffer);
+                int index = 0;
+                while (index < SecondUnitBrain.maxTargetsToSelect)
                 {
-                    result.Add(nearestToBaseTarget);
+                    if (targetsBuffer.Count() > index)
+                    {
+                        this.futureTargets.Add(targetsBuffer[index]);
+                    }
+                    index++;
+                }
+                Vector2Int t;
+                if (this.unitId < this.futureTargets.Count())
+                {
+                    t = this.futureTargets[this.unitId];
+                }
+                else
+                { 
+                    t= this.futureTargets[0];
+                }
+                if (IsTargetInRange(t))
+                {
+                    result.Add(t);
                 }
             }
             else
