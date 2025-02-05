@@ -18,7 +18,7 @@ namespace UnitBrains.Player
         private float _temperature = 0f;
         private float _cooldownTime = 0f;
         private bool _overheated;
-        private List<Vector2Int> futureTargets = new();
+        private List<Vector2Int> targetsOutOfRange = new();
         private int unitId;
 
         public SecondUnitBrain()
@@ -52,19 +52,17 @@ namespace UnitBrains.Player
             ///////////////////////////////////////
         }
 
+        /// <summary>
+        /// Вычисляет следующую позицию для перемещения юнита. Если выбранный враг находится в зоне 
+        /// досягаемости для атаки или если нет доступных целей, возвращает текущую позицию юнита 
+        /// (юнит остается на месте)
+        /// </summary>
+        /// <returns>Vector2Int координаты следующей позиции юнита. Если цель в зоне атаки или целей нет, возвращает текущую позицию</returns>
         public override Vector2Int GetNextStep()
         {
-            if (this.futureTargets.Count > 0)
+            if (this.targetsOutOfRange.Count > 0)
             {
-                Vector2Int target;
-                if (this.unitId < this.futureTargets.Count())
-                {
-                    target = this.futureTargets[this.unitId];
-                }
-                else
-                {
-                    target = this.futureTargets[0];
-                }
+                Vector2Int target = GetPersonalTarget();
                 if (IsTargetInRange(target))
                 {
                     return unit.Pos;
@@ -75,41 +73,64 @@ namespace UnitBrains.Player
             return unit.Pos;
         }
 
+        /// <summary>
+        /// Вычисляет персональную цель для юнита
+        /// </summary>
+        /// <returns>Vector2Int координаты персональной цели</returns>
+        private Vector2Int GetPersonalTarget()
+        {
+            Vector2Int target;
+            if (this.unitId < this.targetsOutOfRange.Count())
+            {
+                target = this.targetsOutOfRange[this.unitId];
+            }
+            else
+            {
+                target = this.targetsOutOfRange[0];
+            }
+            return target;
+        }
+
         protected override List<Vector2Int> SelectTargets()
+
+
         {
             ///////////////////////////////////////
             // Homework 1.4 (1st block, 4rd module)
             ///////////////////////////////////////
             List<Vector2Int> result = new();
+            Vector2Int enemyBase = runtimeModel.RoMap.Bases[RuntimeModel.BotPlayerId];
             IEnumerable<Vector2Int> allTargets = GetAllTargets();
-            List<Vector2Int> targetsBuffer = new();
-            this.futureTargets.Clear();
+            List<Vector2Int> targets = removeEnemyBaseAndConvertToList(allTargets);
 
-            if (allTargets.Count() > 0)
+            List<Vector2Int> removeEnemyBaseAndConvertToList(IEnumerable<Vector2Int> allTargets)
             {
+                List<Vector2Int> targets = new();
                 foreach (Vector2Int target in allTargets)
                 {
-                    targetsBuffer.Add(target);
+                    if (target != enemyBase)
+                    {
+                        targets.Add(target);
+                    }
                 }
-                SortByDistanceToOwnBase(targetsBuffer);
+                return targets;
+            }
+
+            this.targetsOutOfRange.Clear();
+            if (targets.Count > 0)
+            {
+
+                SortByDistanceToOwnBase(targets);
                 int index = 0;
                 while (index < SecondUnitBrain.maxTargetsToSelect)
                 {
-                    if (targetsBuffer.Count() > index)
+                    if (targets.Count() > index)
                     {
-                        this.futureTargets.Add(targetsBuffer[index]);
+                        this.targetsOutOfRange.Add(targets[index]);
                     }
                     index++;
                 }
-                Vector2Int t;
-                if (this.unitId < this.futureTargets.Count())
-                {
-                    t = this.futureTargets[this.unitId];
-                }
-                else
-                { 
-                    t= this.futureTargets[0];
-                }
+                Vector2Int t = GetPersonalTarget();
                 if (IsTargetInRange(t))
                 {
                     result.Add(t);
@@ -117,9 +138,11 @@ namespace UnitBrains.Player
             }
             else
             {
-                Vector2Int enemyBase = runtimeModel.RoMap.Bases[RuntimeModel.BotPlayerId];
-                this.futureTargets.Add(enemyBase);
-                result.Add(enemyBase);
+                this.targetsOutOfRange.Add(enemyBase);
+                if (IsTargetInRange(enemyBase))
+                {
+                    result.Add(enemyBase);
+                }
             }
             return result;
         }
