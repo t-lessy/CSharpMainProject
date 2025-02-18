@@ -56,7 +56,7 @@ namespace UnitBrains.Player
             
             var minDistanse = float.MaxValue;
 
-            foreach
+            foreach (var target in targets)
             {
              
              float distance = DistanceToOwnBase(target);
