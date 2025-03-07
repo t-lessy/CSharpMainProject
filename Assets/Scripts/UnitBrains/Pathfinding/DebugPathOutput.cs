@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using View;
 
@@ -10,18 +11,22 @@ namespace UnitBrains.Pathfinding
         [SerializeField] private GameObject cellHighlightPrefab;
         [SerializeField] private int maxHighlights = 5;
 
-        public BaseUnitPath Path { get; private set; }
+        public BaseUnitPath Path { get; private set; } = null;
         private readonly List<GameObject> allHighlights = new();
         private Coroutine highlightCoroutine;
 
         public void HighlightPath(BaseUnitPath path)
         {
+            if (Path is not null)
+            {
+                return;
+            }
             Path = path;
             while (allHighlights.Count > 0)
             {
                 DestroyHighlight(0);
             }
-            
+
             if (highlightCoroutine != null)
             {
                 StopCoroutine(highlightCoroutine);
@@ -32,8 +37,48 @@ namespace UnitBrains.Pathfinding
 
         private IEnumerator HighlightCoroutine(BaseUnitPath path)
         {
-            // TODO Implement me
-            yield break;
+            List<float> stepTimes = new();
+            float currentTime = Time.time;
+            var _path = path.GetPath().ToList();
+            CreateHighlight(_path[0]);
+            stepTimes.Add(currentTime);
+            _path.RemoveAt(0);
+
+            while (stepTimes.Count > 0) 
+            {
+                currentTime = Time.time;
+                if (_path.Count > 0)
+                {
+                    var lastTime = stepTimes[stepTimes.Count - 1];
+                    if (lastTime < currentTime - 0.3)
+                    {
+                        for (int i = 0; i < 3; i++)
+                        {
+                            CreateHighlight(_path[0]);
+                            stepTimes.Add(currentTime);
+                            _path.RemoveAt(0);
+                        }
+                    }
+                } 
+                else
+                {
+                    _path = path.GetPath().ToList();
+                }
+
+                if (stepTimes.Count > maxHighlights)
+                {
+                    DestroyHighlight(0);
+                    stepTimes.RemoveAt(0);
+                }
+
+                var stepTime = stepTimes[0];
+                if (currentTime > stepTime + 2)
+                {
+                    DestroyHighlight(0);
+                    stepTimes.RemoveAt(0);
+                }
+                yield return null;
+            }
         }
 
         private void CreateHighlight(Vector2Int atCell)

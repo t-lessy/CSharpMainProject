@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Assets.Scripts.UnitBrains.Pathfinding;
 using Model;
 using Model.Runtime.Projectiles;
+using UnitBrains.Pathfinding;
 using UnityEngine;
 using Utilities;
 
@@ -20,6 +22,8 @@ namespace UnitBrains.Player
         private bool _overheated;
         private List<Vector2Int> targetsOutOfRange = new();
         private int unitId;
+        private BaseUnitPath _activePath = null;
+        public override BaseUnitPath ActivePath => _activePath;
 
         public SecondUnitBrain()
         {
@@ -67,8 +71,8 @@ namespace UnitBrains.Player
                 {
                     return unit.Pos;
                 }
-                Vector2Int currentPosition = unit.Pos;
-                return currentPosition.CalcNextStepTowards(target);
+                _activePath = new AStarUnitPath(runtimeModel, unit.Pos, target);
+                return _activePath.GetNextStepFrom(unit.Pos);
             }
             return unit.Pos;
         }
