@@ -6,6 +6,7 @@ using Model.Runtime.ReadOnly;
 using UnitBrains;
 using UnitBrains.Pathfinding;
 using UnityEngine;
+using UnityEngine.UI;
 using Utilities;
 
 namespace Model.Runtime
@@ -21,20 +22,20 @@ namespace Model.Runtime
 
         private readonly List<BaseProjectile> _pendingProjectiles = new();
         private IReadOnlyRuntimeModel _runtimeModel;
-        private BaseUnitBrain _brain;
-
-        private float _nextBrainUpdateTime = 0f;
         
+        private BaseUnitBrain _brain;
+        public BaseUnitBrain Brain => _brain;
+        
+        private float _nextBrainUpdateTime = 0f;
         private float _nextMoveTime = 0f;
         private float _nextAttackTime = 0f;
 
-
-        public float ShootIndex { get; private set; } = 1f;
-        public float AttackRadius { get; set; } = 1f;
-
-        public float SpeedAtack { get; private set; } 
-
-        public float MoveSpeed { get; private set; } 
+        private float _moveDelay;
+        public float MoveDelay
+        {
+            get => Config.MoveDelay;
+            set => _moveDelay = value;
+        }
         
         public Unit(UnitConfig config, Vector2Int startPos)
         {
@@ -44,9 +45,6 @@ namespace Model.Runtime
             _brain = UnitBrainProvider.GetBrain(config);
             _brain.SetUnit(this);
             _runtimeModel = ServiceLocator.Get<IReadOnlyRuntimeModel>();
-
-            SpeedAtack = Config.AttackDelay;
-            MoveSpeed = Config.MoveDelay;
         }
 
         public void Update(float deltaTime, float time)
@@ -61,15 +59,17 @@ namespace Model.Runtime
                 _brain.Update(deltaTime, time);
             }
             
-            if (_nextMoveTime < time)
+            if (_nextMoveTime < time) // скорость передвижения
             {
-                _nextMoveTime = time + MoveSpeed;
+                //_nextMoveTime = time + Config.MoveDelay;
+                
+                _nextMoveTime = time + MoveDelay;
                 Move();
             }
             
-            if (_nextAttackTime < time && Attack())
+            if (_nextAttackTime < time && Attack()) // скорость атаки
             {
-                _nextAttackTime = time + SpeedAtack;
+                _nextAttackTime = time + Config.AttackDelay;
             }
         }
 

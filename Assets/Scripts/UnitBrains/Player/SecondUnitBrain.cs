@@ -23,12 +23,7 @@ namespace UnitBrains.Player
             AddProjectileToList(projectile, intoList);
             ///////////////////////////////////////
         }
-
-        public override void EnableDoubleShoot()
-        {
-            unit.AttackRadius = 2f;
-            Debug.Log($"{TargetUnitName}: Double shoot enabled!");
-        }
+        
 
         public override Vector2Int GetNextStep()
         {
