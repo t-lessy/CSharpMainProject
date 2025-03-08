@@ -56,6 +56,7 @@
      <Compile Include="Assets\Scripts\Utilities\CameraPositioning.cs" />
      <Compile Include="Assets\Scripts\View\ChooseUnitView.cs" />
      <Compile Include="Assets\Scripts\View\UnitCardView.cs" />
+     <Compile Include="Assets\Scripts\UnitBrains\BuffSystem\Buffs\ShootFasterBuff.cs" />
      <Compile Include="Assets\Scripts\UnitBrains\Player\DefaultPlayerUnitBrain.cs" />
      <Compile Include="Assets\Scripts\View\LevelFinishedView.cs" />
      <Compile Include="Assets\Scripts\View\Gameplay3dView.cs" />
@@ -94,6 +95,7 @@
      <Compile Include="Assets\Scripts\Controller\RootController.cs" />
      <Compile Include="Assets\Scripts\Model\Runtime\Unit.cs" />
      <Compile Include="Assets\Scripts\Model\IReadOnlyRuntimeModel.cs" />
+     <Compile Include="Assets\Scripts\UnitBrains\BuffSystem\Buffs\DoubleRangeAttackBuff.cs" />
      <Compile Include="Assets\Scripts\Model\Runtime\Projectiles\HorizontalLineProjectile.cs" />
      <Compile Include="Assets\Scripts\Model\Runtime\Projectiles\HomingProjectile.cs" />
      <Compile Include="Assets\Scripts\Utilities\MapGenerator.cs" />

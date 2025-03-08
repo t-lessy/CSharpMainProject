@@ -5,24 +5,21 @@ using UnityEngine;
 
 namespace UnitBrains.BuffSystem
 {
-    public class DoubleShootBuff : Buff<Unit>
+    public class DoubleRangeAttackBuff : Buff<Unit>
     {
-        public override string Name { get; }
-        private int _doubleShootIndex = 2;
-        private int _defaultShootIndex = 1;
+        private int _attackRangeIndex = 2;
         
-        protected List<Unit> _buffsToRemove = new List<Unit>();
-        
-        public DoubleShootBuff(float duration) : base(duration)
+        public DoubleRangeAttackBuff(float duration) : base(duration)
         {
             Name = $"{this.GetType().Name}";
         }
-        
+
+        public override string Name { get; }
         public override void ApplyBuff(Unit unit)
         {
             if(CanApply(unit))
             {
-                unit.Brain.DoubleShootIndex = _doubleShootIndex;
+                unit.Brain.AttackRange *= _attackRangeIndex;
                 Debug.Log($"Buff '{Name}' Add to unit '{unit.Config.Name}'.");
                 _targetUnitList.Add(unit);
             }
@@ -32,7 +29,7 @@ namespace UnitBrains.BuffSystem
         {
             foreach (var unit in _targetUnitList)
             {
-                unit.Brain.DoubleShootIndex = _defaultShootIndex;
+                unit.Brain.AttackRange /= _attackRangeIndex;
                 Debug.Log($"Buff {Name} Remove from unit '{unit.Config.Name}'.");
                 _buffsToRemove.Add(unit);
             }
@@ -40,9 +37,8 @@ namespace UnitBrains.BuffSystem
             foreach (var b in _buffsToRemove) _targetUnitList.Remove(b);
         }
 
-        public override bool CanApply(Unit unit) 
-            //=> unit.Brain != null && unit.Brain.GetType() == typeof(DefaultPlayerUnitBrain);
-            => unit.Brain != null && unit.Config.Name == "Sky Serpent";
-        
+        public override bool CanApply(Unit unit)
+            //=> unit.Brain != null && unit.Brain.GetType() == typeof(BaseUnitBrain);
+            => unit.Brain != null && unit.Config.Name == "Cobra Commando";
     }
 }

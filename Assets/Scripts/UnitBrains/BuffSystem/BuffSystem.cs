@@ -20,8 +20,10 @@ namespace UnitBrains.BuffSystem
 
         private List<Buff<Unit>> _buffs = new List<Buff<Unit>>()
         {
-            new DoubleShootBuff(2),
-            new MoveFasterBuff(2),
+            new MoveFasterBuff(5),
+            new DoubleShootBuff(4),
+            new DoubleRangeAttackBuff(4),
+            new ShootFasterBuff(4),
         };
 
         private Dictionary<Unit, Buff<Unit>> _effectedUnits = new Dictionary<Unit, Buff<Unit>>();
@@ -32,6 +34,7 @@ namespace UnitBrains.BuffSystem
             _levelController = levelController;
             _runtimeModel = runtimeModel;
             _levelController.OnGameStarted += OnGameStarted;
+            
             Debug.Log("BuffSystem Created");
         }
 
@@ -51,38 +54,24 @@ namespace UnitBrains.BuffSystem
 
         public void SetBuffs()
         {
-            foreach (var buff in _buffs)
+            if (_listUnits == null) return;
+            if (_buffs != null)
             {
-                _timeUtil.AddUpdateAction(buff.Update);
+                foreach (var buff in _buffs) 
+                    _timeUtil.AddUpdateAction(buff.Update);
             }
             
-            if (_listUnits == null)
-            {
-                Debug.LogError("Units list is not initialized.");
-                return;
-            }
-
             // Применяем баффы ко всем юнитам
             foreach (var unitList in _listUnits)
-            {
                 foreach (var unit in unitList)
-                {
                     ApplyBuffsToUnit(unit);
-                    
-                }
-            }
         }
         
         private void ApplyBuffsToUnit(Unit unit)
         {
             foreach (var buff in _buffs)
-            {
-                if (buff.CanApply(unit))
-                {
-                    buff.Add(unit);
-                    _effectedUnits.Add(unit, buff);
-                }
-            }
+                if (buff.CanApply(unit)) 
+                    buff.ApplyBuff(unit);
         }
         
         // этот метод не нужен, задел на будущее

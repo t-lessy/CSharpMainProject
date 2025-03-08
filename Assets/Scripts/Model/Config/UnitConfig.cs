@@ -24,7 +24,6 @@ namespace Model.Config
         public int MaxHealth => _maxHealth;
         public float BrainUpdateInterval => _brainUpdateDelay;
         public float MoveDelay => _moveDelay;
-        //public float AttackDelay => _attackDelay;
         public float AttackRange => _attackRange;
         public ProjectileType ProjectileType => _projectileType;
         public int Damage => _damage;

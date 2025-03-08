@@ -32,28 +32,23 @@ namespace UnitBrains
         };
         
         // модификаторы
+        public float DefaultAttackRange => unit.Config.AttackRange;
+        public float DefaultShootIndex => 1;
+        
         private float _attackRange;
-        private float _doubleShootIndex = 1;
-        private float _moveDelay;
-        private float _attackDelay;
-        public float AttackRange
+        private float _doubleShootIndex;
+        
+        public float AttackRange // Done
         {
-            get => unit.Config.AttackRange;
-            set => _attackRange = value * _attackRange;
+            get => _attackRange != 0 ? _attackRange: DefaultAttackRange;
+            set => _attackRange = value;
         }
-        public float DoubleShootIndex
+        public float DoubleShootIndex // Done
         {
-            get => _doubleShootIndex;
+            get => _doubleShootIndex != 0 ? _doubleShootIndex : DefaultShootIndex;
             set => _doubleShootIndex = value;
         }
         
-        
-        // методы добавления баффов
-        /*public void ModifyAttackRadius(float modifier) =>  AttackRadius += modifier;
-        public void ModifyEnableDoubleShoot(int shootIndex) => DoubleShootIndex = shootIndex;
-        public void ModifySpeed(float modifier) => Speed += modifier;
-        public void ModifyShootSpeed(float modifier) => ShootSpeed *= modifier;*/
-        //
         public virtual Vector2Int GetNextStep()
         {
             if (HasTargetsInRange())
@@ -143,7 +138,8 @@ namespace UnitBrains
 
         protected bool HasTargetsInRange() // радиус атаки
         {
-            var attackRangeSqr = unit.Config.AttackRange * unit.Config.AttackRange;
+            //var attackRangeSqr = unit.Config.AttackRange * unit.Config.AttackRange;
+            var attackRangeSqr = AttackRange * AttackRange;
             foreach (var possibleTarget in GetAllTargets())
             {
                 var diff = possibleTarget - unit.Pos;
@@ -170,7 +166,8 @@ namespace UnitBrains
 
         protected bool IsTargetInRange(Vector2Int targetPos) // тут будем увеличивать радиус атаки
         {
-            var attackRangeSqr = unit.Config.AttackRange * unit.Config.AttackRange;
+            //var attackRangeSqr = unit.Config.AttackRange * unit.Config.AttackRange;
+            var attackRangeSqr = AttackRange * AttackRange;
             var diff = targetPos - unit.Pos;
             return diff.sqrMagnitude <= attackRangeSqr;
         }
@@ -178,7 +175,8 @@ namespace UnitBrains
         protected List<Vector2Int> GetReachableTargets() 
         {
             var result = new List<Vector2Int>();
-            var attackRangeSqr = unit.Config.AttackRange * unit.Config.AttackRange;
+            //var attackRangeSqr = unit.Config.AttackRange * unit.Config.AttackRange;
+            var attackRangeSqr = AttackRange * AttackRange;
             foreach (var possibleTarget in GetAllTargets())
             {
                 if (!IsTargetInRange(possibleTarget))

@@ -1,19 +1,17 @@
 ﻿using System.Collections.Generic;
 using Model.Runtime;
-using UnitBrains.Player;
 using UnityEngine;
 
 namespace UnitBrains.BuffSystem
 {
-    public class DoubleShootBuff : Buff<Unit>
+    public class ShootFasterBuff : Buff<Unit>
     {
         public override string Name { get; }
-        private int _doubleShootIndex = 2;
-        private int _defaultShootIndex = 1;
+        private int _shootFasterIndex = 4;
         
         protected List<Unit> _buffsToRemove = new List<Unit>();
         
-        public DoubleShootBuff(float duration) : base(duration)
+        public ShootFasterBuff(float duration) : base(duration)
         {
             Name = $"{this.GetType().Name}";
         }
@@ -22,7 +20,7 @@ namespace UnitBrains.BuffSystem
         {
             if(CanApply(unit))
             {
-                unit.Brain.DoubleShootIndex = _doubleShootIndex;
+                unit.AttackDelay /= _shootFasterIndex;
                 Debug.Log($"Buff '{Name}' Add to unit '{unit.Config.Name}'.");
                 _targetUnitList.Add(unit);
             }
@@ -32,7 +30,7 @@ namespace UnitBrains.BuffSystem
         {
             foreach (var unit in _targetUnitList)
             {
-                unit.Brain.DoubleShootIndex = _defaultShootIndex;
+                unit.AttackDelay *= _shootFasterIndex;
                 Debug.Log($"Buff {Name} Remove from unit '{unit.Config.Name}'.");
                 _buffsToRemove.Add(unit);
             }
@@ -42,7 +40,6 @@ namespace UnitBrains.BuffSystem
 
         public override bool CanApply(Unit unit) 
             //=> unit.Brain != null && unit.Brain.GetType() == typeof(DefaultPlayerUnitBrain);
-            => unit.Brain != null && unit.Config.Name == "Sky Serpent";
-        
+            => unit.Brain != null && unit.Config.Name == "Cobra 2";
     }
 }

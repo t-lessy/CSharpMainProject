@@ -30,11 +30,22 @@ namespace Model.Runtime
         private float _nextMoveTime = 0f;
         private float _nextAttackTime = 0f;
 
+        public float DefaultMoveDelay => Config.MoveDelay;
+        public float DefaultAttackDelay => Config.AttackDelay;
+        
         private float _moveDelay;
+        private float _attackDelay;
+
         public float MoveDelay
         {
-            get => Config.MoveDelay;
+            get => _moveDelay != 0f ? _moveDelay : DefaultMoveDelay;
             set => _moveDelay = value;
+        }
+
+        public float AttackDelay
+        {
+            get => _attackDelay !=0 ? _attackDelay : DefaultAttackDelay;
+            set => _attackDelay = value;
         }
         
         public Unit(UnitConfig config, Vector2Int startPos)
@@ -69,7 +80,8 @@ namespace Model.Runtime
             
             if (_nextAttackTime < time && Attack()) // скорость атаки
             {
-                _nextAttackTime = time + Config.AttackDelay;
+                //_nextAttackTime = time + Config.AttackDelay;
+                _nextAttackTime = time + AttackDelay;
             }
         }
 
