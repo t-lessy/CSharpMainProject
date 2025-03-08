@@ -22,7 +22,7 @@ namespace UnitBrains.BuffSystem
             {
                 unit.AttackDelay /= _shootFasterIndex;
                 Debug.Log($"Buff '{Name}' Add to unit '{unit.Config.Name}'.");
-                _targetUnitList.Add(unit);
+                _targetUnitList.Add(unit);//
             }
         }
 
