@@ -31,8 +31,9 @@ namespace UnitBrains.Pathfinding
             {
                 StopCoroutine(highlightCoroutine);
             }
-
-            highlightCoroutine = StartCoroutine(HighlightCoroutine(path));
+            var _path = path.GetPath().ToList();
+            if (_path.Count > 0)
+                highlightCoroutine = StartCoroutine(HighlightCoroutine(path));
         }
 
         private IEnumerator HighlightCoroutine(BaseUnitPath path)
@@ -44,7 +45,7 @@ namespace UnitBrains.Pathfinding
             stepTimes.Add(currentTime);
             _path.RemoveAt(0);
 
-            while (stepTimes.Count > 0) 
+            while (stepTimes.Count > 0)
             {
                 currentTime = Time.time;
                 if (_path.Count > 0)
@@ -54,12 +55,15 @@ namespace UnitBrains.Pathfinding
                     {
                         for (int i = 0; i < 3; i++)
                         {
-                            CreateHighlight(_path[0]);
-                            stepTimes.Add(currentTime);
-                            _path.RemoveAt(0);
+                            if (i < _path.Count)
+                            {
+                                CreateHighlight(_path[i]);
+                                stepTimes.Add(currentTime);
+                                _path.RemoveAt(i);
+                            }
                         }
                     }
-                } 
+                }
                 else
                 {
                     _path = path.GetPath().ToList();

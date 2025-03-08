@@ -81,8 +81,8 @@ namespace Assets.Scripts.UnitBrains.Pathfinding
                         openList.Add(neighbor);
                     }
                 }
+                path = new Vector2Int[0];
             }
-            throw new Exception();
         }
 
         private bool IsValid(Vector2Int position)
