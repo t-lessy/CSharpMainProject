@@ -37,21 +37,21 @@ namespace UnitBrains.Player
             IncreaseTemperature();
         }
 
-        public override Vector2Int GetNextStep()
-        {
-            var target = _priorityTargets.Any() 
+        // Override only target selection to use base pathfinding
+        public override Vector2Int GetNextStepTarget() =>
+            _priorityTargets.Any() 
                 ? _priorityTargets.First() 
                 : runtimeModel.RoMap.Bases[RuntimeModel.BotPlayerId];
-
-            return IsTargetInRange(target) 
-                ? unit.Pos 
-                : unit.Pos.CalcNextStepTowards(target);
-        }
 
         protected override List<Vector2Int> SelectTargets()
         {
             // Enemy base already in GetAllTargets(). No need to add it explicitly.
             var result = GetAllTargets().ToList();
+            
+            // Remove base as possible target when we have enemy units
+            if (result.Count > _unitNumber) 
+                result.Remove(result.Last());
+            
             SortByDistanceToOwnBase(result);
             
             // In case if number of targets is less than smart targeting factor
