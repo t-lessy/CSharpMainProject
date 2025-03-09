@@ -1,7 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using JetBrains.Annotations;
+using Model;
 using Model.Runtime.Projectiles;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
+using Utilities;
 
 namespace UnitBrains.Player
 {
@@ -13,7 +17,10 @@ namespace UnitBrains.Player
         private float _temperature = 0f;
         private float _cooldownTime = 0f;
         private bool _overheated;
-        
+        private List<Vector2Int> targetToGo = new();
+        private IEnumerable<Vector2Int> resultToGo;
+        private int x = 0;
+
         protected override void GenerateProjectiles(Vector2Int forTarget, List<BaseProjectile> intoList)
         {
             float overheatTemperature = OverheatTemperature;
@@ -29,13 +36,24 @@ namespace UnitBrains.Player
                     AddProjectileToList(projectile, intoList);
                 }
                 IncreaseTemperature();
-            }          
+            }
             ///////////////////////////////////////
         }
 
         public override Vector2Int GetNextStep()
         {
-            return base.GetNextStep();
+            
+            //если цель в области атаки
+
+            if (!targetToGo.Any() || IsTargetInRange(targetToGo[0]))// если целей нет или в области атаки
+            {
+                return this.unit.Pos;
+            }
+            //если цель вне области атаки
+            //Debug.Log(unit.Pos.CalcNextStepTowards(targetToGo));
+            //Debug.Log("GetNextStep" + x);
+            //x++;
+            return unit.Pos.CalcNextStepTowards(targetToGo.First());
         }
 
         protected override List<Vector2Int> SelectTargets()
@@ -44,23 +62,50 @@ namespace UnitBrains.Player
             // Homework 1.4 (1st block, 4rd module)
             ///////////////////////////////////////
             List<Vector2Int> result = GetReachableTargets();
-            Vector2Int target = Vector2Int.zero;
+            resultToGo = GetAllTargets();
+            Vector2Int bestTarget = Vector2Int.zero;
+            Vector2Int asdtargetInRange = Vector2Int.zero;
             float dist = float.MaxValue;
+            //float distInRange = float.MaxValue;
+            //List<Vector2Int> dangerToGo = new List<Vector2Int>();
             //while (result.Count > 1)
-            for (int i = 0; i < result.Count; i++)
+
+            if (resultToGo.Any())
             {
-                if (DistanceToOwnBase(result[i]) < dist)
+                //Debug.Log("зашли в resultToGo.Any()");
+                foreach (var target in resultToGo)
                 {
-                    dist = DistanceToOwnBase(result[i]);
-                    target = result[i];
+                    if (DistanceToOwnBase(target) < dist)
+                    {
+                        dist = DistanceToOwnBase(target);
+                        bestTarget = target;
+                        //Debug.Log("targetToGo = " + targetToGo);
+                    }
                 }
+
+
             }
-            if (dist != float.MaxValue)
-            { 
+            else
+            {
+                Debug.Log("ищем базу");
                 result.Clear();
-                result.Add(target); 
+                bestTarget = (runtimeModel.RoMap.Bases[RuntimeModel.BotPlayerId]);
+                result.Add(bestTarget);
+                return result;
             }
+
+            if (!IsTargetInRange(bestTarget))
+            {
+                targetToGo.Clear();
+                targetToGo.Add(bestTarget);
+                result.Clear();
+                return result;
+            }
+
+            result.Clear();
+            result.Add(bestTarget);
             return result;
+
             ///////////////////////////////////////
         }
 
