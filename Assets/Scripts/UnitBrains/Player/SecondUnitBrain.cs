@@ -94,11 +94,16 @@ namespace UnitBrains.Player
             SortByDistanceToOwnBase(allTargets);
                 
             Vector2Int currentTarget = allTargets.First();
-            var enemyTargetIndex = _id % allTargets.Count;
-                
-            if (enemyTargetIndex == 0)
+
+            for (int i = 0; i < allTargets.Count; i++)
             {
-                currentTarget = allTargets[enemyTargetIndex];
+                var enemyTargetIndex = _id % (i + 1);
+
+                if (enemyTargetIndex == 0)
+                {
+                    currentTarget = allTargets[i];
+                    break;
+                }
             }
 
             if (IsTargetInRange(currentTarget))
