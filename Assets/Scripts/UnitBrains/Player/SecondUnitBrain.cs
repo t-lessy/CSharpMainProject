@@ -17,7 +17,7 @@ namespace UnitBrains.Player
         private float _cooldownTime = 0f;
         private bool _overheated;
         private IEnumerable<Vector2Int> _allTargets;
-        private List<Vector2Int> _targetInRangeResult = new();
+        private List<Vector2Int> _targetOutOfRange = new();
 
         private static int _unitCount = 0;
         private int _id = _unitCount++;
@@ -46,43 +46,28 @@ namespace UnitBrains.Player
         public override Vector2Int GetNextStep()
         {
             
-            if (!_targetInRangeResult.Any())
+            if (!_targetOutOfRange.Any())
             {
                 return unit.Pos;
             }
-            
-            var enemyTarget = _id % _targetInRangeResult.Count;
-            
-            Debug.Log($"enemyTarget = {enemyTarget} _id = {_id} Count = {_targetInRangeResult.Count}");
            
-            return  unit.Pos.CalcNextStepTowards(_targetInRangeResult[enemyTarget]);
+            return  unit.Pos.CalcNextStepTowards(_targetOutOfRange.First());
         }
 
         protected override List<Vector2Int> SelectTargets()
         {
             List<Vector2Int> result = new();
-            _allTargets = GetAllTargets();
-            _targetInRangeResult.Clear();
 
+            _allTargets = GetAllTargets();
+            
             if (_allTargets.Any())
             {
-                var closestEnemyToBase = GetClosestEnemyToBase(_allTargets);
-
-                if (IsTargetInRange(closestEnemyToBase))
-                {
-                    result.Add(closestEnemyToBase);
-                }
-                else
-                {
-                    _targetInRangeResult.Add(closestEnemyToBase);
-                }
+                SetEnemyTarget(result);
             }
             else
             {
                 result.Add(runtimeModel.RoMap.Bases[RuntimeModel.BotPlayerId]);
             }
-
-            SortByDistanceToOwnBase(_targetInRangeResult);
             
             return result;
         }
@@ -101,7 +86,31 @@ namespace UnitBrains.Player
                 }
             }
         }
-        
+
+        private void SetEnemyTarget(List<Vector2Int> result)
+        {
+            var allTargets = _allTargets.ToList();
+            
+            SortByDistanceToOwnBase(allTargets);
+                
+            Vector2Int currentTarget = allTargets.First();
+            var enemyTargetIndex = _id % allTargets.Count;
+                
+            if (enemyTargetIndex == 0)
+            {
+                currentTarget = allTargets[enemyTargetIndex];
+            }
+
+            if (IsTargetInRange(currentTarget))
+            {
+                result.Add(currentTarget);
+            }
+            else
+            {
+                _targetOutOfRange.Add(currentTarget);
+            }
+        }
+
         private int GetTemperature()
         {
             if(_overheated) return (int) OverheatTemperature;
