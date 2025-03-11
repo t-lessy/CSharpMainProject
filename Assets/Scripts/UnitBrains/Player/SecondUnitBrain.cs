@@ -59,7 +59,6 @@ namespace UnitBrains.Player
 
         protected override List<Vector2Int> SelectTargets()
         {
-
             _outOfRangeTargets.Clear();
 
             List<Vector2Int> allTargets = GetAllTargets().ToList();// Получение всех возможных целей:
@@ -103,7 +102,6 @@ namespace UnitBrains.Player
                     _outOfRangeTargets.Add(enemyBase); // Иначе, добавляем базу противника в список недосягаемых целей
                 }
             }
-
             return result;
         }
 
