@@ -1,6 +1,9 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
+using Model;
 using Model.Runtime.Projectiles;
 using UnityEngine;
+using Utilities;
 
 namespace UnitBrains.Player
 {
@@ -12,13 +15,11 @@ namespace UnitBrains.Player
         private float _temperature = 0f;
         private float _cooldownTime = 0f;
         private bool _overheated;
-        
+        private List<Vector2Int> _outOfRangeTargets = new(); // поле, со списком недосягаемых целей
+
         protected override void GenerateProjectiles(Vector2Int forTarget, List<BaseProjectile> intoList)
         {
             float overheatTemperature = OverheatTemperature;
-            ///////////////////////////////////////
-            // Homework 1.3 (1st block, 3rd module)
-            ///////////////////////////////////////           
 
             if (GetTemperature() >= overheatTemperature) // проверка температуры
             {
@@ -27,58 +28,90 @@ namespace UnitBrains.Player
             }
 
             int currentTemp = GetTemperature(); // сохранение текущей температуры
-            
+
             for (int i = 0; i < currentTemp + 1; i++) // увеличение снарядов с каждым выстрелом
             {
                 var projectile = CreateProjectile(forTarget);
                 AddProjectileToList(projectile, intoList);
-                Debug.Log("выстрел " + i + "снаряд " + currentTemp);
+                Debug.Log($"Выстрел {i}, температура: {currentTemp}");
             }
 
             IncreaseTemperature(); // нагрев после выстрела
 
-            ///////////////////////////////////////
         }
 
         public override Vector2Int GetNextStep()
         {
-            return base.GetNextStep();
+            List<Vector2Int> inRangeTargets = SelectTargets();
+            if (inRangeTargets.Count > 0) // Если есть цель, стреляем.
+            {
+                return unit.Pos;
+            }
+
+            if (_outOfRangeTargets.Count > 0) // Если цели нет
+            {
+                Vector2Int target = _outOfRangeTargets[0]; // Берём первую далёкую цель
+                Vector2Int nextPosition = unit.Pos.CalcNextStepTowards(target); // Идем до далекой цели
+                return nextPosition;
+            }
+            return unit.Pos;
         }
 
         protected override List<Vector2Int> SelectTargets()
         {
-            ///////////////////////////////////////
-            // Homework 1.4 (1st block, 4rd module)
-            ///////////////////////////////////////
-            List<Vector2Int> result = GetReachableTargets(); // список доступных целей
-            
-            if (result.Count == 0) return result; // проверка списка, есть ли цель?    
-            
-            Vector2Int closestTarget = result[0]; // инициализация ближайшей цели
-            float minDistance = DistanceToOwnBase(closestTarget); // расстояние цели до базы
+            _outOfRangeTargets.Clear();
 
-            foreach (Vector2Int target in result) // определение расстояния цели до базы
+            List<Vector2Int> allTargets = GetAllTargets().ToList();// Получение всех возможных целей:
+            List<Vector2Int> result = new List<Vector2Int>(); // Получение доступных целей
+
+            if (allTargets.Count > 0)
             {
-                float distance = DistanceToOwnBase(target); 
-                if (distance < minDistance) // если есть цель ближе к базе
+                Vector2Int mostDangerous = allTargets[0]; // Самая опасная цель
+                float minDistance = DistanceToOwnBase(mostDangerous); // Минимальная дистанция к базе
+
+                foreach (Vector2Int target in allTargets) // Перебираем все цели
                 {
-                    minDistance = distance; // обновляем расстояние
-                    closestTarget = target; // обновляем цель
+                    float distance = DistanceToOwnBase(target); // Определяем расстояние от цели до базы  
+                    if (distance < minDistance) // Если расстояние цели до базы меньше, чем предыдущая цель
+                    {
+                        minDistance = distance; // Обновляем минимальную дистанцию
+                        mostDangerous = target; // Текущая цель ближайшая к базе цель, самая опасная
+                    }
+                }
+
+
+                if (IsTargetInRange(mostDangerous)) // Проверяем, если опасная цель в зоне досягаемости
+                {
+                    result.Add(mostDangerous); // Добавляем опасную цель в список досягаемых целей
+                }
+                else
+                {
+                    _outOfRangeTargets.Add(mostDangerous); // Иначе, добавляем опасную цель в список недосягаемых целей
                 }
             }
-            result.Clear(); // очищаем цели
-            result.Add(closestTarget); // добавляем цель в список целей
+            else
+            {
+                Vector2Int enemyBase = runtimeModel.RoMap.Bases[IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId]; // Если целей нет, добавляем в список целей базу противника
 
+                if (IsTargetInRange(enemyBase)) // Проверяем, если база противника в зоне досягаемости
+                {
+                    result.Add(enemyBase); // Добавляем базу противника в список досягаемых целей
+                }
+                else
+                {
+                    _outOfRangeTargets.Add(enemyBase); // Иначе, добавляем базу противника в список недосягаемых целей
+                }
+            }
             return result;
-            ///////////////////////////////////////
         }
+
 
         public override void Update(float deltaTime, float time)
         {
             if (_overheated)
-            {              
+            {
                 _cooldownTime += Time.deltaTime;
-                float t = _cooldownTime / (OverheatCooldown/10);
+                float t = _cooldownTime / (OverheatCooldown / 10);
                 _temperature = Mathf.Lerp(OverheatTemperature, 0, t);
                 if (t >= 1)
                 {
@@ -90,7 +123,7 @@ namespace UnitBrains.Player
 
         private int GetTemperature()
         {
-            if(_overheated) return (int) OverheatTemperature;
+            if (_overheated) return (int)OverheatTemperature;
             else return (int)_temperature;
         }
 
