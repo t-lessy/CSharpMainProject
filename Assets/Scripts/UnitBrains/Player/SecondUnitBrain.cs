@@ -1,4 +1,5 @@
-﻿using Model;
+
+using Model;
 using Model.Runtime.Projectiles;
 using System.Collections.Generic;
 using System.Linq;
@@ -62,7 +63,6 @@ namespace UnitBrains.Player
 
         protected override List<Vector2Int> SelectTargets()
         {
-
             _outOfRangeTargets.Clear();
 
             List<Vector2Int> allTargets = GetAllTargets().ToList();// Получение всех возможных целей
