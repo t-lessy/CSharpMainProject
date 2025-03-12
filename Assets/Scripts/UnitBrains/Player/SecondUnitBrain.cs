@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Model.Runtime.Projectiles;
+using UnityEditor.Graphs;
 using UnityEngine;
 
 namespace UnitBrains.Player
@@ -12,17 +13,55 @@ namespace UnitBrains.Player
         private float _temperature = 0f;
         private float _cooldownTime = 0f;
         private bool _overheated;
-        
+
         protected override void GenerateProjectiles(Vector2Int forTarget, List<BaseProjectile> intoList)
         {
             float overheatTemperature = OverheatTemperature;
             ///////////////////////////////////////
             // Homework 1.3 (1st block, 3rd module)
-            ///////////////////////////////////////           
-            var projectile = CreateProjectile(forTarget);
-            AddProjectileToList(projectile, intoList);
             ///////////////////////////////////////
+            ///
+
+
+            if (GetTemperature() < overheatTemperature)
+                switch (_temperature)
+                {
+                    case 0:
+                        for (int i = 0; i < 1; i++)
+                        {
+                            var projectile = CreateProjectile(forTarget);
+                            AddProjectileToList(projectile, intoList);
+                        }
+
+                        IncreaseTemperature();
+                        Debug.Log("Выполнил 0 кейс");
+                        break;
+                    case 1:
+                        for (int i = 0; i < 2; i++)
+                        {
+                            var projectile = CreateProjectile(forTarget);
+                            AddProjectileToList(projectile, intoList);
+                        }
+
+                        IncreaseTemperature();
+                        Debug.Log("Выполнил 1 кейс");
+                        break;
+                    case 2:
+                        for (int i = 0; i < 3; i++)
+                        {
+                            var projectile = CreateProjectile(forTarget);
+                            AddProjectileToList(projectile, intoList);
+                        }
+
+                        IncreaseTemperature();
+                        Debug.Log("Выполнил 2 кейс");
+                        break;
+                    default:
+                        break;
+                }
         }
+        ///////////////////////////////////////
+        ///
 
         public override Vector2Int GetNextStep()
         {
