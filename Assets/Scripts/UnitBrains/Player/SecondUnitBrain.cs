@@ -1,7 +1,8 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+
 using Model;
 using Model.Runtime.Projectiles;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using Utilities;
 
@@ -16,6 +17,9 @@ namespace UnitBrains.Player
         private float _cooldownTime = 0f;
         private bool _overheated;
         private List<Vector2Int> _outOfRangeTargets = new(); // поле, со списком недосягаемых целей
+        private static int _unitCounter = 0;
+        private int _unitId = _unitCounter++;
+        private const int _maximumSelectionTargets = 3;
 
         protected override void GenerateProjectiles(Vector2Int forTarget, List<BaseProjectile> intoList)
         {
@@ -61,47 +65,31 @@ namespace UnitBrains.Player
         {
             _outOfRangeTargets.Clear();
 
-            List<Vector2Int> allTargets = GetAllTargets().ToList();// Получение всех возможных целей:
+            List<Vector2Int> allTargets = GetAllTargets().ToList();// Получение всех возможных целей
             List<Vector2Int> result = new List<Vector2Int>(); // Получение доступных целей
 
-            if (allTargets.Count > 0)
+            if (allTargets.Count == 0) // Если в списке нет целей, то добавляем в список базу противника
             {
-                Vector2Int mostDangerous = allTargets[0]; // Самая опасная цель
-                float minDistance = DistanceToOwnBase(mostDangerous); // Минимальная дистанция к базе
-
-                foreach (Vector2Int target in allTargets) // Перебираем все цели
-                {
-                    float distance = DistanceToOwnBase(target); // Определяем расстояние от цели до базы  
-                    if (distance < minDistance) // Если расстояние цели до базы меньше, чем предыдущая цель
-                    {
-                        minDistance = distance; // Обновляем минимальную дистанцию
-                        mostDangerous = target; // Текущая цель ближайшая к базе цель, самая опасная
-                    }
-                }
-
-
-                if (IsTargetInRange(mostDangerous)) // Проверяем, если опасная цель в зоне досягаемости
-                {
-                    result.Add(mostDangerous); // Добавляем опасную цель в список досягаемых целей
-                }
-                else
-                {
-                    _outOfRangeTargets.Add(mostDangerous); // Иначе, добавляем опасную цель в список недосягаемых целей
-                }
+                Vector2Int enemyBase = runtimeModel.RoMap.Bases[IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId];
+                allTargets.Add(enemyBase);
             }
-            else
+
+            SortByDistanceToOwnBase(allTargets); // Производим сортировку целей по дистанции до базы
+
+            int indexTarget = _unitId % _maximumSelectionTargets; // Определяем, какую именно по счёту ближайшую цель атакует юнит (0, 1, 2)
+
+            if (indexTarget >= allTargets.Count) // Если целей больше в списке, выбираем последнюю
             {
-                Vector2Int enemyBase = runtimeModel.RoMap.Bases[IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId]; // Если целей нет, добавляем в список целей базу противника
-
-                if (IsTargetInRange(enemyBase)) // Проверяем, если база противника в зоне досягаемости
-                {
-                    result.Add(enemyBase); // Добавляем базу противника в список досягаемых целей
-                }
-                else
-                {
-                    _outOfRangeTargets.Add(enemyBase); // Иначе, добавляем базу противника в список недосягаемых целей
-                }
+                indexTarget = allTargets.Count - 1;
             }
+
+            Vector2Int selectedTarget = allTargets[indexTarget]; // выбираем цель
+
+            (IsTargetInRange(selectedTarget)
+                ? result //если цель в радиусе актаки, то добавляем в список целей
+                : _outOfRangeTargets //иначе в список недосягаемых
+                ).Add(selectedTarget);
+
             return result;
         }
 
