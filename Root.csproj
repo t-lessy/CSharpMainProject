@@ -110,8 +110,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\Scripts\Root.asmdef" />
-    <None Include="Assets\Scripts\Model\Runtime\Projectiles\Tests\Tests\Tests.asmdef" />
-    <None Include="Assets\Scripts\Model\Runtime\Projectiles\Tests\Tests.asmdef" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">
