@@ -21,47 +21,19 @@ namespace UnitBrains.Player
             // Homework 1.3 (1st block, 3rd module)
             ///////////////////////////////////////
             ///
-
-
             if (GetTemperature() < overheatTemperature)
-                switch (_temperature)
-                {
-                    case 0:
-                        for (int i = 0; i < 1; i++)
-                        {
+            {
+                for (int i = 0; i < _temperature + 1; i++)
+                       {
                             var projectile = CreateProjectile(forTarget);
                             AddProjectileToList(projectile, intoList);
-                        }
-
-                        IncreaseTemperature();
-                        Debug.Log("Выполнил 0 кейс");
-                        break;
-                    case 1:
-                        for (int i = 0; i < 2; i++)
-                        {
-                            var projectile = CreateProjectile(forTarget);
-                            AddProjectileToList(projectile, intoList);
-                        }
-
-                        IncreaseTemperature();
-                        Debug.Log("Выполнил 1 кейс");
-                        break;
-                    case 2:
-                        for (int i = 0; i < 3; i++)
-                        {
-                            var projectile = CreateProjectile(forTarget);
-                            AddProjectileToList(projectile, intoList);
-                        }
-
-                        IncreaseTemperature();
-                        Debug.Log("Выполнил 2 кейс");
-                        break;
-                    default:
-                        break;
-                }
+                       }
+                IncreaseTemperature();
+            }
         }
-        ///////////////////////////////////////
-        ///
+            ///////////////////////////////////////
+            ///
+
 
         public override Vector2Int GetNextStep()
         {
