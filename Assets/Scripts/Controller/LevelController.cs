@@ -2,6 +2,7 @@
 using Model;
 using Model.Config;
 using Model.Runtime;
+using Model.Runtime.StatusEffects;
 using UnitBrains;
 using UnityEngine;
 using Utilities;
@@ -22,6 +23,7 @@ namespace Controller
 
         private GroupBrain _playerGroupBrain;
         private GroupBrain _botGroupBrain;
+        private StatusEffects _statusEffects;
 
         public LevelController(RuntimeModel runtimeModel, RootController rootController)
         {
@@ -34,6 +36,7 @@ namespace Controller
             _gameplayView = ServiceLocator.Get<Gameplay3dView>();
             _settings = ServiceLocator.Get<Settings>();
             _timeUtil = ServiceLocator.Get<TimeUtil>();
+            _statusEffects = ServiceLocator.Get<StatusEffects>();
         }
 
         public void StartLevel(int level)
@@ -91,6 +94,7 @@ namespace Controller
                 _runtimeModel.Money[RuntimeModel.BotPlayerId] < _settings.GetCheapestEnemyUnitCost())
             {
                 _runtimeModel.Stage = RuntimeModel.GameStage.Simulation;
+                _statusEffects.StartStatusEffectProcessing();
             }
         }
 
@@ -107,6 +111,7 @@ namespace Controller
             _runtimeModel.Stage = RuntimeModel.GameStage.Finished;
             _rootView.ShowLevelFinished(playerWon);
             _timeUtil.RunDelayed(5f, () => _rootController.OnLevelFinished(playerWon));
+            _statusEffects.StopStatusEffectProcessing();
         }
     }
 }

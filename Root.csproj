@@ -64,6 +64,7 @@
     <Compile Include="Assets\Scripts\Model\Runtime\Projectiles\BaseProjectile.cs" />
     <Compile Include="Assets\Scripts\View\UnitView.cs" />
     <Compile Include="Assets\Scripts\Model\Runtime\ReadOnly\IReadOnlyUnit.cs" />
+    <Compile Include="Assets\Scripts\Model\Runtime\StatusEffects\BaseStatusEffect.cs" />
     <Compile Include="Assets\Scripts\UnitBrains\BaseUnitBrain.cs" />
     <Compile Include="Assets\Scripts\Utilities\CameraPositioning.cs" />
     <Compile Include="Assets\Scripts\View\ChooseUnitView.cs" />
@@ -79,6 +80,7 @@
     <Compile Include="Assets\Scripts\Model\Runtime\Map.cs" />
     <Compile Include="Assets\Scripts\UnitBrains\Pathfinding\DebugPathOutput.cs" />
     <Compile Include="Assets\Scripts\Model\Config\Settings.cs" />
+    <Compile Include="Assets\Scripts\Model\Runtime\StatusEffects\StatusEffects.cs" />
     <Compile Include="Assets\Scripts\Model\Config\UnitConfig.cs" />
     <Compile Include="Assets\Scripts\Utilities\PersistanceUtils.cs" />
     <Compile Include="Assets\Scripts\View\RootView.cs" />
@@ -93,6 +95,7 @@
     <Compile Include="Assets\Scripts\UnitBrains\Enemy\DefaultEnemyUnitBrain.cs" />
     <Compile Include="Assets\Scripts\View\ProjectileView.cs" />
     <Compile Include="Assets\Scripts\View\StartMenuView.cs" />
+    <Compile Include="Assets\Scripts\Model\Runtime\StatusEffects\StatusEffectType.cs" />
     <Compile Include="Assets\Scripts\Model\RuntimeModel.cs" />
     <Compile Include="Assets\Scripts\View\HealthBar.cs" />
     <Compile Include="Assets\Scripts\View\VFXView.cs" />
