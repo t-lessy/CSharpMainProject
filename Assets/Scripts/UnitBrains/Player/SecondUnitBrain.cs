@@ -48,34 +48,28 @@ namespace UnitBrains.Player
             ///////////////////////////////////////
             // Homework 1.4 (1st block, 4rd module)
             ///////////////////////////////////////
-            ///
-            List<Vector2Int> result = GetReachableTargets();
-            while (result.Count > 1)
-            {
-                result.RemoveAt(result.Count - 1);
-            }
-
-            float maxDistance = float.MinValue;
-
-            foreach (Vector2Int target in result)
-            {
-                if(maxDistance > DistanceToOwnBase(target)) 
-                {
-                    maxDistance = DistanceToOwnBase(target) ; 
-
-                    Vector2Int nearTarget = target;
-
-                     result.Clear();
-
-                     result.Add(nearTarget);
-                }
-            }
-
-            return result;
-
             
+             List<Vector2Int> result = GetReachableTargets();
 
+             float minDistance = float.MaxValue;
+             Vector2Int nearTarget = Vector2Int.zero; // коардинаты для ближайшей цели изначально задаем как (0,0)
 
+            foreach (Vector2Int target in result) // Проходим по всем существующим целям и ищем ближайшую
+            {  
+                float distance = DistanceToOwnBase(target);
+                if( distance < minDistance) 
+                {
+                    minDistance = distance;
+                    nearTarget = target; // Устанавливаем ближайшую цель
+                }
+            } 
+            result.Clear(); // Очищаем список, чтобы вложить новую ближайшую  цель
+            
+            if (minDistance < float.MaxValue) 
+            {
+                result.Add(nearTarget); //Добавлям в очищенный список новую цель
+            }
+            return result;
             ///////////////////////////////////////
         }
 
