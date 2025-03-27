@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using Model;
 using UnityEngine;
 using Utilities;
-using static UnityEngine.UI.CanvasScaler;
 
 namespace Model.Runtime.StatusEffects
 {
@@ -13,8 +12,11 @@ namespace Model.Runtime.StatusEffects
         private TimeUtil _timeUtil;
         private System.Random _random;
 
-        private const float DefaultDuration = 2f;
-        private const float DefaultModifeir = 0.2f;
+        private const float DefaultDuration = 0.7f;
+        private const float DefaultModifeir = 0.25f;
+
+        public event Action<int> NewStatusEffect;
+        public event Action<int> EndStatusEffect;
 
         public StatusEffects(RuntimeModel runtimeModel, TimeUtil timeUtil)
         {
@@ -28,12 +30,12 @@ namespace Model.Runtime.StatusEffects
         public void StartStatusEffectProcessing()
         {
             _timeUtil.AddFixedUpdateAction(TickingStatusEffects);
-            _timeUtil.AddFixedUpdateAction(GeneratorRandomStatusEffects);
+            //_timeUtil.AddFixedUpdateAction(GeneratorRandomStatusEffects);
         }
         public void StopStatusEffectProcessing()
         {
             _timeUtil.RemoveFixedUpdateAction(TickingStatusEffects);
-            _timeUtil.RemoveFixedUpdateAction(GeneratorRandomStatusEffects);
+            //_timeUtil.RemoveFixedUpdateAction(GeneratorRandomStatusEffects);
         }
 
         private StatusEffectType GetRandomStatusEffectType()
@@ -44,30 +46,46 @@ namespace Model.Runtime.StatusEffects
                 (StatusEffectType)enumValues.GetValue(_random.Next(enumValues.Length));
         }
 
+        public void AddRandomStatusEffect(int unitID)
+        {
+            AddStatusEffect(unitID, GetRandomStatusEffectType());
+        }
+
+        public void AddStatusEffect(int unitID, StatusEffectType effectType)
+        {
+            if (!_runtimeModel.UnitStatusEffects.ContainsKey(unitID))
+            {
+                HashSet<BaseStatusEffect> newEffects = new HashSet<BaseStatusEffect>();
+                _runtimeModel.UnitStatusEffects.Add(unitID, newEffects);
+            }
+
+            if (_runtimeModel.UnitStatusEffects[unitID].Count == 0)
+            {
+                BaseStatusEffect effect
+                    = new BaseStatusEffect(effectType, DefaultDuration, DefaultModifeir);
+
+                bool success_flg = false;
+                success_flg = _runtimeModel.UnitStatusEffects[unitID].Add(effect);
+
+                if (success_flg)
+                {
+                    NewStatusEffect?.Invoke(unitID);
+                    Debug.Log($"Add effect UnitID = {unitID}");
+                }
+                else
+                {
+                    Debug.Log($"Cannot add effect UnitID = {unitID}");
+                }
+            }
+        }
+
         public void GeneratorRandomStatusEffects(float deltaTime)
         {
             var allUnits = _runtimeModel.RoUnits;
 
             foreach (var unit in allUnits)
             {
-                BaseStatusEffect effect
-                    = new BaseStatusEffect(GetRandomStatusEffectType(), DefaultDuration, DefaultModifeir);
-
-                if (_runtimeModel.UnitStatusEffects.ContainsKey(unit.UnitId))
-                {
-                    if (_runtimeModel.UnitStatusEffects[unit.UnitId].Count == 0)
-                    {
-                        _runtimeModel.UnitStatusEffects[unit.UnitId].Add(effect);
-                        Debug.Log($"Add effect UnitID = {unit.UnitId}");
-                    }
-                }
-                else
-                {
-                    HashSet<BaseStatusEffect> newEffects = new HashSet<BaseStatusEffect>();
-                    newEffects.Add(effect);
-                    _runtimeModel.UnitStatusEffects.Add(unit.UnitId, newEffects);
-                    Debug.Log($"Add effect UnitID = {unit.UnitId}");
-                }
+                AddRandomStatusEffect(unit.UnitId);
             }
         }
 
@@ -87,8 +105,25 @@ namespace Model.Runtime.StatusEffects
                     effect.Duration -= deltaTime;
                 }
 
-                unitEffects.Value.RemoveWhere(TimeIsOver);
+                int success_cnt = 0;
+                success_cnt = unitEffects.Value.RemoveWhere(TimeIsOver);
+                if (success_cnt>0)
+                {
+                    EndStatusEffect?.Invoke(unitEffects.Key);
+                    Debug.Log($"End effect UnitID = {unitEffects.Key}");
+                }
             }
+        }
+
+        public bool HasStatusEffect(int unitID)
+        {
+            if (!_runtimeModel.UnitStatusEffects.ContainsKey(unitID))
+                return false;
+
+            if (_runtimeModel.UnitStatusEffects[unitID].Count > 0)
+                return true;
+
+            return false;
         }
 
         public float GetMoveStatusEffectModifeir(int unitID)

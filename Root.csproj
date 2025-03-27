@@ -62,6 +62,7 @@
     <Compile Include="Assets\Scripts\UnitBrains\GroupBrain.cs" />
     <Compile Include="Assets\Scripts\View\TileView.cs" />
     <Compile Include="Assets\Scripts\Model\Runtime\Projectiles\BaseProjectile.cs" />
+    <Compile Include="Assets\Scripts\UnitBrains\Player\BufferUnitBrain.cs" />
     <Compile Include="Assets\Scripts\View\UnitView.cs" />
     <Compile Include="Assets\Scripts\Model\Runtime\ReadOnly\IReadOnlyUnit.cs" />
     <Compile Include="Assets\Scripts\Model\Runtime\StatusEffects\BaseStatusEffect.cs" />
