@@ -27,13 +27,14 @@ namespace UnitBrains.Player
 
         public override void Update(float deltaTime, float time)
         {
-            Debug.Log("time = "+ time);
+            //Debug.Log("time = "+ time);
             if (_isChanging)  // если текущий статус = смена состояния
             {
                 Debug.Log("check IsChanging true");
-                //_currentStateTime += Time.deltaTime*10;
-                //Debug.Log("_currentStateTime = " + _currentStateTime);
-                if (_currentStateTime + _changeStateTime > time)
+                _currentStateTime += Time.deltaTime*10;
+                Debug.Log("_currentStateTime = " + _currentStateTime);
+                //if (_currentStateTime + _changeStateTime > time)
+                if (_currentStateTime > _changeStateTime)
                 {
                     Debug.Log("time exeed changeTime");
                     ChangeState();
@@ -41,15 +42,16 @@ namespace UnitBrains.Player
             }
             else
             {
+                Debug.Log("HasTargetsInRange() = " + HasTargetsInRange());
                 if (HasTargetsInRange() && _currentState == UnitState.Move)
                 {
                     _isChanging = true;
-                    _currentStateTime = time;
+                    _currentStateTime = 0f;
                 }
                 if (!HasTargetsInRange() && _currentState == UnitState.Attack)
                 {
                     _isChanging = true;
-                    _currentStateTime = time;
+                    _currentStateTime = 0f;
                 }
             }
         }
@@ -57,18 +59,23 @@ namespace UnitBrains.Player
         private void ChangeState()
         {
             Debug.Log("enter the ChangeState");
-            _isChanging = false;
-            if (_currentState == UnitState.Attack)
+            
+            
+            if (_currentState == UnitState.Attack && _isChanging)
             {
                 Debug.Log("toMove");
                 _currentState = UnitState.Move;
+                _isChanging = false;
             }
 
-            if (_currentState == UnitState.Move)
+            if (_currentState == UnitState.Move && _isChanging)
             {
                 Debug.Log("toAttack");
                 _currentState = UnitState.Attack;
+                _isChanging = false;
             }
+            
+            
         }
 
         public override Vector2Int GetNextStep()
