@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
+//using System.Diagnostics;
 using Model.Runtime.Projectiles;
 using UnityEditor.Graphs;
 using UnityEngine;
+using static UnityEditor.PlayerSettings;
 
 namespace UnitBrains.Player
 {
@@ -46,9 +48,24 @@ namespace UnitBrains.Player
             // Homework 1.4 (1st block, 4rd module)
             ///////////////////////////////////////
             List<Vector2Int> result = GetReachableTargets();
+
+            Vector2Int res1 = new Vector2Int { };
+
+            var min = new List<float> { };
+            var f = float.MaxValue;
+
             while (result.Count > 1)
             {
-                result.RemoveAt(result.Count - 1);
+                foreach (var mainTarget in result)
+                {
+                    if (f > DistanceToOwnBase(mainTarget))
+                    {
+                        f = DistanceToOwnBase(mainTarget);
+                        res1 = mainTarget;
+                    }
+                }
+                result.Clear();
+                result.Add(res1);
             }
             return result;
             ///////////////////////////////////////
