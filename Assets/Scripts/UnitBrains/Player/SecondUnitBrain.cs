@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.Numerics;
+
 //using System.Diagnostics;
 using Model.Runtime.Projectiles;
 using UnityEditor.Graphs;
@@ -49,23 +51,26 @@ namespace UnitBrains.Player
             ///////////////////////////////////////
             List<Vector2Int> result = GetReachableTargets();
 
-            Vector2Int res1 = new Vector2Int { };
+            
 
             var min = new List<float> { };
-            var f = float.MaxValue;
+            var MinimumDistance = float.MaxValue;
 
             while (result.Count > 1)
             {
+                Vector2Int IntermediateVector = new Vector2Int { };
                 foreach (var mainTarget in result)
                 {
-                    if (f > DistanceToOwnBase(mainTarget))
+
+                    if (MinimumDistance > DistanceToOwnBase(mainTarget))
                     {
-                        f = DistanceToOwnBase(mainTarget);
-                        res1 = mainTarget;
+                        MinimumDistance = DistanceToOwnBase(mainTarget);
+                        IntermediateVector = mainTarget;
                     }
                 }
+            
                 result.Clear();
-                result.Add(res1);
+                result.Add(IntermediateVector);
             }
             return result;
             ///////////////////////////////////////
