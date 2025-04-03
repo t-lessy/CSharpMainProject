@@ -66,14 +66,23 @@ namespace UnitBrains.Player
 
             }
 
-            result.Insert(0, closestTarget);
-            
+            //Исправление ошибок (ДЗ 4)
 
-            while (result.Count > 1)
-            {
-                result.RemoveAt(result.Count - 1);
-            }
+            //result.Insert(0, closestTarget);
+
+            ////Код, который был в ДЗ изначально (думала, что его нужно оставить)
+            //while (result.Count > 1)
+            //{
+            //    result.RemoveAt(result.Count - 1);
+            //}
+            
+            //Исправления в соответствии с комментарием проверяющего
+            result.Clear();
+            result.Add(closestTarget);
             return result;
+
+
+
             ///////////////////////////////////////
         }
 
