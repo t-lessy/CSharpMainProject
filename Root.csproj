@@ -65,7 +65,6 @@
     <Compile Include="Assets\Scripts\UnitBrains\Player\BufferUnitBrain.cs" />
     <Compile Include="Assets\Scripts\View\UnitView.cs" />
     <Compile Include="Assets\Scripts\Model\Runtime\ReadOnly\IReadOnlyUnit.cs" />
-    <Compile Include="Assets\Scripts\Model\Runtime\StatusEffects\BaseStatusEffect.cs" />
     <Compile Include="Assets\Scripts\UnitBrains\BaseUnitBrain.cs" />
     <Compile Include="Assets\Scripts\Utilities\CameraPositioning.cs" />
     <Compile Include="Assets\Scripts\View\ChooseUnitView.cs" />
@@ -74,6 +73,8 @@
     <Compile Include="Assets\Scripts\View\LevelFinishedView.cs" />
     <Compile Include="Assets\Scripts\View\Gameplay3dView.cs" />
     <Compile Include="Assets\Scripts\EnterPoint.cs" />
+    <Compile Include="Assets\Scripts\Model\Runtime\StatusEffects\IStatsDynamic.cs" />
+    <Compile Include="Assets\Scripts\Model\Runtime\StatusEffects\AttackHastyEffect.cs" />
     <Compile Include="Assets\Scripts\Model\Runtime\MainBase.cs" />
     <Compile Include="Assets\Scripts\Model\Runtime\ReadOnly\IReadOnlyMap.cs" />
     <Compile Include="Assets\Scripts\Model\Runtime\Projectiles\ProjectileType.cs" />
@@ -92,6 +93,7 @@
     <Compile Include="Assets\Scripts\Utilities\TimeUtil.cs" />
     <Compile Include="Assets\Scripts\UnitBrains\Player\ThirdUnitBrain.cs" />
     <Compile Include="Assets\Scripts\Controller\LevelController.cs" />
+    <Compile Include="Assets\Scripts\Model\Runtime\StatusEffects\TemplateStatusEffect.cs" />
     <Compile Include="Assets\Scripts\Model\Runtime\ReadOnly\IReadOnlyProjectile.cs" />
     <Compile Include="Assets\Scripts\UnitBrains\Enemy\DefaultEnemyUnitBrain.cs" />
     <Compile Include="Assets\Scripts\View\ProjectileView.cs" />
@@ -103,6 +105,7 @@
     <Compile Include="Assets\Scripts\UnitBrains\Pathfinding\AStarNode.cs" />
     <Compile Include="Assets\Scripts\Controller\IPlayerUnitChoosingListener.cs" />
     <Compile Include="Assets\Scripts\Utilities\Extensions.cs" />
+    <Compile Include="Assets\Scripts\Model\Runtime\StatusEffects\AttackRangeExpandEffect.cs" />
     <Compile Include="Assets\Scripts\Utilities\ServiceLocator.cs" />
     <Compile Include="Assets\Scripts\Model\Runtime\Projectiles\ArchToTileProjectile.cs" />
     <Compile Include="Assets\Scripts\UnitBrains\Pathfinding\DummyUnitPath.cs" />
@@ -115,6 +118,7 @@
     <Compile Include="Assets\Scripts\Controller\BotController.cs" />
     <Compile Include="Assets\Scripts\Controller\SimulationController.cs" />
     <Compile Include="Assets\Scripts\UnitBrains\Pathfinding\AStarUnitPath.cs" />
+    <Compile Include="Assets\Scripts\Model\Runtime\StatusEffects\MultiShotEffect.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\Scripts\Root.asmdef" />

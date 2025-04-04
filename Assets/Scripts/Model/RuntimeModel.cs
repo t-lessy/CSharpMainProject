@@ -30,7 +30,7 @@ namespace Model
         public IReadOnlyList<List<Unit>> PlayersUnits => _playersUnits;
         public IEnumerable<Unit> AllUnits => _playersUnits.SelectMany(l => l);
         public List<BaseProjectile> Projectiles { get; } = new();
-        public Dictionary<int, HashSet<BaseStatusEffect>> UnitStatusEffects { get; } = new();
+        public Dictionary<int, HashSet<TemplateStatusEffect<IStatsDynamic>>> ActiveStatusEffects { get; } = new();
         public List<MainBase> Bases { get; } = new()
         {
             null, null
@@ -73,7 +73,7 @@ namespace Model
             
             Projectiles.Clear();
 
-            UnitStatusEffects.Clear();
+            ActiveStatusEffects.Clear();
         }
         
         public enum GameStage

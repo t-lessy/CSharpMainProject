@@ -2,7 +2,6 @@
 using System.Linq;
 using Model.Config;
 using Model.Runtime.Projectiles;
-using Model.Runtime.StatusEffects;
 using Model.Runtime.ReadOnly;
 using UnitBrains;
 using UnitBrains.Pathfinding;
@@ -11,7 +10,7 @@ using Utilities;
 
 namespace Model.Runtime
 {
-    public class Unit : IReadOnlyUnit
+    public class Unit : IReadOnlyUnit, IStatsDynamic
     {
         public UnitConfig Config { get; }
         public Vector2Int Pos { get; private set; }
@@ -22,8 +21,16 @@ namespace Model.Runtime
 
         private readonly List<BaseProjectile> _pendingProjectiles = new();
         private IReadOnlyRuntimeModel _runtimeModel;
-        private StatusEffects.StatusEffects _statusEffects;
         private BaseUnitBrain _brain;
+
+        private float _attackDelayDynamic = 0f;
+        private float _attackRangeExpandDynamic = 0f;
+        private int _multiplierShotDynamic = 1;
+
+        public float AttackDelayStat => Config.AttackDelay + _attackDelayDynamic;
+        public float AttackRangeStat => Config.AttackRange + _attackRangeExpandDynamic;
+        public int MultiplierShotStat => _multiplierShotDynamic;
+
 
         private float _nextBrainUpdateTime = 0f;
         private float _nextMoveTime = 0f;
@@ -42,7 +49,6 @@ namespace Model.Runtime
             _brain.SetUnit(this);
             _brain.SetGroupBrain(groupBrain);
             _runtimeModel = ServiceLocator.Get<IReadOnlyRuntimeModel>();
-            _statusEffects = ServiceLocator.Get<StatusEffects.StatusEffects>();
         }
 
         public void Update(float deltaTime, float time)
@@ -59,20 +65,14 @@ namespace Model.Runtime
             if (_nextMoveTime < time)
             {
                 _nextMoveTime
-                    = time + Config.MoveDelay + _statusEffects.GetMoveStatusEffectModifeir(UnitId);
-
-                //Debug.Log($"Move UnitID {UnitId} Value {_statusEffects.GetMoveStatusEffectModifeir(UnitId)}");
-
+                    = time + Config.MoveDelay;
                 Move();
             }
             
             if (_nextAttackTime < time && Attack())
             {
                 _nextAttackTime
-                    = time + Config.AttackDelay + _statusEffects.GetAttackStatusEffectModifeir(UnitId);
-
-                //Debug.Log($"Attack UnitID {UnitId} Value {_statusEffects.GetAttackStatusEffectModifeir(UnitId)}");
-
+                    = time + AttackDelayStat;
             }
         }
 
@@ -113,6 +113,28 @@ namespace Model.Runtime
         public void TakeDamage(int projectileDamage)
         {
             Health -= projectileDamage;
+        }
+
+        public void ChangeDelayAttack(float modifier)
+        {
+            _attackDelayDynamic += modifier;
+        }
+
+        public void ChangeMultiplierShot(int modifier)
+        {
+            _multiplierShotDynamic += modifier;
+
+            if (_multiplierShotDynamic < 1)
+                _multiplierShotDynamic = 1;
+        }
+        public void ChangeAttackRange(float modifier)
+        {
+            _attackRangeExpandDynamic += modifier;
+        }
+
+        public string GetName()
+        {
+            return Config.Name;
         }
     }
 }

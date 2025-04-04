@@ -8,6 +8,7 @@ using UnitBrains.Player;
 using UnityEngine;
 using Utilities;
 using UnitBrains.Pathfinding;
+using Model.Runtime.ReadOnly;
 
 public class BufferUnitBrain : DefaultPlayerUnitBrain
 {
@@ -43,7 +44,9 @@ public class BufferUnitBrain : DefaultPlayerUnitBrain
 
                 if (_beginBuffTime >= _buffDelayBefore)
                 {
-                    statusEffects.AddStatusEffect(reachableComrade[0], StatusEffectType.HastyAttack);
+                    statusEffects.TryAddStatusEffect(reachableComrade[0], new AttackHastyEffect());
+                    statusEffects.TryAddStatusEffect(reachableComrade[0], new MultiShotEffect());
+                    statusEffects.TryAddStatusEffect(reachableComrade[0], new AttackRangeExpandEffect());
                     _lastBuffTime = time;
                     _beginBuffTime = 0;
                 }

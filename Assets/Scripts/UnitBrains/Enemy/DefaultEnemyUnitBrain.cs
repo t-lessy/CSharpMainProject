@@ -20,7 +20,7 @@ namespace UnitBrains.Enemy
 
             Vector2Int activeTarget;
 
-            if (distanceToRecommendTarget < 2 * unit.Config.AttackRange)
+            if (distanceToRecommendTarget < 2 * unit.AttackRangeStat)
                 activeTarget = recommendTarget;
             else
                 activeTarget = recommendPoint;

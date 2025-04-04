@@ -42,7 +42,7 @@ namespace UnitBrains.Player
             if (currentTemperature >= overheatTemperature)
                 return;
             
-            for (int i = 0; i <= currentTemperature; i++)
+            for (int i = 0; i <= (currentTemperature * unit.MultiplierShotStat); i++)
             {
                 var projectile = CreateProjectile(forTarget);
                 AddProjectileToList(projectile, intoList);

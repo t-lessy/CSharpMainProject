@@ -127,7 +127,7 @@ namespace UnitBrains
 
         protected bool HasTargetsInRange()
         {
-            var attackRangeSqr = unit.Config.AttackRange * unit.Config.AttackRange;
+            var attackRangeSqr = unit.AttackRangeStat * unit.AttackRangeStat;
             foreach (var possibleTarget in GetAllTargets())
             {
                 var diff = possibleTarget - unit.Pos;
@@ -162,7 +162,7 @@ namespace UnitBrains
 
         public bool IsTargetInRange(Vector2Int targetPos, Vector2Int checkPos)
         {
-            var attackRangeSqr = unit.Config.AttackRange * unit.Config.AttackRange;
+            var attackRangeSqr = unit.AttackRangeStat * unit.AttackRangeStat;
             var diff = targetPos - checkPos;
             return diff.sqrMagnitude <= attackRangeSqr;
         }

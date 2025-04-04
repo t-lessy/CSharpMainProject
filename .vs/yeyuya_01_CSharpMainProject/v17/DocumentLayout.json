@@ -3,20 +3,24 @@
   "WorkspaceRootPath": "C:\\unity_project_data\\yeyuya_01_CSharpMainProject\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{E8F09F58-CADC-09C7-2F29-29638279825F}|Root.csproj|C:\\unity_project_data\\yeyuya_01_CSharpMainProject\\assets\\scripts\\view\\gameplay3dview.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{E8F09F58-CADC-09C7-2F29-29638279825F}|Root.csproj|solutionrelative:assets\\scripts\\view\\gameplay3dview.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{E8F09F58-CADC-09C7-2F29-29638279825F}|Root.csproj|C:\\unity_project_data\\yeyuya_01_CSharpMainProject\\assets\\scripts\\model\\runtime\\unit.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E8F09F58-CADC-09C7-2F29-29638279825F}|Root.csproj|solutionrelative:assets\\scripts\\model\\runtime\\unit.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E8F09F58-CADC-09C7-2F29-29638279825F}|Root.csproj|c:\\unity_project_data\\yeyuya_01_csharpmainproject\\assets\\scripts\\model\\runtime\\statuseffects\\attackhastyeffect.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E8F09F58-CADC-09C7-2F29-29638279825F}|Root.csproj|solutionrelative:assets\\scripts\\model\\runtime\\statuseffects\\attackhastyeffect.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{E8F09F58-CADC-09C7-2F29-29638279825F}|Root.csproj|c:\\unity_project_data\\yeyuya_01_csharpmainproject\\assets\\scripts\\unitbrains\\player\\defaultplayerunitbrain.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E8F09F58-CADC-09C7-2F29-29638279825F}|Root.csproj|solutionrelative:assets\\scripts\\unitbrains\\player\\defaultplayerunitbrain.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{E8F09F58-CADC-09C7-2F29-29638279825F}|Root.csproj|c:\\unity_project_data\\yeyuya_01_csharpmainproject\\assets\\scripts\\model\\runtime\\statuseffects\\statuseffects.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{E8F09F58-CADC-09C7-2F29-29638279825F}|Root.csproj|solutionrelative:assets\\scripts\\model\\runtime\\statuseffects\\statuseffects.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{E8F09F58-CADC-09C7-2F29-29638279825F}|Root.csproj|C:\\unity_project_data\\yeyuya_01_CSharpMainProject\\assets\\scripts\\unitbrains\\player\\bufferunitbrain.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{E8F09F58-CADC-09C7-2F29-29638279825F}|Root.csproj|c:\\unity_project_data\\yeyuya_01_csharpmainproject\\assets\\scripts\\unitbrains\\player\\bufferunitbrain.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{E8F09F58-CADC-09C7-2F29-29638279825F}|Root.csproj|solutionrelative:assets\\scripts\\unitbrains\\player\\bufferunitbrain.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{E8F09F58-CADC-09C7-2F29-29638279825F}|Root.csproj|C:\\unity_project_data\\yeyuya_01_CSharpMainProject\\assets\\scripts\\unitbrains\\pathfinding\\baseunitpath.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{E8F09F58-CADC-09C7-2F29-29638279825F}|Root.csproj|solutionrelative:assets\\scripts\\unitbrains\\pathfinding\\baseunitpath.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -26,57 +30,71 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 0,
+          "SelectedChildIndex": 4,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "Gameplay3dView.cs",
-              "DocumentMoniker": "C:\\unity_project_data\\yeyuya_01_CSharpMainProject\\Assets\\Scripts\\View\\Gameplay3dView.cs",
-              "RelativeDocumentMoniker": "Assets\\Scripts\\View\\Gameplay3dView.cs",
-              "ToolTip": "C:\\unity_project_data\\yeyuya_01_CSharpMainProject\\Assets\\Scripts\\View\\Gameplay3dView.cs",
-              "RelativeToolTip": "Assets\\Scripts\\View\\Gameplay3dView.cs",
-              "ViewState": "AgIAABwAAAAAAAAAAAAQwDUAAAAAAAAAAAAAAA==",
+              "DocumentIndex": 2,
+              "Title": "DefaultPlayerUnitBrain.cs",
+              "DocumentMoniker": "C:\\unity_project_data\\yeyuya_01_CSharpMainProject\\Assets\\Scripts\\UnitBrains\\Player\\DefaultPlayerUnitBrain.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\UnitBrains\\Player\\DefaultPlayerUnitBrain.cs",
+              "ToolTip": "C:\\unity_project_data\\yeyuya_01_CSharpMainProject\\Assets\\Scripts\\UnitBrains\\Player\\DefaultPlayerUnitBrain.cs",
+              "RelativeToolTip": "Assets\\Scripts\\UnitBrains\\Player\\DefaultPlayerUnitBrain.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-03-27T11:29:25.12Z",
+              "WhenOpened": "2025-04-04T08:17:05.078Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "AttackHastyEffect.cs",
+              "DocumentMoniker": "C:\\unity_project_data\\yeyuya_01_CSharpMainProject\\Assets\\Scripts\\Model\\Runtime\\StatusEffects\\AttackHastyEffect.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\Model\\Runtime\\StatusEffects\\AttackHastyEffect.cs",
+              "ToolTip": "C:\\unity_project_data\\yeyuya_01_CSharpMainProject\\Assets\\Scripts\\Model\\Runtime\\StatusEffects\\AttackHastyEffect.cs",
+              "RelativeToolTip": "Assets\\Scripts\\Model\\Runtime\\StatusEffects\\AttackHastyEffect.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAUAAAA0AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-04-04T08:16:12.88Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 3,
-              "Title": "BaseUnitPath.cs",
-              "DocumentMoniker": "C:\\unity_project_data\\yeyuya_01_CSharpMainProject\\Assets\\Scripts\\UnitBrains\\Pathfinding\\BaseUnitPath.cs",
-              "RelativeDocumentMoniker": "Assets\\Scripts\\UnitBrains\\Pathfinding\\BaseUnitPath.cs",
-              "ToolTip": "C:\\unity_project_data\\yeyuya_01_CSharpMainProject\\Assets\\Scripts\\UnitBrains\\Pathfinding\\BaseUnitPath.cs",
-              "RelativeToolTip": "Assets\\Scripts\\UnitBrains\\Pathfinding\\BaseUnitPath.cs",
-              "ViewState": "AgIAAA0AAAAAAAAAAAArwBQAAAAdAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-03-27T10:16:51.472Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
               "Title": "StatusEffects.cs",
               "DocumentMoniker": "C:\\unity_project_data\\yeyuya_01_CSharpMainProject\\Assets\\Scripts\\Model\\Runtime\\StatusEffects\\StatusEffects.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\Model\\Runtime\\StatusEffects\\StatusEffects.cs",
               "ToolTip": "C:\\unity_project_data\\yeyuya_01_CSharpMainProject\\Assets\\Scripts\\Model\\Runtime\\StatusEffects\\StatusEffects.cs",
               "RelativeToolTip": "Assets\\Scripts\\Model\\Runtime\\StatusEffects\\StatusEffects.cs",
-              "ViewState": "AgIAAEQAAAAAAAAAAAAvwFcAAAAZAAAAAAAAAA==",
+              "ViewState": "AgIAAEUAAAAAAAAAAAAowFIAAAA1AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-03-16T17:47:12.272Z",
+              "WhenOpened": "2025-04-04T08:06:45.159Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 4,
               "Title": "BufferUnitBrain.cs",
               "DocumentMoniker": "C:\\unity_project_data\\yeyuya_01_CSharpMainProject\\Assets\\Scripts\\UnitBrains\\Player\\BufferUnitBrain.cs",
               "RelativeDocumentMoniker": "Assets\\Scripts\\UnitBrains\\Player\\BufferUnitBrain.cs",
               "ToolTip": "C:\\unity_project_data\\yeyuya_01_CSharpMainProject\\Assets\\Scripts\\UnitBrains\\Player\\BufferUnitBrain.cs",
               "RelativeToolTip": "Assets\\Scripts\\UnitBrains\\Player\\BufferUnitBrain.cs",
-              "ViewState": "AgIAAAkAAAAAAAAAAAAAACQAAAAJAAAAAAAAAA==",
+              "ViewState": "AgIAAAYAAAAAAAAAAAAAADAAAABlAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-03-27T07:14:12.004Z",
+              "WhenOpened": "2025-04-04T07:59:50.41Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Unit.cs",
+              "DocumentMoniker": "C:\\unity_project_data\\yeyuya_01_CSharpMainProject\\Assets\\Scripts\\Model\\Runtime\\Unit.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\Model\\Runtime\\Unit.cs",
+              "ToolTip": "C:\\unity_project_data\\yeyuya_01_CSharpMainProject\\Assets\\Scripts\\Model\\Runtime\\Unit.cs",
+              "RelativeToolTip": "Assets\\Scripts\\Model\\Runtime\\Unit.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABAAAAAvAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-03-31T12:57:07.436Z",
               "EditorCaption": ""
             }
           ]
