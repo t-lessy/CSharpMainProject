@@ -4,6 +4,7 @@ using Model;
 using Model.Runtime.Projectiles;
 using Model.Runtime.ReadOnly;
 using UnitBrains.Pathfinding;
+using UnitBrains.Player;
 using UnityEngine;
 using Utilities;
 using Unit = Model.Runtime.Unit;
@@ -77,6 +78,10 @@ namespace UnitBrains
 
         protected virtual List<Vector2Int> SelectTargets()
         {
+            var suggestedTarget = UnitCoordinator.Instance().SuggestedTarget;
+            if (IsTargetInCoordinatorAcceptanceRange(suggestedTarget))
+                return new List<Vector2Int> { suggestedTarget };
+            
             var result = GetReachableTargets();
             while (result.Count > 1)
                 result.RemoveAt(result.Count - 1);
@@ -148,6 +153,13 @@ namespace UnitBrains
             var attackRangeSqr = unit.Config.AttackRange * unit.Config.AttackRange;
             var diff = targetPos - unit.Pos;
             return diff.sqrMagnitude <= attackRangeSqr;
+        }
+        
+        protected bool IsTargetInCoordinatorAcceptanceRange(Vector2Int targetPos)
+        {
+            var acceptanceRange = unit.Config.CoordinatorAcceptanceRange * unit.Config.CoordinatorAcceptanceRange;
+            var diff = targetPos - unit.Pos;
+            return diff.sqrMagnitude <= acceptanceRange;
         }
 
         protected List<Vector2Int> GetReachableTargets()
