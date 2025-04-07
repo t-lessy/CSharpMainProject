@@ -4,7 +4,6 @@ using Model;
 using Model.Runtime.Projectiles;
 using Model.Runtime.ReadOnly;
 using UnitBrains.Pathfinding;
-using UnitBrains.Player;
 using UnityEngine;
 using Utilities;
 using Unit = Model.Runtime.Unit;
@@ -19,7 +18,7 @@ namespace UnitBrains
         
         protected Unit unit { get; private set; }
         protected IReadOnlyRuntimeModel runtimeModel => ServiceLocator.Get<IReadOnlyRuntimeModel>();
-        private BaseUnitPath _activePath = null;
+        protected BaseUnitPath _activePath = null;
         
         private readonly Vector2[] _projectileShifts = new Vector2[]
         {
@@ -78,10 +77,6 @@ namespace UnitBrains
 
         protected virtual List<Vector2Int> SelectTargets()
         {
-            var suggestedTarget = UnitCoordinator.Instance().SuggestedTarget;
-            if (IsTargetInCoordinatorAcceptanceRange(suggestedTarget))
-                return new List<Vector2Int> { suggestedTarget };
-            
             var result = GetReachableTargets();
             while (result.Count > 1)
                 result.RemoveAt(result.Count - 1);

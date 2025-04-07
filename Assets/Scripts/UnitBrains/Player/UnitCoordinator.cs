@@ -15,43 +15,68 @@ namespace UnitBrains.Player
         private readonly int _halfMapWidth;
         private readonly bool _isPlayerOnLeftSide;
 
-        public Vector2Int SuggestedTarget { get; private set; }
+        public Vector2Int Target { get; private set; }
+        public Vector2Int Destination { get; private set; }
 
         private UnitCoordinator()
         {
             _runtimeModel = ServiceLocator.Get<IReadOnlyRuntimeModel>();
 
             _halfMapWidth = _runtimeModel.RoMap.Width / 2;
-            _isPlayerOnLeftSide = _runtimeModel.RoMap.Bases[RuntimeModel.PlayerId].x < _halfMapWidth;
-
-            ServiceLocator.Get<TimeUtil>().AddFixedUpdateAction(Update);
+            _isPlayerOnLeftSide = _runtimeModel.RoMap.Bases[RuntimeModel.PlayerId].y < _halfMapWidth;
+            
+            ServiceLocator.Get<TimeUtil>().AddUpdateAction(Update);
         }
 
         public static UnitCoordinator Instance() => s_instance;
 
         private void Update(float deltaTime)
         {
-            SuggestedTarget = _runtimeModel.RoMap.Bases[RuntimeModel.PlayerId];
+            UpdateTarget();
+            UpdateDestination();
+        }
 
+        private void UpdateTarget()
+        {
+            // Default target is bot base
+            Target = _runtimeModel.RoMap.Bases[RuntimeModel.BotPlayerId];
+            
             var enemies = _runtimeModel.RoBotUnits.ToList();
             if (!enemies.Any())
                 return;
             enemies.Sort(CompareByHealth);
-            SuggestedTarget = enemies.First().Pos;
-
+            Target = enemies.First().Pos;
+            
             var enemiesOnPlayerSide = enemies.Where(IsTargetOnPlayerSide).ToList();
             if (!enemiesOnPlayerSide.Any())
                 return;
             enemiesOnPlayerSide.Sort(CompareByDistanceToPlayerBase);
-            SuggestedTarget = enemiesOnPlayerSide.First().Pos;
+            Target = enemiesOnPlayerSide.First().Pos;
+        }
+
+        private void UpdateDestination()
+        {
+            // Default destination is bot base
+            Destination = _runtimeModel.RoMap.Bases[RuntimeModel.BotPlayerId];
+            
+            var enemies = _runtimeModel.RoBotUnits.ToList();
+            if (!enemies.Any())
+                return;
+            enemies.Sort(CompareByDistanceToPlayerBase);
+            Destination = enemies.First().Pos;
+            
+            var enemiesOnPlayerSide = enemies.Where(IsTargetOnPlayerSide).ToList();
+            if (!enemiesOnPlayerSide.Any())
+                return;
+            Destination = _runtimeModel.RoMap.Bases[RuntimeModel.PlayerId];
         }
 
         private int CompareByHealth(IReadOnlyUnit a, IReadOnlyUnit b) =>
             a.Health.CompareTo(b.Health);
 
         private bool IsTargetOnPlayerSide(IReadOnlyUnit target) =>
-            target.Pos.x < _halfMapWidth && _isPlayerOnLeftSide
-            || target.Pos.x >= _halfMapWidth && !_isPlayerOnLeftSide;
+            (target.Pos.y < _halfMapWidth && _isPlayerOnLeftSide)
+            || (target.Pos.y >= _halfMapWidth && !_isPlayerOnLeftSide);
 
         private int CompareByDistanceToPlayerBase(IReadOnlyUnit a, IReadOnlyUnit b)
         {
