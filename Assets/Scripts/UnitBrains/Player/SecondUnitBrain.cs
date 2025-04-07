@@ -3,8 +3,8 @@ using Model;
 using Model.Runtime.Projectiles;
 using System.Collections.Generic;
 using System.Linq;
+using UnitBrains.Pathfinding;
 using UnityEngine;
-using Utilities;
 
 namespace UnitBrains.Player
 {
@@ -16,10 +16,13 @@ namespace UnitBrains.Player
         private float _temperature = 0f;
         private float _cooldownTime = 0f;
         private bool _overheated;
-        private List<Vector2Int> _outOfRangeTargets = new(); // поле, со списком недосягаемых целей
+        private List<Vector2Int> _outOfRangeTargets = new();
         private static int _unitCounter = 0;
         private int _unitId = _unitCounter++;
         private const int _maximumSelectionTargets = 3;
+        private AStarUnitPath _activePath;
+        private Vector2Int _lastTarget;
+        private Vector2Int _lastStart;
 
         protected override void GenerateProjectiles(Vector2Int forTarget, List<BaseProjectile> intoList)
         {
@@ -46,17 +49,24 @@ namespace UnitBrains.Player
 
         public override Vector2Int GetNextStep()
         {
-            List<Vector2Int> inRangeTargets = SelectTargets();
-            if (inRangeTargets.Count > 0) // Если есть цель, стреляем.
+            var inRangeTargets = SelectTargets();
+
+            if (inRangeTargets.Count > 0) 
             {
                 return unit.Pos;
             }
 
-            if (_outOfRangeTargets.Count > 0) // Если цели нет
+            if (_outOfRangeTargets.Count > 0)
             {
-                Vector2Int target = _outOfRangeTargets[0]; // Берём первую далёкую цель
-                Vector2Int nextPosition = unit.Pos.CalcNextStepTowards(target); // Идем до далекой цели
-                return nextPosition;
+                Vector2Int target = _outOfRangeTargets[0];
+
+                if (_activePath == null || _lastTarget != target || _lastStart != unit.Pos)
+                {
+                    _activePath = new AStarUnitPath(runtimeModel, unit.Pos, target);
+                    _lastTarget = target;
+                    _lastStart = unit.Pos;
+                }
+                return _activePath.GetNextStepFrom(unit.Pos);
             }
             return unit.Pos;
         }
@@ -65,7 +75,7 @@ namespace UnitBrains.Player
         {
             _outOfRangeTargets.Clear();
 
-            List<Vector2Int> allTargets = GetAllTargets().ToList();// Получение всех возможных целей
+            List<Vector2Int> allTargets = GetAllTargets().ToList(); // Получение всех возможных целей
             List<Vector2Int> result = new List<Vector2Int>(); // Получение доступных целей
 
             if (allTargets.Count == 0) // Если в списке нет целей, то добавляем в список базу противника
