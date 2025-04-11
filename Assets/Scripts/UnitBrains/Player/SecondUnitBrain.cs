@@ -23,7 +23,7 @@ namespace UnitBrains.Player
         private int UnitID = UnitCounter++;
         private const int MaxUnitID = 3;
         
-
+        //Проверка
         protected override void GenerateProjectiles(Vector2Int forTarget, List<BaseProjectile> intoList)
         {
             float overheatTemperature = OverheatTemperature;
