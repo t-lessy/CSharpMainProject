@@ -32,33 +32,44 @@ namespace UnitBrains.Player
             }
 
             IncreaseTemperature();
+
         }
 
         public override Vector2Int GetNextStep()
         {
             return base.GetNextStep();
         }
-
         protected override List<Vector2Int> SelectTargets()
         {
-            ///////////////////////////////////////
-            // Homework 1.4 (1st block, 4rd module)
-            ///////////////////////////////////////
             List<Vector2Int> result = GetReachableTargets();
-            while (result.Count > 1)
+
+            if (result.Count == 0)
+                return result;
+
+            Vector2Int closestTarget = result[0];
+            int minDistance = (int)DistanceToOwnBase(closestTarget);
+
+            foreach (var target in result)
             {
-                result.RemoveAt(result.Count - 1);
+                int distance = (int)DistanceToOwnBase(target);
+                if (distance < minDistance)
+                {
+                    minDistance = distance;
+                    closestTarget = target;
+                }
             }
+
+            result.Clear();
+            result.Add(closestTarget);
             return result;
-            ///////////////////////////////////////
         }
 
         public override void Update(float deltaTime, float time)
         {
             if (_overheated)
-            {              
+            {
                 _cooldownTime += Time.deltaTime;
-                float t = _cooldownTime / (OverheatCooldown/10);
+                float t = _cooldownTime / (OverheatCooldown / 10);
                 _temperature = Mathf.Lerp(OverheatTemperature, 0, t);
                 if (t >= 1)
                 {
