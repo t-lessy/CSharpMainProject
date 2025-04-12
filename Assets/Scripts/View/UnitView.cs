@@ -21,22 +21,7 @@ namespace View
                 model.ActivePath != null &&
                 model.ActivePath?.EndPoint != _debugPathOutput.Path?.EndPoint)
             {
-                Debug.Log("Звёзды сошлись");
                 _debugPathOutput.HighlightPath(model.ActivePath);
-            }
-
-            Debug.Log("UpdateState работает");
-
-            if (_debugPathOutput != null)
-                Debug.Log("_debugPathOutput != null");
-
-            if (model.ActivePath != null)
-                Debug.Log("model.ActivePath != null");
-
-            if (_debugPathOutput != null &&
-                model.ActivePath != null)
-            {
-                Debug.Log("_debugPathOutput_debugPathOutput != null && model.ActivePath != null");
             }
         }
     }

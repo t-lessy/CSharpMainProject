@@ -118,7 +118,6 @@ namespace View
             var prevPosition = unitView.transform.position;
             unitView.transform.position = ToWorldPosition(unitModel.Pos);
             unitView.UpdateState(unitModel, prevPosition);
-            Debug.Log("UpdateUnit");
         }
 
         private void UpdateProjectile(IReadOnlyProjectile projModel, ProjectileView projView)
