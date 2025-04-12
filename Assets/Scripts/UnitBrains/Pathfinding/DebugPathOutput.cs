@@ -17,6 +17,7 @@ namespace UnitBrains.Pathfinding
         public void HighlightPath(BaseUnitPath path)
         {
             Path = path;
+            Debug.Log("HighlightPath работает");
             while (allHighlights.Count > 0)
             {
                 DestroyHighlight(0);
@@ -33,6 +34,14 @@ namespace UnitBrains.Pathfinding
         private IEnumerator HighlightCoroutine(BaseUnitPath path)
         {
             // TODO Implement me
+
+            foreach (var cell in path.GetPath())
+            {
+                CreateHighlight(cell);
+                Debug.Log($"foreach работает");
+            }
+            Debug.Log("HighlightCoroutine работает");
+
             yield break;
         }
 

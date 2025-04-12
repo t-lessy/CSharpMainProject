@@ -39,7 +39,7 @@ namespace UnitBrains
             var target = runtimeModel.RoMap.Bases[
                 IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId];
 
-            _activePath = new DummyUnitPath(runtimeModel, unit.Pos, target);
+            _activePath = new DummyUnitPath(runtimeModel, unit.Pos, target); //Тут был DummyUnitPath и он работал. теперь нихуя не работает. Полагаю дело в векторах
             return _activePath.GetNextStepFrom(unit.Pos);
         }
 
