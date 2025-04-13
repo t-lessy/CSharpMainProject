@@ -40,7 +40,48 @@ namespace UnitBrains.Player
 
         public override Vector2Int GetNextStep()
         {
-            return base.GetNextStep();
+            Vector2Int result = new Vector2Int();
+            Vector2Int DangerousTargetOutOfRange = new Vector2Int();
+
+            List <IEnumerable<Vector2Int>> ListOfAllTargets = (List<IEnumerable<Vector2Int>>)GetAllTargets();
+
+            if(ListOfAllTargets.Count > 0)
+            {
+                float minDistance = float.MaxValue;
+                Vector2Int closestTarget = new Vector2Int();
+
+                foreach (var target in GetAllTargets())
+                {
+                    float distanceToBase = DistanceToOwnBase(target);
+
+                    if (distanceToBase < minDistance)
+                    {
+                        minDistance = distanceToBase;
+                        closestTarget = target;
+                    }
+
+                }
+                if (IsTargetInRange(closestTarget)) 
+                {
+                    result = closestTarget;
+                    return result;
+                }
+                else
+                {
+                    Vector2Int currentPosition = Vector2Int.zero;
+                    DangerousTargetOutOfRange = closestTarget;
+
+                    currentPosition = currentPosition.CalcNextStepTowards(DangerousTargetOutOfRange);
+                    return DangerousTargetOutOfRange;
+                 }
+
+            }
+            else
+            {
+                Vector2Int enemyBase = runtimeModel.RoMap.Bases[RuntimeModel.PlayerId];
+                return enemyBase;
+            }
+           
         }
 
         protected override List<Vector2Int> SelectTargets()
