@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
+using Model;
 using Model.Runtime.Projectiles;
 using PlasticGui.WorkspaceWindow;
 using UnityEngine;
+using Utilities;
 
 namespace UnitBrains.Player
 {
@@ -87,7 +89,7 @@ namespace UnitBrains.Player
         protected override List<Vector2Int> SelectTargets()
         {
             ///////////////////////////////////////
-            // Homework 1.4 (1st block, 4rd module)
+            // Homework 1.4 (1st block, 4th module)
             ///////////////////////////////////////
 
             float minDistance = float.MaxValue;
@@ -106,18 +108,7 @@ namespace UnitBrains.Player
                 }
 
             }
-
-            //Исправление ошибок (ДЗ 4)
-
-            //result.Insert(0, closestTarget);
-
-            ////Код, который был в ДЗ изначально (думала, что его нужно оставить)
-            //while (result.Count > 1)
-            //{
-            //    result.RemoveAt(result.Count - 1);
-            //}
-            
-            //Исправления в соответствии с комментарием проверяющего
+                        
             result.Clear();
             result.Add(closestTarget);
             return result;
