@@ -35,13 +35,22 @@ namespace UnitBrains.Pathfinding
         private IEnumerator HighlightCoroutine(BaseUnitPath path)
         {
             // TODO Implement me
-
-            foreach (var cell in path.GetPath())
+            int counter = 0;
+            while (true)
             {
-                CreateHighlight(cell);
-                Debug.Log($"foreach работает");
+                foreach (var cell in path.GetPath())
+                {
+                    CreateHighlight(cell);
+                    counter++;
+
+                    if (counter >= maxHighlights)
+                    {
+                        DestroyHighlight(0);
+                    }
+
+                    yield return new WaitForSeconds(0.1f);
+                }
             }
-            Debug.Log("HighlightCoroutine работает");
 
             //Тут тесты Vector2Int
             //Vector2Int test1 = new Vector2Int(5, 3);
