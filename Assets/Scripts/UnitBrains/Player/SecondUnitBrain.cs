@@ -13,7 +13,8 @@ namespace UnitBrains.Player
         private float _temperature = 0f;
         private float _cooldownTime = 0f;
         private bool _overheated;
-        List<Vector2Int> result = new List<Vector2Int>();
+        List<Vector2Int> result = new List<Vector2Int>(); //цели в зоне досягаемости 
+        List<Vector2Int> outOfRangeTargets = new List<Vector2Int>(); //цели не в зоне досягаемости 
 
 
         protected override void GenerateProjectiles(Vector2Int forTarget, List<BaseProjectile> intoList)
@@ -39,26 +40,37 @@ namespace UnitBrains.Player
 
             ///////////////////////////////////////
         }
-
-
         public override Vector2Int GetNextStep()
         {
-            if (result.Count == 0) // Если нет целей, возвращаем позицию юнита
-                return unit.Pos;
-
-            // Получаем цель
-            Vector2Int targetPos = result.First();
-
-            // Если цель в пределах области атаки
-            if (IsTargetInRange(targetPos))
+            // Проверка, есть ли цели в зоне досягаемости 
+            if (result.Count > 0)
             {
-                return unit.Pos; // Возвращаем текущую позицию, так как цель в пределах досягаемости
+                // Берем первую цель из result
+                Vector2Int targetPosInRange = result.First();
+
+                // Если цель в пределах области атаки
+                if (IsTargetInRange(targetPosInRange))
+                {
+                    return unit.Pos; // стоим и атакуем(так как цель в пределах досягаемости)
+                }
+                else
+                {
+                    // Если цель не в пределах области атаки, двигаемся к ней чтобы атаковать 
+                    return CalcNextStepTowards(unit.Pos, targetPosInRange);
+                }
             }
-            else
+            // Если есть цели в зоне не досягаемости
+            else if (outOfRangeTargets.Count > 0)
             {
-                // Если цель не в пределах атаки, двигаемся к ней
+                // Берем первую цель из outOfRangeTargets 
+                Vector2Int targetPos = outOfRangeTargets.First();
+
+                // Если цель не в пределах досягаемости, двигаемся к ней
                 return CalcNextStepTowards(unit.Pos, targetPos);
             }
+
+            // Если нет целей вообще, стоим на месте
+            return unit.Pos;
         }
 
         protected override List<Vector2Int> SelectTargets()
@@ -68,9 +80,6 @@ namespace UnitBrains.Player
             ///////////////////////////////////////
 
             List<Vector2Int> allTargets = GetAllTargets().ToList();
-            List<Vector2Int> outOfRangeTargets = new List<Vector2Int>();
-
-
 
             float minDistance = float.MaxValue;
             Vector2Int nearTarget = Vector2Int.zero; // коардинаты для ближайшей цели изначально задаем как (0,0)
@@ -93,13 +102,15 @@ namespace UnitBrains.Player
             {
                 outOfRangeTargets.Add(nearTarget);
             }
-            if (result.Count == 0) // если нет врагов 
+            if (result.Count == 0) // если нет целей 
             {
                 // Получаем базу противника
                 Vector2Int enemyBase = runtimeModel.RoMap.Bases[IsPlayerUnitBrain ? Model.RuntimeModel.BotPlayerId : Model.RuntimeModel.PlayerId];
                 result.Add(enemyBase);
             }
+
             return result;
+
             ///////////////////////////////////////
         }
 
