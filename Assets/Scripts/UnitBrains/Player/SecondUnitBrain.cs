@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Model.Runtime.Projectiles;
 using UnityEngine;
+using System.Linq;
 
 namespace UnitBrains.Player
 {
@@ -12,6 +13,8 @@ namespace UnitBrains.Player
         private float _temperature = 0f;
         private float _cooldownTime = 0f;
         private bool _overheated;
+        List<Vector2Int> result = new List<Vector2Int>();
+
 
         protected override void GenerateProjectiles(Vector2Int forTarget, List<BaseProjectile> intoList)
         {
@@ -40,7 +43,22 @@ namespace UnitBrains.Player
 
         public override Vector2Int GetNextStep()
         {
-            return base.GetNextStep();
+            if (result.Count == 0) // Если нет целей, возвращаем позицию юнита
+                return unit.Pos;
+
+            // Получаем цель
+            Vector2Int targetPos = result.First();
+
+            // Если цель в пределах области атаки
+            if (IsTargetInRange(targetPos))
+            {
+                return unit.Pos; // Возвращаем текущую позицию, так как цель в пределах досягаемости
+            }
+            else
+            {
+                // Если цель не в пределах атаки, двигаемся к ней
+                return CalcNextStepTowards(unit.Pos, targetPos);
+            }
         }
 
         protected override List<Vector2Int> SelectTargets()
@@ -48,11 +66,16 @@ namespace UnitBrains.Player
             ///////////////////////////////////////
             // Homework 1.4 (1st block, 4rd module)
             ///////////////////////////////////////
-            List<Vector2Int> result = GetReachableTargets();
+
+            List<Vector2Int> allTargets = GetAllTargets().ToList();
+            List<Vector2Int> outOfRangeTargets = new List<Vector2Int>();
+
+
+
             float minDistance = float.MaxValue;
             Vector2Int nearTarget = Vector2Int.zero; // коардинаты для ближайшей цели изначально задаем как (0,0)
 
-            foreach (Vector2Int target in result) // Проходим по всем существующим целям и ищем ближайшую
+            foreach (Vector2Int target in allTargets) // Проходим по всем существующим целям и ищем ближайшую
             {
                 float distance = DistanceToOwnBase(target);
                 if (distance < minDistance)
@@ -65,6 +88,16 @@ namespace UnitBrains.Player
             if (minDistance < float.MaxValue)
             {
                 result.Add(nearTarget); //Добавлям в очищенный список новую цель
+            }
+            else
+            {
+                outOfRangeTargets.Add(nearTarget);
+            }
+            if (result.Count == 0) // если нет врагов 
+            {
+                // Получаем базу противника
+                Vector2Int enemyBase = runtimeModel.RoMap.Bases[IsPlayerUnitBrain ? Model.RuntimeModel.BotPlayerId : Model.RuntimeModel.PlayerId];
+                result.Add(enemyBase);
             }
             return result;
             ///////////////////////////////////////
@@ -95,6 +128,20 @@ namespace UnitBrains.Player
         {
             _temperature += 1f;
             if (_temperature >= OverheatTemperature) _overheated = true;
+        }
+
+        // Метод для расчета следующего шага
+        private Vector2Int CalcNextStepTowards(Vector2Int currentPos, Vector2Int targetPos)
+        {
+            // Вычисляем разницу между текущей позицией и целевой
+            Vector2Int direction = targetPos - currentPos;
+
+            // Нормализуем направление (если расстояние > 0)
+            if (direction.x != 0) direction.x = direction.x > 0 ? 1 : -1;
+            if (direction.y != 0) direction.y = direction.y > 0 ? 1 : -1;
+
+            // Возвращаем следующую позицию
+            return currentPos + direction;
         }
     }
 }
