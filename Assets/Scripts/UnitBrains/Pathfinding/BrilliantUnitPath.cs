@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using UnitBrains.Pathfinding;
 using UnityEngine;
 using Utilities;
+using static UnityEngine.GraphicsBuffer;
 
 public class BrilliantUnitPath : BaseUnitPath
 {
@@ -24,81 +25,94 @@ public class BrilliantUnitPath : BaseUnitPath
 
     protected override void Calculate()
     {
-        List<Vector2Int> result = startPoint == endPoint || findPath() == null? new List<Vector2Int> {startPoint} : findPath();
+        List<PathNode> pathNodes = FindPath();
+        List<Vector2Int> result = new List<Vector2Int>();
+        Debug.Log("Calculate работает"); //ДЕБАГ
+        if (pathNodes != null)
+        {
+            Debug.Log("FindPath != null"); //ДЕБАГ
+            foreach (var node in pathNodes)
+            {
+                result.Add(node.Position);
+            }
+        }
+        else
+        {
+            Debug.Log("FindPath == null");  //ДЕБАГ
+            result.Add(StartPoint);
+        }
 
-        //if (pathNodes == null)
-        //    return;
-
-        path = result.ToArray();
-
+            path = result.ToArray();
     }
 
 
-    public List<Vector2Int> findPath()  //И тут был лист нод, а не vector2int
+    public List<PathNode> FindPath() //Надо 2 листа сделать, открытый и закрытый
     {
-        PathNode startNode = new PathNode(startPoint);
-        PathNode targetNode = new PathNode(endPoint);
+        PathNode startNode = new PathNode(StartPoint);
+        PathNode targetNode = new PathNode(EndPoint);
 
-        var diff = endPoint - startPoint;
-        var stepDiff = diff.SignOrZero();
-        Vector2Int[] allStepDiff = { stepDiff, new Vector2Int(0, stepDiff.y), new Vector2Int(stepDiff.x, 0), new Vector2Int(stepDiff.x, -stepDiff.y), new Vector2Int(-stepDiff.x, stepDiff.y) };
+        Debug.Log($"StartPoint = {StartPoint}"); //DEBUG
+        Debug.Log($"EndPoint = {EndPoint}");    //DEBUG
 
+        //Сюда добавляются все вершины в которые можно пойти
         List<PathNode> openList = new List<PathNode> { startNode };
+
+        //Сюда добавляются вершины по которым уже прошли, они в вычислениях не учавствуют
         List<PathNode> closedList = new List<PathNode>();
 
         while (openList.Count > 0)
         {
-            DebugCounter++;                            //Дебажная херня
-            if (DebugCounter >= MaxDebugCounter)      //
-            {                                        //
-                Debug.Log("БЕСКОНЕЧНЫЙ ЦИКЛ");      //
-                Debug.Log($"openList.Count = {openList.Count}");      //
-                Debug.Log($"closedList.Count = {closedList.Count}");
-                return null;                       //
-            }                                     //
-
-            
-
-
             PathNode currentNode = openList[0];
 
-            foreach (PathNode node in openList)
+            DebugCounter++; //DEBUG
+            if (DebugCounter >= MaxDebugCounter) //DEBUG
+            {
+                Debug.Log("Бесконечный цикл");
+                DebugCounter = 0; 
+                return null; 
+            }
+
+
+            foreach (var node in openList)  //РАБОТАЕТ
             {
                 if (node.Value < currentNode.Value)
-                    currentNode = node;  //Это точно работает
+                    currentNode = node;
             }
+
             openList.Remove(currentNode);
             closedList.Add(currentNode);
 
-            
-            //if (currentNode.Equals(targetNode)) 
-            if (currentNode.Position == targetNode.Position)
+            //Если координаты текущего Node равны координатам текущей цели, значит путь дошёл до конца. Если это случилось, то нужно сформировать список Node пути и вывести его
+            if (currentNode.Position == targetNode.Position) //НЕ РАБОТАЕТ (Хотя должно)
             {
-                List<Vector2Int> path = new List<Vector2Int>(); //Раньше тут был лист нод
-                Debug.Log("Главный ИФ РАБОТАЕТ!!!!!"); //Убрать
+                List<PathNode> path = new List<PathNode>();
+
                 while (currentNode != null)
                 {
-                    Vector2Int currentPosition = currentNode.Position;
-                    path.Add(currentPosition); //И тут добавлял текущую ноду, а не позицию //Было currentNode.Position
-                    currentNode = currentNode.Parent;        //
+                    path.Add(currentNode);
+                    currentNode = currentNode.Parent;
                 }
 
                 path.Reverse();
+                DebugCounter = 0; //DEBUG
+                Console.WriteLine("Путь нашёлся!!!"); //DEBUG
                 return path;
             }
 
-            for (int i = 0; i < allStepDiff.Length; i++) // раньше тут длинна dx была
+            for (int i = 0; i < dx.Length; i++)
             {
+                int newX = currentNode.Position.x + dx[i];
+                int newY = currentNode.Position.y + dy[i];
+                Vector2Int newPos = new Vector2Int(newX, newY);
 
-                PathNode newPosition = new(currentNode.Position + allStepDiff[i]);   //тут был Vector2Int
-
-                if (runtimeModel.IsTileWalkable(newPosition.Position))  //Пока тут бесконечный цикл из-за этой херни. Разобраться /// newPosition было
+                if (runtimeModel.IsTileWalkable(newPos))
                 {
-                    Debug.Log("ИсТайлВалкабле работает");
-                    PathNode neighbor = new PathNode(newPosition.Position);   // newPosition было
-
-                    if (closedList.Contains(neighbor))
+                    PathNode neighbor = new PathNode(newPos);
+                    if (closedList.Contains(neighbor)) //РАБОТАЕТ
+                    {
+                        //Debug.Log($"{neighbor} Есть в закрытом листе"); 
                         continue;
+                    }
 
                     neighbor.Parent = currentNode;
                     neighbor.CalculateEstimate(targetNode.Position);
@@ -108,6 +122,7 @@ public class BrilliantUnitPath : BaseUnitPath
                 }
             }
         }
+        DebugCounter = 0; //DEBUG
         return null;
     }
 }

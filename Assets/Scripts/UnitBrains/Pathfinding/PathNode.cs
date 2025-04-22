@@ -24,11 +24,11 @@ public class PathNode          // : MonoBehaviour
     {
         Value = Cost + Estimate;
     }
-    //public override bool Equals(object? obj)
-    //{
-    //    if (obj is not PathNode node) 
-    //        return false;
+    public override bool Equals(object? obj)
+    {
+        if (obj is not PathNode node)
+            return false;
 
-    //    return Position.x == node.Position.x && Position.y == node.Position.y; 
-    //}
+        return Position.x == node.Position.x && Position.y == node.Position.y;
+    }
 }
