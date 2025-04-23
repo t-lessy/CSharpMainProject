@@ -9,71 +9,39 @@ using static UnityEngine.GraphicsBuffer;
 
 public class BrilliantUnitPath : BaseUnitPath
 {
-    private int[] dx = { -1, 0, 1, 0 };
-    private int[] dy = { 0, 1, 0, -1 };
-    
-
-    private int DebugCounter = 0;
-    private int MaxDebugCounter = 3000;
+    private const int MaxLength = 100;
+    private Vector2Int[] dxy = { new Vector2Int(-1, 0), new Vector2Int(0, 1), new Vector2Int(1, 0), new Vector2Int(0, -1) };
 
     public BrilliantUnitPath(IReadOnlyRuntimeModel runtimeModel, Vector2Int startPoint, Vector2Int endPoint) : base(runtimeModel, startPoint, endPoint)
     {
-
     }
-
-
 
     protected override void Calculate()
     {
-        List<PathNode> pathNodes = FindPath();
-        List<Vector2Int> result = new List<Vector2Int>();
-        Debug.Log("Calculate работает"); //ДЕБАГ
-        if (pathNodes != null)
-        {
-            Debug.Log("FindPath != null"); //ДЕБАГ
-            foreach (var node in pathNodes)
-            {
-                result.Add(node.Position);
-            }
-        }
-        else
-        {
-            Debug.Log("FindPath == null");  //ДЕБАГ
-            result.Add(StartPoint);
-        }
+        List<Vector2Int> result = FindPath();
 
-            path = result.ToArray();
+        path = result != null ? result.ToArray() : FallbackOption().ToArray();
     }
 
 
-    public List<PathNode> FindPath() //Надо 2 листа сделать, открытый и закрытый
+    private List<Vector2Int> FindPath()
     {
         PathNode startNode = new PathNode(StartPoint);
         PathNode targetNode = new PathNode(EndPoint);
 
-        Debug.Log($"StartPoint = {StartPoint}"); //DEBUG
-        Debug.Log($"EndPoint = {EndPoint}");    //DEBUG
-
-        //Сюда добавляются все вершины в которые можно пойти
         List<PathNode> openList = new List<PathNode> { startNode };
-
-        //Сюда добавляются вершины по которым уже прошли, они в вычислениях не учавствуют
         List<PathNode> closedList = new List<PathNode>();
 
         while (openList.Count > 0)
         {
             PathNode currentNode = openList[0];
 
-            DebugCounter++; //DEBUG
-            if (DebugCounter >= MaxDebugCounter) //DEBUG
+            if (openList.Count >= MaxLength) //Защита от бесконечного цикла
             {
-                Debug.Log("Бесконечный цикл");
-                DebugCounter = 0; 
-                return null; 
+                return null;
             }
 
-
-            foreach (var node in openList)  //РАБОТАЕТ
+            foreach (var node in openList) 
             {
                 if (node.Value < currentNode.Value)
                     currentNode = node;
@@ -82,37 +50,29 @@ public class BrilliantUnitPath : BaseUnitPath
             openList.Remove(currentNode);
             closedList.Add(currentNode);
 
-            //Если координаты текущего Node равны координатам текущей цели, значит путь дошёл до конца. Если это случилось, то нужно сформировать список Node пути и вывести его
-            if (currentNode.Position == targetNode.Position) //НЕ РАБОТАЕТ (Хотя должно)
+            if (currentNode.Position == targetNode.Position)
             {
-                List<PathNode> path = new List<PathNode>();
+                List<Vector2Int> path = new List<Vector2Int>();
 
                 while (currentNode != null)
                 {
-                    path.Add(currentNode);
+                    path.Add(currentNode.Position);
                     currentNode = currentNode.Parent;
                 }
 
                 path.Reverse();
-                DebugCounter = 0; //DEBUG
-                Console.WriteLine("Путь нашёлся!!!"); //DEBUG
                 return path;
             }
 
-            for (int i = 0; i < dx.Length; i++)
+            for (int i = 0; i < dxy.Length; i++)
             {
-                int newX = currentNode.Position.x + dx[i];
-                int newY = currentNode.Position.y + dy[i];
-                Vector2Int newPos = new Vector2Int(newX, newY);
+                Vector2Int newPos = currentNode.Position + dxy[i];
 
-                if (runtimeModel.IsTileWalkable(newPos))
+                if (runtimeModel.IsTileWalkable(newPos) || newPos == targetNode.Position)
                 {
                     PathNode neighbor = new PathNode(newPos);
-                    if (closedList.Contains(neighbor)) //РАБОТАЕТ
-                    {
-                        //Debug.Log($"{neighbor} Есть в закрытом листе"); 
+                    if (closedList.Contains(neighbor))
                         continue;
-                    }
 
                     neighbor.Parent = currentNode;
                     neighbor.CalculateEstimate(targetNode.Position);
@@ -122,7 +82,65 @@ public class BrilliantUnitPath : BaseUnitPath
                 }
             }
         }
-        DebugCounter = 0; //DEBUG
         return null;
+    }
+
+
+    private List<Vector2Int> FallbackOption()   //Скопировано с DummyUnitPath. Срабатывает только в случае, если алгоритм A* не находит путь
+    {
+            var currentPoint = startPoint;
+            var result = new List<Vector2Int> { startPoint };
+            var counter = 0;
+            while (currentPoint != endPoint && counter++ < MaxLength)
+            {
+                var nextStep = CalcNextStepTowards(currentPoint, endPoint);
+                var hasLoop = result.Contains(nextStep);
+                result.Add(nextStep);
+                if (hasLoop)
+                    break;
+                currentPoint = nextStep;
+            }
+
+            return result;
+
+            Vector2Int CalcNextStepTowards(Vector2Int fromPos, Vector2Int toPos)
+            {
+                var diff = toPos - fromPos;
+                var stepDiff = diff.SignOrZero();
+                var nextStep = fromPos + stepDiff;
+
+                if (runtimeModel.IsTileWalkable(nextStep))
+                    return nextStep;
+
+                if (stepDiff.sqrMagnitude > 1)
+                {
+                    var partStep0 = fromPos + new Vector2Int(stepDiff.x, 0);
+                    if (runtimeModel.IsTileWalkable(partStep0))
+                        return partStep0;
+
+                    var partStep1 = fromPos + new Vector2Int(0, stepDiff.y);
+                    if (runtimeModel.IsTileWalkable(partStep1))
+                        return partStep1;
+                }
+
+                var sideStep0 = fromPos + new Vector2Int(stepDiff.y, -stepDiff.x);
+                var shiftedStep0 = fromPos + (sideStep0 + stepDiff).SignOrZero();
+                if (runtimeModel.IsTileWalkable(shiftedStep0))
+                    return shiftedStep0;
+
+                var sideStep1 = fromPos + new Vector2Int(-stepDiff.y, stepDiff.x);
+                var shiftedStep1 = fromPos + (sideStep1 + stepDiff).SignOrZero();
+                if (runtimeModel.IsTileWalkable(shiftedStep1))
+                    return shiftedStep1;
+
+                if (runtimeModel.IsTileWalkable(sideStep0))
+                    return sideStep0;
+
+                if (runtimeModel.IsTileWalkable(sideStep1))
+                    return sideStep1;
+
+                return fromPos;
+            }
+        
     }
 }

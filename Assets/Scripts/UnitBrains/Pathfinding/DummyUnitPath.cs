@@ -29,10 +29,6 @@ namespace UnitBrains.Pathfinding
             }
 
             path = result.ToArray();
-            //foreach (var position in path)
-            //{
-            //    Debug.Log($"Путь юнита: {position}");
-            //}
         }
         
         private Vector2Int CalcNextStepTowards(Vector2Int fromPos, Vector2Int toPos)
