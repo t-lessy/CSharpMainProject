@@ -15,7 +15,10 @@ namespace UnitBrains.Player
         private float _temperature = 0f;
         private float _cooldownTime = 0f;
         private bool _overheated;
+
         
+        private List<Vector2Int> _dangerousTargetOutOfRange = new List<Vector2Int>();
+
         protected override void GenerateProjectiles(Vector2Int forTarget, List<BaseProjectile> intoList)
         {
             float overheatTemperature = OverheatTemperature;
@@ -42,48 +45,17 @@ namespace UnitBrains.Player
 
         public override Vector2Int GetNextStep()
         {
-            Vector2Int result = new Vector2Int();
-            Vector2Int DangerousTargetOutOfRange = new Vector2Int();
-
-            List <IEnumerable<Vector2Int>> ListOfAllTargets = (List<IEnumerable<Vector2Int>>)GetAllTargets();
-
-            if(ListOfAllTargets.Count > 0)
+            
+            if (_dangerousTargetOutOfRange.Count > 0) 
             {
-                float minDistance = float.MaxValue;
-                Vector2Int closestTarget = new Vector2Int();
+                Vector2Int unitPosition = unit.Pos;
+                Vector2Int target = _dangerousTargetOutOfRange[0];
 
-                foreach (var target in GetAllTargets())
-                {
-                    float distanceToBase = DistanceToOwnBase(target);
-
-                    if (distanceToBase < minDistance)
-                    {
-                        minDistance = distanceToBase;
-                        closestTarget = target;
-                    }
-
-                }
-                if (IsTargetInRange(closestTarget)) 
-                {
-                    result = closestTarget;
-                    return result;
-                }
-                else
-                {
-                    Vector2Int currentPosition = Vector2Int.zero;
-                    DangerousTargetOutOfRange = closestTarget;
-
-                    currentPosition = currentPosition.CalcNextStepTowards(DangerousTargetOutOfRange);
-                    return DangerousTargetOutOfRange;
-                 }
-
+                unitPosition = unitPosition.CalcNextStepTowards(target);
+                return unitPosition;
             }
-            else
-            {
-                Vector2Int enemyBase = runtimeModel.RoMap.Bases[RuntimeModel.PlayerId];
-                return enemyBase;
-            }
-           
+            return unit.Pos;
+
         }
 
         protected override List<Vector2Int> SelectTargets()
@@ -95,22 +67,48 @@ namespace UnitBrains.Player
             float minDistance = float.MaxValue;
             Vector2Int closestTarget = new Vector2Int();
 
-            List<Vector2Int> result = GetReachableTargets();
+            List<Vector2Int> result = new List<Vector2Int> ();
+            IEnumerable<Vector2Int> ListOfAllTargets = GetAllTargets();
 
-            foreach (Vector2Int target in result)
+            int amountOfTargets = 0;
+            foreach (Vector2Int item in ListOfAllTargets)
             {
-                float distanceToBase = DistanceToOwnBase(target);
+                amountOfTargets++;
+            }
 
-                if(distanceToBase < minDistance)
+            if (amountOfTargets != 0)
+            {
+                foreach (Vector2Int target in ListOfAllTargets)
                 {
-                    minDistance = distanceToBase;
-                    closestTarget = target;
+                    float distanceToBase = DistanceToOwnBase(target);
+
+                    if (distanceToBase < minDistance)
+                    {
+                        minDistance = distanceToBase;
+                        closestTarget = target;
+                    }
+
                 }
 
             }
-                        
-            result.Clear();
-            result.Add(closestTarget);
+            else
+            {
+                closestTarget = runtimeModel.RoMap.Bases[
+                IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId];
+            }
+            if (IsTargetInRange(closestTarget))
+            {
+                result.Clear();
+                result.Add(closestTarget);
+            }
+            else
+            {
+                _dangerousTargetOutOfRange.Clear();
+                _dangerousTargetOutOfRange.Add(closestTarget);
+            }
+               
+
+            
             return result;
 
 
