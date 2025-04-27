@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Model;
 using Model.Runtime.Projectiles;
 using UnityEngine;
+using UnityEngine.UIElements;
 using Utilities;
 using static Codice.CM.Common.CmCallContext;
 
@@ -17,8 +18,8 @@ namespace UnitBrains.Player
         private float _cooldownTime = 0f;
         private bool _overheated;
 
-        private List<Vector2Int> unreachableTargets = new(); //недостижимые цели
-        private Vector2Int? currentTarget; //текущая цель
+        private List<Vector2Int> _unreachableTargets = new(); //недостижимые цели
+        private Vector2Int? _currentTarget; //текущая цель
         protected override void GenerateProjectiles(Vector2Int forTarget, List<BaseProjectile> intoList)
         {
             float overheatTemperature = OverheatTemperature;
@@ -38,26 +39,11 @@ namespace UnitBrains.Player
             IncreaseTemperature();
 
         }
-
-        public override Vector2Int GetNextStep()
-        {
-            Vector2Int position = Vector2Int.zero;
-            Vector2Int nextPosition = Vector2Int.right;
-            position = position.CalcNextStepTowards(nextPosition);
-
-            if (currentTarget == null || GetReachableTargets().Contains(currentTarget.Value))
-            {
-                return position;
-            }
-
-            return position.CalcNextStepTowards(currentTarget.Value);
-        }
-
         protected override List<Vector2Int> SelectTargets()
         {
-            List<Vector2Int> allTargets = (List<Vector2Int>)GetAllTargets();
+            List<Vector2Int> allTargets = new List<Vector2Int>(GetAllTargets());
             List<Vector2Int> result = new();
-            unreachableTargets.Clear();
+            _unreachableTargets.Clear();
 
             if (allTargets.Count > 0)
             {
@@ -74,27 +60,37 @@ namespace UnitBrains.Player
                     }
                 }
 
-                currentTarget = closestTarget;
+                _currentTarget = closestTarget;
                 if (GetReachableTargets().Contains(closestTarget))
                 {
                     result.Add(closestTarget);
                 }
                 else
                 {
-                    unreachableTargets.Add(closestTarget);
+                    _unreachableTargets.Add(closestTarget);
                 }
             }
             else
             {
                 int enemyId = IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId;
                 Vector2Int enemyBase = runtimeModel.RoMap.Bases[enemyId];
-                currentTarget = enemyBase;
-                unreachableTargets.Add(enemyBase);
+                _currentTarget = enemyBase;
+                _unreachableTargets.Add(enemyBase);
             }
 
             return result;
         }
+        public override Vector2Int GetNextStep()
+        {
+            Vector2Int position = unit.Pos; 
 
+            if (_currentTarget == null || GetReachableTargets().Contains(_currentTarget.Value))
+            {
+                return position; // стоим на месте
+            }
+
+            return position.CalcNextStepTowards(_currentTarget.Value);
+        }
         public override void Update(float deltaTime, float time)
         {
             if (_overheated)
