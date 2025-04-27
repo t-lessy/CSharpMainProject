@@ -17,7 +17,21 @@ namespace UnitBrains.Player
         private bool _overheated;
 
         
+        //ДЗ N4
         private List<Vector2Int> _dangerousTargetOutOfRange = new List<Vector2Int>();
+
+        //ДЗ N5
+        private static int _counter = 0;
+        private int UnitNumber;
+        const int MAXnumberOfTargets = 3;
+
+        public SecondUnitBrain() 
+        {
+            
+            UnitNumber = _counter;
+            _counter++;
+            Debug.Log("Unit number " + UnitNumber);
+        }
 
         protected override void GenerateProjectiles(Vector2Int forTarget, List<BaseProjectile> intoList)
         {
@@ -64,54 +78,61 @@ namespace UnitBrains.Player
             // Homework 1.4 (1st block, 4th module)
             ///////////////////////////////////////
 
-            float minDistance = float.MaxValue;
-            Vector2Int closestTarget = new Vector2Int();
+            _dangerousTargetOutOfRange.Clear();                      
 
-            List<Vector2Int> result = new List<Vector2Int> ();
+            List<Vector2Int> result = new List<Vector2Int>();
+            List<Vector2Int> resultList = new List<Vector2Int>();
             IEnumerable<Vector2Int> ListOfAllTargets = GetAllTargets();
+            Vector2Int closestTarget = new Vector2Int();
+            
 
-            int amountOfTargets = 0;
-            foreach (Vector2Int item in ListOfAllTargets)
+            foreach (Vector2Int target in ListOfAllTargets)
             {
-                amountOfTargets++;
+                resultList.Add(target);
             }
 
-            if (amountOfTargets != 0)
+            if (resultList.Count <= 0)
             {
-                foreach (Vector2Int target in ListOfAllTargets)
-                {
-                    float distanceToBase = DistanceToOwnBase(target);
+                var baseTarget = runtimeModel.RoMap.Bases[
+                IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId];
+                resultList.Add(baseTarget);
+            }
 
-                    if (distanceToBase < minDistance)
-                    {
-                        minDistance = distanceToBase;
-                        closestTarget = target;
-                    }
+            SortByDistanceToOwnBase(resultList);
 
-                }
+            int targetIndex = UnitNumber;
 
+            while (targetIndex > MAXnumberOfTargets) 
+            {
+                targetIndex -= MAXnumberOfTargets;            
+            }
+
+            if (targetIndex > resultList.Count)
+            {
+                closestTarget = resultList[0];
             }
             else
             {
-                closestTarget = runtimeModel.RoMap.Bases[
-                IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId];
+                closestTarget = resultList[targetIndex - 1];
             }
+
             if (IsTargetInRange(closestTarget))
             {
-                result.Clear();
                 result.Add(closestTarget);
             }
             else
             {
-                _dangerousTargetOutOfRange.Clear();
                 _dangerousTargetOutOfRange.Add(closestTarget);
             }
-               
 
-            
+            resultList.Remove(closestTarget);
+
+            if (resultList.Count <= 0) 
+            {
+                _counter = 1;
+            }
+
             return result;
-
-
 
             ///////////////////////////////////////
         }
