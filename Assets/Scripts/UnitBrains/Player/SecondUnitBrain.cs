@@ -41,15 +41,16 @@ namespace UnitBrains.Player
 
         public override Vector2Int GetNextStep()
         {
-            Vector2Int target = TargetsOutOfRange.Count > 0 ? TargetsOutOfRange[0] : unit.Pos;
-            if (IsTargetInRange(target))
-            {
-                return unit.Pos;
-            }
-            else
-            {
-                return unit.Pos.CalcNextStepTowards(target);
-            }
+            //Vector2Int target = TargetsOutOfRange.Count > 0 ? TargetsOutOfRange[0] : unit.Pos;
+            //if (IsTargetInRange(target))
+            //{
+            //    return unit.Pos;
+            //}
+            //else
+            //{
+            //    return unit.Pos.CalcNextStepTowards(target);
+            //}
+            return base.GetNextStep();
             
         }
 

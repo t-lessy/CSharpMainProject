@@ -36,9 +36,16 @@ public class BrilliantUnitPath : BaseUnitPath
         List<PathNode> openList = new List<PathNode> { startNode };
         List<PathNode> closedList = new List<PathNode>();
 
+
         while (openList.Count > 0)
         {
             PathNode currentNode = openList[0];
+
+            Vector2Int currentPoint = currentNode.Position;//
+            var diff = currentPoint - endPoint;//
+            var stepDiff = diff.SignOrZero();//
+
+
 
             if (openList.Count >= MaxLength) //Защита от бесконечного цикла
             {
@@ -46,6 +53,7 @@ public class BrilliantUnitPath : BaseUnitPath
                 //{
                 //    Debug.Log(node.Position);
                 //}
+                Debug.Log("Лист переполнен!");
                 return null;
             }
 
@@ -79,12 +87,14 @@ public class BrilliantUnitPath : BaseUnitPath
                 if (runtimeModel.IsTileWalkable(newPos) || newPos == targetNode.Position)
                 {
                     PathNode neighbor = new PathNode(newPos);
-                    if (closedList.Contains(neighbor))
+                    if (closedList.Contains(neighbor) || openList.Contains(neighbor))
                         continue;
 
                     neighbor.Parent = currentNode;
                     neighbor.CalculateEstimate(targetNode.Position);
                     neighbor.CalculateValue();
+
+                    currentPoint = neighbor.Position; //
 
                     openList.Add(neighbor);
                 }
