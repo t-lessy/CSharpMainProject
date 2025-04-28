@@ -2,6 +2,7 @@ using Model;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnitBrains.Pathfinding;
 using UnityEngine;
 using Utilities;
@@ -9,7 +10,7 @@ using static UnityEngine.GraphicsBuffer;
 
 public class BrilliantUnitPath : BaseUnitPath
 {
-    private const int MaxLength = 100;
+    private const int MaxLength = 500;
     private Vector2Int[] dxy = { new Vector2Int(-1, 0), new Vector2Int(0, 1), new Vector2Int(1, 0), new Vector2Int(0, -1) };
 
     public BrilliantUnitPath(IReadOnlyRuntimeModel runtimeModel, Vector2Int startPoint, Vector2Int endPoint) : base(runtimeModel, startPoint, endPoint)
@@ -19,15 +20,18 @@ public class BrilliantUnitPath : BaseUnitPath
     protected override void Calculate()
     {
         List<Vector2Int> result = FindPath();
+        List<Vector2Int> resultNull = new List<Vector2Int> { startPoint, startPoint };
+        
 
-        path = result != null ? result.ToArray() : FallbackOption().ToArray();
+        path = result != null ? result.ToArray() : resultNull.ToArray();
+
     }
 
 
     private List<Vector2Int> FindPath()
     {
-        PathNode startNode = new PathNode(StartPoint);
-        PathNode targetNode = new PathNode(EndPoint);
+        PathNode startNode = new PathNode(startPoint);
+        PathNode targetNode = new PathNode(endPoint);
 
         List<PathNode> openList = new List<PathNode> { startNode };
         List<PathNode> closedList = new List<PathNode>();
@@ -38,6 +42,10 @@ public class BrilliantUnitPath : BaseUnitPath
 
             if (openList.Count >= MaxLength) //Защита от бесконечного цикла
             {
+                //foreach (var node in openList)
+                //{
+                //    Debug.Log(node.Position);
+                //}
                 return null;
             }
 
