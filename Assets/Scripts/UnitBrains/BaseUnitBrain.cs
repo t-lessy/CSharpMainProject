@@ -39,16 +39,8 @@ namespace UnitBrains
             var target = runtimeModel.RoMap.Bases[
                 IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId];
 
-            _activePath = new AStarUnitPath(runtimeModel, unit.Pos, target); // Строим путь A*
-
-            var debugOutput = GameObject.FindObjectOfType<UnitBrains.Pathfinding.DebugPathOutput>();
-            if (debugOutput != null)
-            {
-                // Вызываем подсветку пути, если путь не пустой
-                var fullPath = _activePath.GetPath();
-                if (fullPath != null && fullPath.Count() > 1)
-                    debugOutput.HighlightPath(_activePath);
-            }
+            _activePath = new AStarUnitPath(runtimeModel, unit.Pos, target);
+            VisualizePath(_activePath);
             return _activePath.GetNextStepFrom(unit.Pos);
         }
 
@@ -171,6 +163,17 @@ namespace UnitBrains
             }
 
             return result;
+        }
+        protected void VisualizePath(BaseUnitPath path)
+        {
+            var debugOutput = GameObject.FindObjectOfType<DebugPathOutput>();
+            if (debugOutput == null)
+                return;
+
+            var fullPath = path.GetPath();
+            using var enumerator = fullPath.GetEnumerator();
+            if (enumerator.MoveNext())
+                debugOutput.HighlightPath(path);
         }
     }
 }
