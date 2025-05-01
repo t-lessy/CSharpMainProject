@@ -12,10 +12,10 @@ namespace UnitBrains.Pathfinding
         private const int PenaltyStepCost = 14; // Штраф за занятые клетки
 
         private static Vector2Int[] Directions = {
-            new Vector2Int(1, 0), // вверх
-            new Vector2Int(-1, 0), // вниз
-            new Vector2Int(0, 1), // вправо
-            new Vector2Int(0, -1), // влево
+            new(1, 0), // вверх
+            new(-1, 0), // вниз
+            new(0, 1), // вправо
+            new(0, -1), // влево
         };
 
         public AStarUnitPath(IReadOnlyRuntimeModel runtimeModel, Vector2Int startPoint, Vector2Int endPoint)
@@ -56,7 +56,6 @@ namespace UnitBrains.Pathfinding
                     break;
                 }
 
-
                 foreach (var dir in Directions) // Перебираем все соседние клетки
                 {
                     checkedCells++;
@@ -79,8 +78,10 @@ namespace UnitBrains.Pathfinding
 
                     if (existingOpen == null)
                     {
-                        var neighborNode = new PathNode(neighborPos, totalCost);
-                        neighborNode.Parent = current;
+                        var neighborNode = new PathNode(neighborPos, totalCost)
+                        {
+                            Parent = current
+                        };
                         neighborNode.CalculateEstimate(targetNode.Position);
                         neighborNode.CalculateValue();
                         openList.Add(neighborNode);
@@ -122,12 +123,12 @@ namespace UnitBrains.Pathfinding
 
                 int totalPathCost = baseCost + penaltyCost;
 
-                Debug.Log($"[A*] Путь найден после проверки {checkedCells} клеток от {startPoint} до {endPoint}." +
-                          $" Стоимость пути: базовая — {baseCost}, штрафы — {penaltyCost}, всего — {totalPathCost}.");
+                //Debug.Log($"[A*] Путь найден после проверки {checkedCells} клеток от {startPoint} до {endPoint}." +
+                //          $" Стоимость пути: базовая — {baseCost}, штрафы — {penaltyCost}, всего — {totalPathCost}.");
             }
             else
             {
-                Debug.Log($"[A*] Путь не найден после проверки {checkedCells} клеток от {startPoint} до {endPoint}.");
+                //Debug.Log($"[A*] Путь не найден после проверки {checkedCells} клеток от {startPoint} до {endPoint}.");
             }
         }
 

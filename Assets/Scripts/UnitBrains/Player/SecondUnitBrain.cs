@@ -1,4 +1,3 @@
-
 using Model;
 using Model.Runtime.Projectiles;
 using System.Collections.Generic;
@@ -51,7 +50,7 @@ namespace UnitBrains.Player
         {
             var inRangeTargets = SelectTargets();
 
-            if (inRangeTargets.Count > 0) 
+            if (inRangeTargets.Count > 0)
             {
                 return unit.Pos;
             }
@@ -63,6 +62,7 @@ namespace UnitBrains.Player
                 if (_activePath == null || _lastTarget != target || _lastStart != unit.Pos)
                 {
                     _activePath = new AStarUnitPath(runtimeModel, unit.Pos, target);
+                    VisualizePath(_activePath);
                     _lastTarget = target;
                     _lastStart = unit.Pos;
                 }
@@ -75,34 +75,45 @@ namespace UnitBrains.Player
         {
             _outOfRangeTargets.Clear();
 
-            List<Vector2Int> allTargets = GetAllTargets().ToList(); // Получение всех возможных целей
-            List<Vector2Int> result = new List<Vector2Int>(); // Получение доступных целей
+            List<Vector2Int> allTargets = GetAllTargets().ToList();
+            List<Vector2Int> result = new();
 
-            if (allTargets.Count == 0) // Если в списке нет целей, то добавляем в список базу противника
+            var coord = UserCoordinator.Instance;
+            var recPoint = coord.RecommendedPoint;
+            bool occupied = runtimeModel.RoUnits.Any(u => u.Pos == recPoint);
+
+            if (!IsTargetInRange(coord.RecommendedTarget)
+                && recPoint != unit.Pos
+                && runtimeModel.IsTileWalkable(recPoint)
+                && !occupied)
+            {
+                _outOfRangeTargets.Add(recPoint);
+            }
+
+            if (allTargets.Count == 0)
             {
                 Vector2Int enemyBase = runtimeModel.RoMap.Bases[IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId];
                 allTargets.Add(enemyBase);
             }
 
-            SortByDistanceToOwnBase(allTargets); // Производим сортировку целей по дистанции до базы
+            SortByDistanceToOwnBase(allTargets);
 
-            int indexTarget = _unitId % _maximumSelectionTargets; // Определяем, какую именно по счёту ближайшую цель атакует юнит (0, 1, 2)
+            int indexTarget = _unitId % _maximumSelectionTargets;
 
-            if (indexTarget >= allTargets.Count) // Если целей больше в списке, выбираем последнюю
+            if (indexTarget >= allTargets.Count)
             {
                 indexTarget = allTargets.Count - 1;
             }
 
-            Vector2Int selectedTarget = allTargets[indexTarget]; // выбираем цель
+            Vector2Int selectedTarget = allTargets[indexTarget];
 
             (IsTargetInRange(selectedTarget)
-                ? result //если цель в радиусе актаки, то добавляем в список целей
-                : _outOfRangeTargets //иначе в список недосягаемых
+                ? result
+                : _outOfRangeTargets
                 ).Add(selectedTarget);
 
             return result;
         }
-
 
         public override void Update(float deltaTime, float time)
         {
