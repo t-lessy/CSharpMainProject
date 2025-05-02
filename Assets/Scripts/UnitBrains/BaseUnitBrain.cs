@@ -14,7 +14,7 @@ namespace UnitBrains
     {
         public virtual string TargetUnitName => string.Empty;
         public virtual bool IsPlayerUnitBrain => true;
-        public virtual BaseUnitPath ActivePath { get; protected set; }
+        public virtual BaseUnitPath ActivePath => _activePath;
 
         protected Unit unit { get; private set; }
         protected IReadOnlyRuntimeModel runtimeModel => ServiceLocator.Get<IReadOnlyRuntimeModel>();
@@ -39,8 +39,8 @@ namespace UnitBrains
             var target = runtimeModel.RoMap.Bases[
                 IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId];
 
-            ActivePath = new AStarPath(runtimeModel, unit.Pos, target);
-            return ActivePath.GetNextStepFrom(unit.Pos);
+            _activePath = new AStarPath(runtimeModel, unit.Pos, target);
+            return _activePath.GetNextStepFrom(unit.Pos);
         }
 
         public List<BaseProjectile> GetProjectiles()
