@@ -21,7 +21,7 @@ namespace UnitBrains.Player
         private bool _overheated;
         private List<Vector2Int> targetToGo = new();
         private IEnumerable<Vector2Int> resultToGo;
-        private int x = 0;
+        //private int x = 0;
         private static int counter = 0;
         private int id = 0;
         private int maxTargets = 3;
@@ -30,7 +30,7 @@ namespace UnitBrains.Player
         public SecondUnitBrain()
             {
                 id = counter++;
-                Debug.Log("id = " + id);
+                //Debug.Log("id = " + id);
             }
         protected override void GenerateProjectiles(Vector2Int forTarget, List<BaseProjectile> intoList)
         {
@@ -53,18 +53,19 @@ namespace UnitBrains.Player
 
         public override Vector2Int GetNextStep()
         {
-            
+
             //если цель в области атаки
 
-            if (!targetToGo.Any() || IsTargetInRange(targetToGo[0]))// если целей нет или в области атаки
-            {
-                return this.unit.Pos;
-            }
+            //if (!targetToGo.Any() || IsTargetInRange(targetToGo[0]))// если целей нет или в области атаки
+            //{
+            //    return this.unit.Pos;
+            //}
             //если цель вне области атаки
             //Debug.Log(unit.Pos.CalcNextStepTowards(targetToGo));
             //Debug.Log("GetNextStep" + x);
             //x++;
-            return unit.Pos.CalcNextStepTowards(targetToGo.First());
+            //return unit.Pos.CalcNextStepTowards(targetToGo.First());
+            return base.GetNextStep();
         }
 
         protected override List<Vector2Int> SelectTargets()
@@ -124,8 +125,8 @@ namespace UnitBrains.Player
                         
                         if (this.id < result.Count)  // count - количество целей, индекс должен быть -1 к count
                         {
-                            Debug.Log("порушенный id = " + id);
-                            Debug.Log("резалт капасити " + result.Count);
+                            //Debug.Log("порушенный id = " + id);
+                            //Debug.Log("резалт капасити " + result.Count);
                             bestTarget = result[this.id]; // цель - резалт по индексу. 0=0 1=1 2=2
                         }
                         else 

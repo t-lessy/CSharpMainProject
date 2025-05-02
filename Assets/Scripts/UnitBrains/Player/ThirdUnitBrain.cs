@@ -30,19 +30,19 @@ namespace UnitBrains.Player
             //Debug.Log("time = "+ time);
             if (_isChanging)  // если текущий статус = смена состояния
             {
-                Debug.Log("check IsChanging true");
+                //Debug.Log("check IsChanging true");
                 _currentStateTime += Time.deltaTime*10;
-                Debug.Log("_currentStateTime = " + _currentStateTime);
+                //Debug.Log("_currentStateTime = " + _currentStateTime);
                 //if (_currentStateTime + _changeStateTime > time)
                 if (_currentStateTime > _changeStateTime)
                 {
-                    Debug.Log("time exeed changeTime");
+                    //Debug.Log("time exeed changeTime");
                     ChangeState();
                 }
             }
             else
             {
-                Debug.Log("HasTargetsInRange() = " + HasTargetsInRange());
+                //Debug.Log("HasTargetsInRange() = " + HasTargetsInRange());
                 if (HasTargetsInRange() && _currentState == UnitState.Move)
                 {
                     _isChanging = true;
@@ -58,19 +58,19 @@ namespace UnitBrains.Player
 
         private void ChangeState()
         {
-            Debug.Log("enter the ChangeState");
+            //Debug.Log("enter the ChangeState");
             
             
             if (_currentState == UnitState.Attack && _isChanging)
             {
-                Debug.Log("toMove");
+                //Debug.Log("toMove");
                 _currentState = UnitState.Move;
                 _isChanging = false;
             }
 
             if (_currentState == UnitState.Move && _isChanging)
             {
-                Debug.Log("toAttack");
+                //Debug.Log("toAttack");
                 _currentState = UnitState.Attack;
                 _isChanging = false;
             }
