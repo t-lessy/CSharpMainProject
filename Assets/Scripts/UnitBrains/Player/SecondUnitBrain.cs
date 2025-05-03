@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using GluonGui.Dialog;
 using Model;
 using Model.Runtime.Projectiles;
+using TMPro;
 using UnityEngine;
 using Utilities;
 
@@ -16,6 +17,9 @@ namespace UnitBrains.Player
         private float _temperature = 0f;
         private float _cooldownTime = 0f;
         private bool _overheated;
+        private static int _IdCounter = 0;
+        private int _UnitId = _IdCounter++;
+        private const int _MaxTarget = 3;
         public List<Vector2Int> Outreachable = new List<Vector2Int>();
 
         protected override void GenerateProjectiles(Vector2Int forTarget, List<BaseProjectile> intoList)
@@ -63,34 +67,43 @@ namespace UnitBrains.Player
             float minDistance = float.MaxValue;
             Vector2Int NearTarget = Vector2Int.zero;
             
-            foreach (var target in GetReachableTargets())
+            foreach (var target in GetAllTargets())
             {
-                if (minDistance >= DistanceToOwnBase(target))
+                Outreachable.Add(target);
+            }
+
+            if (Outreachable.Count == 0)
+            {
+                int enemyBaseId = IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId;
+                Vector2Int enemyBase = runtimeModel.RoMap.Bases[enemyBaseId];
+                Outreachable.Add(enemyBase);
+            }
+            else
+            {
+                SortByDistanceToOwnBase(Outreachable);
+                int targetIndex = _UnitId % _MaxTarget;
+
+                if (targetIndex > (Outreachable.Count - 1))
                 {
-                    minDistance = DistanceToOwnBase(target);
-                    NearTarget = target;
+                    NearTarget = Outreachable[0];
                 }
+                else
+                {
+                    if (targetIndex == 0)
+                    {
+                        NearTarget = Outreachable[targetIndex];
+                    }
+                    else
+                    {
+                        NearTarget = Outreachable[targetIndex - 1];
+                    }
+                }
+
+                if (IsTargetInRange(NearTarget))
+                    OurTarget.Add(NearTarget);
             }
 
-            if (IsTargetInRange(NearTarget))
-            {
-                OurTarget.Add(NearTarget);
-            }
-            else
-            {
-                Outreachable.Add(NearTarget);
-            }
-
-            if (OurTarget.Count == 0 && Outreachable.Count == 0)
-            {
-                OurTarget.Add(runtimeModel.RoMap.Bases[IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId]);
-                return OurTarget;
-            }
-            else
-            {
-                return OurTarget;
-            }
-            
+            return OurTarget;
             ///////////////////////////////////////
         }
 
