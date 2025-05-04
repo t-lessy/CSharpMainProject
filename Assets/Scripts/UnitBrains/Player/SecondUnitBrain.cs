@@ -14,7 +14,12 @@ namespace UnitBrains.Player
         private float _cooldownTime = 0f;
         private bool _overheated;
         List<Vector2Int> result = new List<Vector2Int>(); //цели в зоне досягаемости 
-        List<Vector2Int> outOfRangeTargets = new List<Vector2Int>(); //цели не в зоне досягаемости 
+        List<Vector2Int> outOfRangeTargets = new List<Vector2Int>(); //цели вне зоне досягаемости 
+
+        private static int Counter = 0; // счетчик 
+        private int UnitNumber; // номер юнита 
+        private const int MaxTargets = 3;
+        private bool isInitialized = false;
 
 
         protected override void GenerateProjectiles(Vector2Int forTarget, List<BaseProjectile> intoList)
@@ -75,11 +80,17 @@ namespace UnitBrains.Player
 
         protected override List<Vector2Int> SelectTargets()
         {
-            ///////////////////////////////////////
-            // Homework 1.4 (1st block, 4rd module)
-            ///////////////////////////////////////
+            if (!isInitialized)
+            {
+                UnitNumber = Counter;
+                Debug.Log("Номер юнита: " + UnitNumber);
+                Counter = (Counter + 1) % MaxTargets;
+                isInitialized = true;
+            }
 
             List<Vector2Int> allTargets = GetAllTargets().ToList();
+            result.Clear(); // Очищаем список, чтобы вложить новую ближайшую  цель
+            outOfRangeTargets.Clear();
 
             float minDistance = float.MaxValue;
             Vector2Int nearTarget = Vector2Int.zero; // коардинаты для ближайшей цели изначально задаем как (0,0)
@@ -93,7 +104,7 @@ namespace UnitBrains.Player
                     nearTarget = target; // Устанавливаем ближайшую цель
                 }
             }
-            result.Clear(); // Очищаем список, чтобы вложить новую ближайшую  цель
+
             if (minDistance < float.MaxValue)
             {
                 result.Add(nearTarget); //Добавлям в очищенный список новую цель
@@ -108,10 +119,13 @@ namespace UnitBrains.Player
                 Vector2Int enemyBase = runtimeModel.RoMap.Bases[IsPlayerUnitBrain ? Model.RuntimeModel.BotPlayerId : Model.RuntimeModel.PlayerId];
                 result.Add(enemyBase);
             }
+            // Сортируем цели по расстоянию до базы
+            SortByDistanceToOwnBase(allTargets);
+            // Выбираем цель для текущего юнита на основе его номера
+            int targetIndex = UnitNumber % allTargets.Count;  // Остаток от деления на количество целей
+            result.Add(allTargets[targetIndex]);  // Добавляем выбранную цель
 
             return result;
-
-            ///////////////////////////////////////
         }
 
         public override void Update(float deltaTime, float time)
