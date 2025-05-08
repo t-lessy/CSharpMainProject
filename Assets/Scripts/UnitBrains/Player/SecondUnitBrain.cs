@@ -1,8 +1,14 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Codice.CM.Client.Differences.Merge;
+using Model;
 using Model.Runtime.Projectiles;
 using PlasticGui;
+using UnityEditor.UI;
 using UnityEngine;
+using UnityEngine.UIElements;
+using Utilities;
 
 namespace UnitBrains.Player
 {
@@ -14,6 +20,7 @@ namespace UnitBrains.Player
         private float _temperature = 0f;
         private float _cooldownTime = 0f;
         private bool _overheated;
+        private List<Vector2Int> UnreacheableTargets = new();
 
         protected override void GenerateProjectiles(Vector2Int forTarget, List<BaseProjectile> intoList)
         {
@@ -31,15 +38,21 @@ namespace UnitBrains.Player
 
         public override Vector2Int GetNextStep()
         {
-            return base.GetNextStep();
+            if (UnreacheableTargets.Count == 0)
+                return unit.Pos;
+            else if (GetReachableTargets().Contains(UnreacheableTargets[0]))
+                return unit.Pos;
+            else
+                return unit.Pos.CalcNextStepTowards(UnreacheableTargets[0]);
         }
 
         protected override List<Vector2Int> SelectTargets()
         {
-            List<Vector2Int> result = GetReachableTargets();
+            UnreacheableTargets.Clear();
+            List<Vector2Int> result = GetAllTargets().ToList();
             if (result.Count > 1)
             {
-                Vector2Int nearestTarget = new Vector2Int();
+                Vector2Int nearestTarget = new();
                 float min = float.MaxValue;
                 foreach (var target in result)
                 {
@@ -51,7 +64,17 @@ namespace UnitBrains.Player
                     }
                 }
                 result.Clear();
-                result.Add(nearestTarget);
+                UnreacheableTargets.Add(nearestTarget);
+                if (GetReachableTargets().Contains(nearestTarget))
+                    result.Add(nearestTarget);
+            }
+            else
+            {
+                UnreacheableTargets.Add(runtimeModel.RoMap.Bases[IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId]);
+                if (IsTargetInRange(runtimeModel.RoMap.Bases[IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId]))
+                    result.Add(runtimeModel.RoMap.Bases[IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId]);
+                else
+                    result.Clear();
             }
             return result;
         }
