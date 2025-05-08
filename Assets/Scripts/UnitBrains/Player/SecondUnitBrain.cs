@@ -70,11 +70,11 @@ namespace UnitBrains.Player
             }
             else
             {
-                UnreacheableTargets.Add(runtimeModel.RoMap.Bases[IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId]);
-                if (IsTargetInRange(runtimeModel.RoMap.Bases[IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId]))
-                    result.Add(runtimeModel.RoMap.Bases[IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId]);
-                else
-                    result.Clear();
+                result.Clear();
+                Vector2Int baseCoordinates = runtimeModel.RoMap.Bases[IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId];
+                UnreacheableTargets.Add(baseCoordinates);
+                if (IsTargetInRange(baseCoordinates))
+                    result.Add(baseCoordinates);
             }
             return result;
         }
