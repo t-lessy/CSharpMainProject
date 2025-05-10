@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using Model;
 using Model.Runtime.Projectiles;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
+using Utilities;
 
 namespace UnitBrains.Player
 {
@@ -13,18 +15,12 @@ namespace UnitBrains.Player
         private float _temperature = 0f;
         private float _cooldownTime = 0f;
         private bool _overheated;
-        
+        private List<Vector2Int> _targetsToMove = new();
+
         protected override void GenerateProjectiles(Vector2Int forTarget, List<BaseProjectile> intoList)
         {
-            float overheatTemperature = OverheatTemperature;
-            ///////////////////////////////////////
-            // Homework 1.3 (1st block, 3rd module)
-            ///////////////////////////////////////
-
-            if (GetTemperature() >= overheatTemperature)
-            {
+            if (GetTemperature() >= OverheatTemperature)
                 return;
-            }
 
             IncreaseTemperature();
 
@@ -33,45 +29,54 @@ namespace UnitBrains.Player
                 var projectile = CreateProjectile(forTarget);
                 AddProjectileToList(projectile, intoList);
             }
-           
-            ///////////////////////////////////////
         }
 
         public override Vector2Int GetNextStep()
         {
-            return base.GetNextStep();
+            if (_targetsToMove.Count == 0 || HasTargetsInRange())
+                return unit.Pos;
+
+            return unit.Pos.CalcNextStepTowards(_targetsToMove.First());
         }
 
         protected override List<Vector2Int> SelectTargets()
         {
-            ///////////////////////////////////////
-            // Homework 1.4 (1st block, 4rd module)
-            ///////////////////////////////////////
-            
+            var result = new List<Vector2Int>();
+            var allTargets = GetAllTargets().ToList();
+            var playerBase = runtimeModel.RoMap.Bases[RuntimeModel.PlayerId];
 
-            List<Vector2Int> result = GetReachableTargets();
+            var mostDangerousTarget = allTargets
+                .Where(target => target != playerBase)
+                .OrderBy(target => Vector2Int.Distance(target, playerBase))
+                .FirstOrDefault();
 
-            if (result.Count > 1)
+            if (mostDangerousTarget != Vector2Int.zero)
             {
-                Vector2Int target = result.First();
-
-                float minDistance = float.MaxValue;
-                foreach (var item in result)
+                if (IsTargetInRange(mostDangerousTarget))
                 {
-                    float currentDistance = DistanceToOwnBase(item);
-                    if (minDistance > currentDistance)
-                    {
-                        minDistance = currentDistance;
-                        target = item;
-                    }
+                    result.Add(mostDangerousTarget);
                 }
-
-                result.Clear();
-                result.Add(target);
+                else
+                {
+                    _targetsToMove.Clear();
+                    _targetsToMove.Add(mostDangerousTarget);
+                }
+            }
+            else
+            {
+                var enemyBase = runtimeModel.RoMap.Bases[RuntimeModel.BotPlayerId];
+                if (IsTargetInRange(enemyBase))
+                {
+                    result.Add(enemyBase);
+                }
+                else
+                {
+                    _targetsToMove.Clear();
+                    _targetsToMove.Add(enemyBase);
+                }
             }
 
             return result;
-            ///////////////////////////////////////
         }
 
         public override void Update(float deltaTime, float time)
