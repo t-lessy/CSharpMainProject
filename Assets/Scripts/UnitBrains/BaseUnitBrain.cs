@@ -40,7 +40,9 @@ namespace UnitBrains
                 IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId];
 
             _activePath = new AStarPath(runtimeModel, unit.Pos, target);
-            return _activePath.GetNextStepFrom(unit.Pos);
+            //Debug.Log(_activePath.GetNextStepFrom(unit.Pos));
+            return ActivePath.GetNextStepFrom(unit.Pos);
+           
         }
 
         public List<BaseProjectile> GetProjectiles()

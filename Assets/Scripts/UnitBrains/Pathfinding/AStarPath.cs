@@ -19,7 +19,7 @@ public class AStarPath : BaseUnitPath
     protected override void Calculate()
     {
         List<Vector2Int> pathList = FindPath();
-
+   
         path = pathList.ToArray();
     }
 
@@ -44,6 +44,7 @@ public class AStarPath : BaseUnitPath
             closedList.Add(currentNode);
 
             if (currentNode.x == targetNode.x && currentNode.y == targetNode.y || closedList.Count > maxLength)
+            //if (currentNode.x == targetNode.x && currentNode.y == targetNode.y || closedList.Count > 10)
             {
                 List<Vector2Int> newPath = new List<Vector2Int>();
 
@@ -56,28 +57,30 @@ public class AStarPath : BaseUnitPath
                 newPath.Reverse();
                 return newPath;
             }
-
-            for (int i = 0; i < dx.Length; i++)
-            {
-                int newX = currentNode.x + dx[i];
-                int newY = currentNode.y + dy[i];
-
-                if (IsValid(new Vector2Int(newX, newY)))
+                for (int i = 0; i < dx.Length; i++)
                 {
-                    AStarNode neighbor = new AStarNode(newX, newY);
+                    int newX = currentNode.x + dx[i];
+                    int newY = currentNode.y + dy[i];
 
-                    if (openList.Contains(neighbor)) continue;
+                    if (IsValid(new Vector2Int(newX, newY)))
+                    {
+                        AStarNode neighbor = new AStarNode(newX, newY);
 
-                    neighbor.Parent = currentNode;
-                    neighbor.CalculateEstimate(targetNode.x, targetNode.y);
-                    neighbor.CalculateValue();
+                        if (openList.Contains(neighbor)) continue;
 
-                    openList.Add(neighbor);
+                        neighbor.Parent = currentNode;
+                        neighbor.CalculateEstimate(targetNode.x, targetNode.y);
+                        neighbor.CalculateValue();
+
+                        openList.Add(neighbor);
+                    }
                 }
-            }
 
         }
-        return null;
+        //return null;
+        List<Vector2Int> noPath = new List<Vector2Int>();
+        noPath.Add(new Vector2Int(startNode.x, startNode.y));
+        return noPath;
     }
 
     private bool IsValid(Vector2Int cell)
