@@ -12,10 +12,21 @@ namespace UnitBrains.Player
         public override string TargetUnitName => "Cobra Commando";
         private const float OverheatTemperature = 3f;
         private const float OverheatCooldown = 2f;
+        private const int MaxTargetsToConsider = 3; // B. Константа для максимума целей
+
+        private static int _unitCounter = 0; // A. Статический счетчик юнитов
+        private readonly int _unitNumber; // A. Номер текущего юнита
+
         private float _temperature = 0f;
         private float _cooldownTime = 0f;
         private bool _overheated;
-        private List<Vector2Int> _targetsToMove = new List<Vector2Int>(); // Поле для целей вне зоны досягаемости
+        private List<Vector2Int> _targetsToMove = new List<Vector2Int>();
+
+        public SecondUnitBrain()
+        {
+            // A. Инициализация номера юнита при создании
+            _unitNumber = _unitCounter++;
+        }
 
         protected override void GenerateProjectiles(Vector2Int forTarget, List<BaseProjectile> intoList)
         {
@@ -36,11 +47,9 @@ namespace UnitBrains.Player
 
         public override Vector2Int GetNextStep()
         {
-            // Если нет целей для движения - остаемся на месте
             if (_targetsToMove.Count == 0)
                 return unit.Pos;
 
-            // Получаем следующую позицию к ближайшей цели
             return unit.Pos.CalcNextStepTowards(_targetsToMove[0]);
         }
 
@@ -49,46 +58,45 @@ namespace UnitBrains.Player
             List<Vector2Int> result = new List<Vector2Int>();
             _targetsToMove.Clear();
 
-            // A. Получаем все цели, а не только достижимые
+            // B. Получаем и сортируем цели по расстоянию к базе
             List<Vector2Int> allTargets = GetAllTargets().ToList();
+            SortByDistanceToOwnBase(allTargets);
 
-
-            // B. Если есть цели
             if (allTargets.Count > 0)
             {
-                // Находим ближайшую к базе цель
-                Vector2Int mostDangerousTarget = allTargets[0];
-                float minDistance = DistanceToOwnBase(mostDangerousTarget);
+                // B. Выбираем цель в зависимости от номера юнита
+                int targetIndex = Mathf.Min(_unitNumber, allTargets.Count - 1, MaxTargetsToConsider - 1);
+                Vector2Int selectedTarget = allTargets[targetIndex];
 
-                foreach (Vector2Int target in allTargets)
+                if (IsTargetInRange(selectedTarget))
                 {
-                    float distance = DistanceToOwnBase(target);
-                    if (distance < minDistance)
-                    {
-                        minDistance = distance;
-                        mostDangerousTarget = target;
-                    }
-                }
-
-                // Проверяем, достижима ли цель
-                if (IsTargetInRange(mostDangerousTarget))
-                {
-                    result.Add(mostDangerousTarget);
+                    result.Add(selectedTarget);
                 }
                 else
                 {
-                    _targetsToMove.Add(mostDangerousTarget);
+                    _targetsToMove.Add(selectedTarget);
                 }
             }
-            // C. Если целей нет - атакуем базу противника
             else
             {
+                // C. Если целей нет - атакуем базу противника
                 int enemyBaseId = IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId;
                 Vector2Int enemyBase = runtimeModel.RoMap.Bases[enemyBaseId];
                 _targetsToMove.Add(enemyBase);
             }
 
             return result;
+        }
+
+        // Метод для сортировки целей по расстоянию к базе
+        private void SortByDistanceToOwnBase(List<Vector2Int> targets)
+        {
+            targets.Sort((a, b) =>
+            {
+                float distA = DistanceToOwnBase(a);
+                float distB = DistanceToOwnBase(b);
+                return distA.CompareTo(distB);
+            });
         }
 
         public override void Update(float deltaTime, float time)
