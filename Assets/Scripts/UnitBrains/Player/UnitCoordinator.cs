@@ -8,9 +8,8 @@ namespace UnitBrains.Player
 {
     public class UnitCoordinator
     {
-        private static readonly UnitCoordinator s_instance = new();
-
-        private readonly IReadOnlyRuntimeModel _runtimeModel;
+        private readonly RuntimeModel _runtimeModel;
+        private readonly TimeUtil _timeUtil;
 
         private readonly int _halfMapWidth;
         private readonly bool _isPlayerOnLeftSide;
@@ -18,17 +17,20 @@ namespace UnitBrains.Player
         public Vector2Int Target { get; private set; }
         public Vector2Int Destination { get; private set; }
 
-        private UnitCoordinator()
+        public UnitCoordinator(RuntimeModel runtimeModel, TimeUtil timeUtil)
         {
-            _runtimeModel = ServiceLocator.Get<IReadOnlyRuntimeModel>();
-
+            _runtimeModel = runtimeModel;
             _halfMapWidth = _runtimeModel.RoMap.Width / 2;
             _isPlayerOnLeftSide = _runtimeModel.RoMap.Bases[RuntimeModel.PlayerId].y < _halfMapWidth;
             
-            ServiceLocator.Get<TimeUtil>().AddUpdateAction(Update);
+            _timeUtil = timeUtil;
+            _timeUtil.AddFixedUpdateAction(Update);
         }
 
-        public static UnitCoordinator Instance() => s_instance;
+        ~UnitCoordinator()
+        {
+            _timeUtil.RemoveFixedUpdateAction(Update);
+        }
 
         private void Update(float deltaTime)
         {

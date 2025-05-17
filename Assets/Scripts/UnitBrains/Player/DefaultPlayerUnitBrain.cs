@@ -14,18 +14,17 @@ namespace UnitBrains.Player
             if (IsTargetInRange(target))
                 return unit.Pos;
 
-            var destination = UnitCoordinator.Instance().Destination;
+            var destination = coordinator.Destination;
             var moveTo = IsTargetInCoordinatorAcceptanceRange(target) ? target : destination;
             _activePath = new AStarUnitPath(runtimeModel, unit.Pos, moveTo);
             return _activePath.GetNextStepFrom(unit.Pos);
         }
 
-        public override Vector2Int GetNextStepTarget() =>
-            UnitCoordinator.Instance().Target;
+        public override Vector2Int GetNextStepTarget() => coordinator.Target;
 
         protected override List<Vector2Int> SelectTargets()
         {
-            var suggestedTarget = UnitCoordinator.Instance().Target;
+            var suggestedTarget = coordinator.Target;
             return IsTargetInRange(suggestedTarget)
                 ? new List<Vector2Int> {suggestedTarget} : base.SelectTargets();
         }

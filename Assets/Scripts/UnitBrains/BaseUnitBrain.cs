@@ -4,6 +4,7 @@ using Model;
 using Model.Runtime.Projectiles;
 using Model.Runtime.ReadOnly;
 using UnitBrains.Pathfinding;
+using UnitBrains.Player;
 using UnityEngine;
 using Utilities;
 using Unit = Model.Runtime.Unit;
@@ -17,6 +18,8 @@ namespace UnitBrains
         public virtual BaseUnitPath ActivePath => _activePath;
         
         protected Unit unit { get; private set; }
+        protected UnitCoordinator coordinator { get; private set; }
+        
         protected IReadOnlyRuntimeModel runtimeModel => ServiceLocator.Get<IReadOnlyRuntimeModel>();
         protected BaseUnitPath _activePath = null;
         
@@ -61,10 +64,11 @@ namespace UnitBrains
             return result;
         }
 
-        public void SetUnit(Unit unit)
-        {
+        public void SetUnit(Unit unit) => 
             this.unit = unit;
-        }
+
+        public void SetCoordinator(UnitCoordinator coordinator) => 
+            this.coordinator = coordinator;
 
         public virtual void Update(float deltaTime, float time)
         {

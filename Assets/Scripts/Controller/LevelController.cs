@@ -2,6 +2,7 @@
 using Model;
 using Model.Config;
 using Model.Runtime;
+using UnitBrains.Player;
 using UnityEngine;
 using Utilities;
 using View;
@@ -72,7 +73,8 @@ namespace Controller
                 _runtimeModel.Map.Bases[forPlayer],
                 _runtimeModel.RoUnits.Select(x => x.Pos).ToHashSet());
             
-            var unit = new Unit(config, pos);
+            var coordinator = new UnitCoordinator(_runtimeModel, _timeUtil);
+            var unit = new Unit(config, coordinator, pos);
             _runtimeModel.Money[forPlayer] -= config.Cost;
             _runtimeModel.PlayersUnits[forPlayer].Add(unit);
         }
