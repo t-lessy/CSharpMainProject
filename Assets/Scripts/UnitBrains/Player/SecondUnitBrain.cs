@@ -57,18 +57,12 @@ namespace UnitBrains.Player
             if (result.Count > 1)
                 for (int i = 0; i <= result.Count; i++)
                 {
+                    int index;
                     if (result.Count > maxTargets)
-                    {
-                        int index = unit.ID % maxTargets;
-                        Debug.Log($"Case 1: ID: {unit.ID}, index: {index}");
-                        mainTarget = result[index];
-                    }
+                        index = unit.ID % maxTargets;
                     else
-                    {
-                        int index = unit.ID % result.Count;
-                        Debug.Log($"Case 2: ID: {unit.ID}, index: {index}");
-                        mainTarget = result[index];
-                    }
+                        index = unit.ID % result.Count;
+                    mainTarget = result[index];
                 }
             else
                 mainTarget = runtimeModel.RoMap.Bases[IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId];
