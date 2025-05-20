@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Codice.CM.Client.Differences.Merge;
 using Model;
+using Model.Runtime;
 using Model.Runtime.Projectiles;
 using PlasticGui;
 using UnityEditor.UI;
@@ -40,42 +41,42 @@ namespace UnitBrains.Player
         {
             if (UnreacheableTargets.Count == 0)
                 return unit.Pos;
-            else if (GetReachableTargets().Contains(UnreacheableTargets[0]))
-                return unit.Pos;
             else
                 return unit.Pos.CalcNextStepTowards(UnreacheableTargets[0]);
         }
 
         protected override List<Vector2Int> SelectTargets()
         {
+            int maxTargets = 3;
+
             UnreacheableTargets.Clear();
             List<Vector2Int> result = GetAllTargets().ToList();
+            SortByDistanceToOwnBase(result);
+            Vector2Int mainTarget = new();
+
             if (result.Count > 1)
-            {
-                Vector2Int nearestTarget = new();
-                float min = float.MaxValue;
-                foreach (var target in result)
+                for (int i = 0; i <= result.Count; i++)
                 {
-                    float distance = DistanceToOwnBase(target);
-                    if (distance < min)
+                    if (result.Count > maxTargets)
                     {
-                        min = distance;
-                        nearestTarget = target;
+                        int index = unit.ID % maxTargets;
+                        Debug.Log($"Case 1: ID: {unit.ID}, index: {index}");
+                        mainTarget = result[index];
+                    }
+                    else
+                    {
+                        int index = unit.ID % result.Count;
+                        Debug.Log($"Case 2: ID: {unit.ID}, index: {index}");
+                        mainTarget = result[index];
                     }
                 }
-                result.Clear();
-                UnreacheableTargets.Add(nearestTarget);
-                if (GetReachableTargets().Contains(nearestTarget))
-                    result.Add(nearestTarget);
-            }
             else
-            {
-                result.Clear();
-                Vector2Int baseCoordinates = runtimeModel.RoMap.Bases[IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId];
-                UnreacheableTargets.Add(baseCoordinates);
-                if (IsTargetInRange(baseCoordinates))
-                    result.Add(baseCoordinates);
-            }
+                mainTarget = runtimeModel.RoMap.Bases[IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId];
+            result.Clear();
+            if (IsTargetInRange(mainTarget))
+                result.Add(mainTarget);
+            else
+                UnreacheableTargets.Add(mainTarget);
             return result;
         }
 
