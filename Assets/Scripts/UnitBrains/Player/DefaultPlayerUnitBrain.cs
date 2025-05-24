@@ -23,9 +23,10 @@ namespace UnitBrains.Player
             var distanceB = DistanceToOwnBase(b);
             return distanceA.CompareTo(distanceB);
         }
+
         public override Vector2Int GetNextStep()
         {
-            var coord = UserCoordinator.Instance;
+            var coord = Coordinator;
             var target = coord.RecommendedTarget;
             var center = coord.RecommendedPoint;
 

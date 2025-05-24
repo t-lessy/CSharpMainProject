@@ -1,132 +1,88 @@
-﻿using Model;
+﻿using Assets.Scripts.UnitBrains.Player;
+using Model;
 using System.Linq;
 using UnityEngine;
 using Utilities;
 
 namespace UnitBrains.Player
 {
-    public class UserCoordinator : MonoBehaviour
+    public class UnitCoordinator : IUnitCoordinator
     {
-        private static UserCoordinator _instance;
-        public static UserCoordinator Instance
-        {
-            get
-            {
-                if (_instance == null)
-                {
-                    var go = new GameObject(nameof(UserCoordinator));
-                    DontDestroyOnLoad(go);
-                    _instance = go.AddComponent<UserCoordinator>();
-                }
-                return _instance;
-            }
-        }
-
-        private IReadOnlyRuntimeModel _model;
-        private TimeUtil _timeUtil;
+        private readonly IReadOnlyRuntimeModel _model;
+        private readonly TimeUtil _timeUtil;
+        private readonly int _ownId, _enemyId;
         private float _standardAttackRange;
-        public float StandardAttackRange => _standardAttackRange;
 
+        public float StandardAttackRange => _standardAttackRange;
         public Vector2Int RecommendedTarget { get; private set; }
         public Vector2Int RecommendedPoint { get; private set; }
 
-        private void Awake()
+        public UnitCoordinator( IReadOnlyRuntimeModel model, TimeUtil timeUtil,
+            int ownPlayerId, int enemyPlayerId)
         {
-            if (_instance != null && _instance != this)
-            {
-                Destroy(gameObject);
-                return;
-            }
-            _instance = this;
-            DontDestroyOnLoad(gameObject);
-
-            _model = ServiceLocator.Get<IReadOnlyRuntimeModel>();
-            _timeUtil = ServiceLocator.Get<TimeUtil>();
+            _model = model;
+            _timeUtil = timeUtil;
+            _ownId = ownPlayerId;
+            _enemyId = enemyPlayerId;
 
             InitializeAttackRange();
             _timeUtil.AddFixedUpdateAction(UpdateRecommendations);
         }
 
-        private void OnDestroy()
-        {
-            if (_timeUtil != null)
-                _timeUtil.RemoveFixedUpdateAction(UpdateRecommendations);
-
-            if (_instance == this)
-                _instance = null;
-        }
-
         private void InitializeAttackRange()
         {
             var myUnits = _model.RoUnits
-                .Where(u => u.Config.IsPlayerUnit)
+                .Where(u => u.Config.IsPlayerUnit == (_ownId == RuntimeModel.PlayerId))
                 .ToList();
-
             _standardAttackRange = myUnits.Count == 0
                 ? 1f
                 : myUnits.Min(u => u.Config.AttackRange);
         }
 
-        private void UpdateRecommendations(float deltaTime)
+        private void UpdateRecommendations(float dt)
         {
-            var playerBase = _model.RoMap.Bases[RuntimeModel.PlayerId];
-            var enemyBase = _model.RoMap.Bases[RuntimeModel.BotPlayerId];
-            var enemies = _model.RoBotUnits.ToList();
+            var ownBase = _model.RoMap.Bases[_ownId];
+            var enemyBase = _model.RoMap.Bases[_enemyId];
+            var enemies = (_ownId == RuntimeModel.PlayerId
+                ? _model.RoBotUnits
+                : _model.RoUnits.Where(u => !u.Config.IsPlayerUnit))
+                .ToList();
 
             if (!enemies.Any())
             {
-                RecommendNoEnemies(enemyBase);
+                RecommendedTarget = enemyBase;
+                RecommendedPoint = enemyBase;
                 return;
             }
 
             bool enemyOnOurHalf = enemies.Any(e
-                => Vector2Int.Distance(e.Pos, playerBase)
+                => Vector2Int.Distance(e.Pos, ownBase)
                  < Vector2Int.Distance(e.Pos, enemyBase));
 
             if (enemyOnOurHalf)
             {
                 var closest = enemies
-                    .OrderBy(e => Vector2Int.Distance(e.Pos, playerBase))
+                    .OrderBy(e => Vector2Int.Distance(e.Pos, ownBase))
                     .First();
-                RecommendEnemiesOnOurHalf(closest.Pos, playerBase);
+                RecommendedTarget = closest.Pos;
+                RecommendedPoint = ownBase;
             }
             else
             {
-                var orderedByDistance = enemies
-                    .OrderBy(e => Vector2Int.Distance(e.Pos, playerBase))
+                var ordered = enemies
+                    .OrderBy(e => Vector2Int.Distance(e.Pos, ownBase))
                     .ThenBy(e => e.Health)
                     .ToList();
-
-                var nearest = orderedByDistance.First();
-
-                var weakest = orderedByDistance[0];
-                foreach (var e in orderedByDistance)
-                    if (e.Health < weakest.Health)
-                        weakest = e;
+                var weakest = ordered.Aggregate((a, b) => a.Health < b.Health ? a : b);
 
                 RecommendedTarget = weakest.Pos;
-                SetPointAwayFrom(nearest.Pos, playerBase);
+                // точка на отдалении от ближайшего
+                var nearest = ordered.First().Pos;
+                var dir = (Vector2)(nearest - ownBase);
+                RecommendedPoint = dir == Vector2.zero
+                    ? nearest
+                    : Vector2Int.RoundToInt((Vector2)nearest - dir.normalized * _standardAttackRange);
             }
-        }
-
-        private void RecommendNoEnemies(Vector2Int enemyBase)
-        {
-            RecommendedTarget = enemyBase;
-            RecommendedPoint = enemyBase;
-        }
-
-        private void RecommendEnemiesOnOurHalf(Vector2Int closestEnemyPos, Vector2Int playerBase)
-        {
-            RecommendedTarget = closestEnemyPos;
-            RecommendedPoint = playerBase;
-        }
-
-        private void SetPointAwayFrom(Vector2Int enemyPos, Vector2Int playerBase)
-        {
-            Vector2 dir = (Vector2)(enemyPos - playerBase);
-            RecommendedPoint = dir == Vector2.zero
-                ? enemyPos
-                : Vector2Int.RoundToInt((Vector2)enemyPos - dir.normalized * _standardAttackRange);
         }
     }
 }

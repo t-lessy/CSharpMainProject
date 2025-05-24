@@ -39,7 +39,6 @@ namespace UnitBrains.Pathfinding
 
             while (openList.Count > 0)
             {
-
                 current = openList[0];
                 for (int i = 1; i < openList.Count; i++) // Находим узел с минимальной общей стоимостью (Value = CostFromStart + Estimate)
                 {
@@ -62,12 +61,10 @@ namespace UnitBrains.Pathfinding
 
                     var neighborPos = current.Position + dir;
 
-
                     if (!runtimeModel.IsTileWalkable(neighborPos)
                         && neighborPos != targetNode.Position
                         && !IsUnitAtPos(neighborPos))
                         continue; // Пропускаем клетки, которые полностью непроходимы
-
 
                     if (closedList.Contains(new PathNode(neighborPos, 0)))
                         continue; // Пропускаем уже проверенные клетки
