@@ -76,7 +76,7 @@ namespace UnitBrains.Player
             List<Vector2Int> allTargets = GetAllTargets().ToList();
             List<Vector2Int> result = new();
 
-            var coord = UserCoordinator.Instance;
+            var coord = Coordinator;
             var recPoint = coord.RecommendedPoint;
             bool occupied = runtimeModel.RoUnits.Any(u => u.Pos == recPoint);
 
