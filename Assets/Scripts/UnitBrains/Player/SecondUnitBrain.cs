@@ -17,6 +17,15 @@ namespace UnitBrains.Player
         private bool _overheated;
         private List<Vector2Int> _targetsToMove = new();
 
+        private static int _unitCounter = 0;
+        private readonly int _maxTargetUnit = 3;
+        private readonly int _unitId;
+
+        public SecondUnitBrain()
+        {
+            _unitId = _unitCounter++;
+        }
+
         protected override void GenerateProjectiles(Vector2Int forTarget, List<BaseProjectile> intoList)
         {
             if (GetTemperature() >= OverheatTemperature)
@@ -44,36 +53,46 @@ namespace UnitBrains.Player
             var result = new List<Vector2Int>();
             var allTargets = GetAllTargets().ToList();
             var playerBase = runtimeModel.RoMap.Bases[RuntimeModel.PlayerId];
+            var enemyBase = runtimeModel.RoMap.Bases[RuntimeModel.BotPlayerId];
 
-            var mostDangerousTarget = allTargets
+            var mostDangerousTargets = allTargets
                 .Where(target => target != playerBase)
-                .OrderBy(target => Vector2Int.Distance(target, playerBase))
-                .FirstOrDefault();
+                .ToList();
 
-            if (mostDangerousTarget != Vector2Int.zero)
+            SortByDistanceToOwnBase(mostDangerousTargets);
+
+            if (mostDangerousTargets.Count > 0)
             {
-                if (IsTargetInRange(mostDangerousTarget))
+                var availableTargets = mostDangerousTargets.Take(_maxTargetUnit).ToList();
+                var targetIndex = _unitId % availableTargets.Count;
+                var selectedTarget = availableTargets[targetIndex];
+
+                var targetsToCheck = availableTargets
+                    .OrderBy(t => t == selectedTarget ? 0 : 1)
+                    .ToList();
+
+                foreach (var target in targetsToCheck)
                 {
-                    result.Add(mostDangerousTarget);
+                    if (IsTargetInRange(target))
+                    {
+                        _targetsToMove.Clear();
+                        result.Add(target);
+                        break;
+                    }
                 }
-                else
+
+
+                if (result.Count == 0)
                 {
-                    _targetsToMove.Clear();
-                    _targetsToMove.Add(mostDangerousTarget);
+                    _targetsToMove = new List<Vector2Int> { selectedTarget };
                 }
             }
             else
             {
-                var enemyBase = runtimeModel.RoMap.Bases[RuntimeModel.BotPlayerId];
                 if (IsTargetInRange(enemyBase))
-                {
                     result.Add(enemyBase);
-                }
                 else
-                {
-                    _targetsToMove.Clear();
-                    _targetsToMove.Add(enemyBase);
-                }
+                    _targetsToMove = new List<Vector2Int> { enemyBase };
             }
 
             return result;
