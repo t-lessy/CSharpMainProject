@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using System.Text.RegularExpressions;
 using Model;
-
+using UnitBrains;
 
 //using System.Diagnostics;
 using Model.Runtime.Projectiles;
@@ -17,14 +18,25 @@ namespace UnitBrains.Player
 {
     public class SecondUnitBrain : DefaultPlayerUnitBrain
     {
-        public override string TargetUnitName => "Cobra Commando";
+        //public int NumberOfUnit;
+        
+
+        public const int MaxUnitAttack = 3;
+
+        public static string NameTargetUnit { get; set; } = "Cobra Commando";
+        private string TargetUnitName=string.Empty;
+        
         private const float OverheatTemperature = 3f;
         private const float OverheatCooldown = 2f;
         private float _temperature = 0f;
         private float _cooldownTime = 0f;
         private bool _overheated;
 
+        public List<Model.Runtime.Unit> Groups;
+
+        List<Model.Runtime.Unit> NewGroups = new();
         private List<Vector2Int> unreachebleTarget = new();
+
         protected override void GenerateProjectiles(Vector2Int forTarget, List<BaseProjectile> intoList)
         {
             float overheatTemperature = OverheatTemperature;
@@ -48,7 +60,7 @@ namespace UnitBrains.Player
 
         public override Vector2Int GetNextStep()
         {
-
+            
             List<Vector2Int> unreachebleTarget = SelectTargets();
             List<Vector2Int> allTargets = SelectTargets();
             List<Vector2Int> result = SelectTargets();
@@ -61,23 +73,30 @@ namespace UnitBrains.Player
             // Если нет достижимых целей вообще, идем к недостижимой цели
             if (result==null || result.Count==0)
             {
-                Debug.Log(" Если нет достижимых целей вообще, идем к недостижимой цели");
+                
                 foreach(var target in unreachebleTarget)
                 {
-                    
-                    return position.CalcNextStepTowards(target);
-
+                    foreach (Model.Runtime.Unit unit in NewGroups)
+                    {
+                        return position.CalcNextStepTowards(target);
+                    }
+                
                 }
                
             }
             // Если цели в рэнджэ атаки есть, остаемся на месте
             else if (result != null && result.Count > 0)
             {
-                Debug.Log(" Если цели в рэнджэ атаки есть, остаемся на месте");
-                return unit.Pos;
+                foreach (Model.Runtime.Unit unit in NewGroups)
+                {
+                    return  unit.Pos;
+                }
+                
             }
-         
-            return position.CalcNextStepTowards(runtimeModel.RoMap.Bases[IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId]);
+            
+            return  position.CalcNextStepTowards(runtimeModel.RoMap.Bases[IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId]);
+            
+            
 
 
 
@@ -85,13 +104,16 @@ namespace UnitBrains.Player
 
         protected override List<Vector2Int> SelectTargets()
         {
+            TargetUnitName = ProtectTargetName(NameTargetUnit);
             ///////////////////////////////////////
             // Homework 1.4 (1st block, 4rd module)
             ///////////////////////////////////////
+            
             List<Vector2Int> allTargets =  GetAllTargets().ToList();
-            
+           /* allTargets.Clear();*/ /*очищаем с писок по заданию*/
+
             List<Vector2Int> result = new();
-            
+
 
             unreachebleTarget.Clear();
 
@@ -100,42 +122,77 @@ namespace UnitBrains.Player
 
             var MinimumDistance = float.MaxValue;
 
-            if ( allTargets.Count > 1)
+           
+
+
+            if (allTargets.Count > 1)
             {
                 Vector2Int IntermediateVector = new Vector2Int { };
-                foreach (var mainTarget in allTargets)
+
+               
+                
+                SortByDistanceToOwnBase(allTargets);
+                if (Model.Runtime.Unit.NumberOfUnit % 3 == 0)
                 {
-                    if (MinimumDistance > DistanceToOwnBase(mainTarget))
+                    foreach (var mainTarget in allTargets)
                     {
-                        MinimumDistance = DistanceToOwnBase(mainTarget);
-                        
-                        IntermediateVector = mainTarget;
+                        if (IsTargetInRange(mainTarget))
+                        {
+                            result.Clear();
+                            result.Add(mainTarget);
+                        }
+                        else
+                        {
+
+                            unreachebleTarget.Add(IntermediateVector);
+                        }
                     }
-                }
-                if (IsTargetInRange(IntermediateVector))
-                {
-                    result.Clear();
-                    result.Add(IntermediateVector);
                 }
                 else
                 {
-       
-                    unreachebleTarget.Add(IntermediateVector);
-                }   
-                
+                    for (int i = 0; i < Model.Runtime.Unit.GroupUnits.Count; i += 3)
+                    {
+                        
+                        List<Model.Runtime.Unit> Groups = new();
+                        
+
+                        for (int j = i; j < i + 3 && j < Model.Runtime.Unit.GroupUnits.Count; j++)
+                        {
+                            Groups.Add(Model.Runtime.Unit.GroupUnits[j]);
+                            
+                        }
+                        NewGroups.AddRange(Groups);
+                    }
+
+                    foreach (var mainTarget in allTargets)
+                    {
+                        if (IsTargetInRange(mainTarget))
+                        {
+                            result.Clear();
+                            result.Add(mainTarget);
+                        }
+                        else
+                        {
+
+                            unreachebleTarget.Add(IntermediateVector);
+                        }
+                    }
+
+                }
+
             }
-            else if(IsTargetInRange(enemyBase))
+            else if (IsTargetInRange(enemyBase))
             {
-                
+
                 result.Add(enemyBase);
-               
+
             }
             else
             {
                 unreachebleTarget.Add(enemyBase);
             }
             return result;
-            ///////////////////////////////////////
+            /////////////////////////////////////
         }
 
         public override void Update(float deltaTime, float time)
