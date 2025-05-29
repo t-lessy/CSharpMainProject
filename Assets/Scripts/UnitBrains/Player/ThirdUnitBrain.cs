@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using Model;
 using Model.Runtime.Projectiles;
 using UnityEngine;
@@ -8,102 +9,137 @@ namespace UnitBrains.Player
 {
     public class ThirdUnitBrain : DefaultPlayerUnitBrain
     {
-        public override string TargetUnitName => "Ironclad Behemoth";
+        private const float FireCooldown = 0.5f; // Время между атаками
+        private float fireTimer = 0f;
 
-        private enum UnitMode
+        private const float OverheatTemperature = 3f;
+        private const float OverheatCooldown = 2f;
+
+        private float _temperature = 0f;
+        private float _cooldownTime = 0f;
+        private bool _overheated;
+
+        private List<Vector2Int> _targetsToMove = new List<Vector2Int>();
+
+        // Номер юнита, чтобы распределять цели (можно унаследовать из второго мозга, если нужно)
+        private static int _unitCounter = 0;
+        private readonly int _unitNumber;
+
+        public ThirdUnitBrain()
         {
-            Moving,
-            Attacking,
-            Switching
+            _unitNumber = _unitCounter++;
         }
 
-        private UnitMode _currentMode = UnitMode.Moving;
-        private float _modeSwitchTimer = 0f;
-        private const float ModeSwitchDelay = 1f;
-        private Vector2Int? _currentTarget = null;
+        public override string TargetUnitName => "Third Unit";
 
         public override Vector2Int GetNextStep()
         {
-            // Во время переключения режимов не двигаемся
-            if (_currentMode == UnitMode.Switching)
+            if (_targetsToMove.Count == 0)
                 return unit.Pos;
 
-            // Если в режиме атаки - стоим на месте
-            if (_currentMode == UnitMode.Attacking)
-                return unit.Pos;
-
-            // В режиме движения - идем к цели
-            if (_currentTarget.HasValue)
-                return unit.Pos.CalcNextStepTowards(_currentTarget.Value);
-
-            // Если цели нет - идем к базе противника
-            var enemyBase = runtimeModel.RoMap.Bases[IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId];
-            return unit.Pos.CalcNextStepTowards(enemyBase);
+            return unit.Pos.CalcNextStepTowards(_targetsToMove[0]);
         }
 
         protected override List<Vector2Int> SelectTargets()
         {
-            var result = new List<Vector2Int>();
+            List<Vector2Int> result = new List<Vector2Int>();
+            _targetsToMove.Clear();
 
-            // Во время переключения режимов не атакуем
-            if (_currentMode == UnitMode.Switching)
-                return result;
+            var allTargets = GetAllTargets().ToList();
+            SortByDistanceToOwnBase(allTargets);
 
-            // В режиме движения не атакуем
-            if (_currentMode == UnitMode.Moving)
-                return result;
-
-            // В режиме атаки выбираем ближайшую цель
-            var reachableTargets = GetReachableTargets();
-            if (reachableTargets.Count > 0)
+            if (allTargets.Count > 0)
             {
-                result.Add(reachableTargets[0]);
-                _currentTarget = reachableTargets[0];
+                int targetIndex = Mathf.Min(_unitNumber, allTargets.Count - 1);
+                Vector2Int selectedTarget = allTargets[targetIndex];
+
+                if (IsTargetInRange(selectedTarget))
+                    result.Add(selectedTarget);
+                else
+                    _targetsToMove.Add(selectedTarget);
             }
             else
             {
-                _currentTarget = null;
+                int enemyBaseId = IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId;
+                Vector2Int enemyBase = runtimeModel.RoMap.Bases[enemyBaseId];
+                _targetsToMove.Add(enemyBase);
             }
 
             return result;
         }
 
+        // Простейшая сортировка целей по дистанции до своей базы
+        private void SortByDistanceToOwnBase(List<Vector2Int> targets)
+        {
+            targets.Sort((a, b) =>
+            {
+                float distA = DistanceToOwnBase(a);
+                float distB = DistanceToOwnBase(b);
+                return distA.CompareTo(distB);
+            });
+        }
+
         public override void Update(float deltaTime, float time)
         {
-            base.Update(deltaTime, time);
+            fireTimer += deltaTime;
 
-            // Обработка переключения режимов
-            if (_currentMode == UnitMode.Switching)
+            if (_overheated)
             {
-                _modeSwitchTimer += deltaTime;
-                if (_modeSwitchTimer >= ModeSwitchDelay)
+                _cooldownTime += deltaTime;
+                float t = _cooldownTime / OverheatCooldown;
+                _temperature = Mathf.Lerp(OverheatTemperature, 0, t);
+                if (t >= 1f)
                 {
-                    _modeSwitchTimer = 0f;
-                    _currentMode = _currentMode == UnitMode.Moving ? UnitMode.Attacking : UnitMode.Moving;
+                    _cooldownTime = 0;
+                    _overheated = false;
                 }
-                return;
-            }
-
-            // Проверяем, нужно ли переключить режим
-            bool hasTargetsInRange = HasTargetsInRange();
-
-            if ((_currentMode == UnitMode.Moving && hasTargetsInRange) ||
-                (_currentMode == UnitMode.Attacking && !hasTargetsInRange))
-            {
-                _currentMode = UnitMode.Switching;
-                _modeSwitchTimer = 0f;
             }
         }
 
-        protected override void GenerateProjectiles(Vector2Int forTarget, List<BaseProjectile> intoList)
+        // Внешний метод для получения снарядов, которые надо заспавнить в текущем кадре
+        public List<BaseProjectile> GetProjectilesToSpawn()
         {
-            // В режиме движения или переключения не стреляем
-            if (_currentMode != UnitMode.Attacking)
-                return;
+            var projectiles = new List<BaseProjectile>();
 
-            // Создаем стандартный снаряд
-            var projectile = CreateProjectile(forTarget);
-            AddProjectileToList(projectile, intoList);
+            if (fireTimer < FireCooldown)
+                return projectiles;
+
+            if (!HasTargetsInRange())
+                return projectiles;
+
+            if (GetTemperature() >= OverheatTemperature)
+                return projectiles;
+
+            IncreaseTemperature();
+
+            var targets = SelectTargets();
+            foreach (var target in targets)
+            {
+                for (int i = 0; i < GetTemperature(); i++)
+                {
+                    var projectile = CreateProjectile(target);
+                    projectiles.Add(projectile);
+                }
+            }
+
+            fireTimer = 0f;
+            return projectiles;
+        }
+
+        private int GetTemperature()
+        {
+            if (_overheated)
+                return (int)OverheatTemperature;
+            else
+                return (int)_temperature;
+        }
+
+        private void IncreaseTemperature()
+        {
+            _temperature += 1f;
+            if (_temperature >= OverheatTemperature)
+                _overheated = true;
         }
     }
 }
+
