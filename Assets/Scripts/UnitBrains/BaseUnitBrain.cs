@@ -41,8 +41,8 @@ namespace UnitBrains
 
             _activePath = new AStarPath(runtimeModel, unit.Pos, target);
             //Debug.Log(_activePath.GetNextStepFrom(unit.Pos));
-            return ActivePath.GetNextStepFrom(unit.Pos);
-           
+            return _activePath.GetNextStepFrom(unit.Pos);
+
         }
 
         public List<BaseProjectile> GetProjectiles()
