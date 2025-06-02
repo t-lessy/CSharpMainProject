@@ -60,32 +60,33 @@ namespace UnitBrains.Player
             return base.GetNextStep();
         }
 
-        protected override List<Vector2Int> SelectTargets()
-        {
-
-        //    protected override List<Vector2Int> SelectTargets()
+        //protected override List<Vector2Int> SelectTargets()
         //{
-        //    List<Vector2Int> result = GetReachableTargets();
 
-        //    if (result.Count == 0)
-        //    {
-        //        return result; 
-        //    }
+            protected override List<Vector2Int> SelectTargets()
+        {
+            List<Vector2Int> result = GetReachableTargets();
 
-        //    Vector2Int nearestEnemy = result[0];
-        //    float nearestEnemyDistance = DistanceToOwnBase(nearestEnemy);
+            if (result.Count == 0)
+            {
+                return result;
+            }
 
-        //    foreach (var target in result)
-        //    {
-        //        float enemyDistance = DistanceToOwnBase(target);
-        //        if (enemyDistance < nearestEnemyDistance)
-        //        {
-        //            nearestEnemy = target;
-        //            nearestEnemyDistance = enemyDistance; 
-        //        }
-        //    }
-        //    return new List<Vector2Int> { nearestEnemy };
-        //}
+            Vector2Int nearestEnemy = result[0];
+            float nearestEnemyDistance = DistanceToOwnBase(nearestEnemy);
+
+            foreach (var target in result)
+            {
+                float enemyDistance = DistanceToOwnBase(target);
+                if (enemyDistance < nearestEnemyDistance)
+                {
+                    nearestEnemy = target;
+                    nearestEnemyDistance = enemyDistance;
+                }
+            }
+            
+            return new List<Vector2Int> { nearestEnemy };
+        }
 
         /////////////////////////////////////////
         //// Homework 1.4 (1st block, 4rd module)
@@ -98,49 +99,49 @@ namespace UnitBrains.Player
         //return result;
         /////////////////////////////////////////
         ///
-            resultForShoot.Clear();
-            List<Vector2Int> result = GetAllTargets().ToList();
+        //resultForShoot.Clear();
+        //    List<Vector2Int> result = GetAllTargets().ToList();
 
-            if (result.Count == 1)
-            {
-                var baseEnemy = runtimeModel.RoMap.Bases[
-                    IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId];
+        //    if (result.Count == 1)
+        //    {
+        //        var baseEnemy = runtimeModel.RoMap.Bases[
+        //            IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId];
 
-                if (IsTargetInRange(baseEnemy))
-                {
-                    return ListSender(resultForShoot, baseEnemy);
-                }
-                else
-                {
-                    UnreachedListSender(baseEnemy);
-                }
+        //        if (IsTargetInRange(baseEnemy))
+        //        {
+        //            return ListSender(resultForShoot, baseEnemy);
+        //        }
+        //        else
+        //        {
+        //            UnreachedListSender(baseEnemy);
+        //        }
 
-            }
-            else
-            {
-                Vector2Int nearestEnemy = result[0];
-                float nearestEnemyDistance = DistanceToOwnBase(nearestEnemy);
-                foreach (var target in result)
-                {
-                    float enemyDistance = DistanceToOwnBase(target);
-                    if (enemyDistance < nearestEnemyDistance)
-                    {
-                        nearestEnemy = target;
-                        nearestEnemyDistance = enemyDistance;
-                    }
-                }
-                if (IsTargetInRange(nearestEnemy))
-                {
-                    return ListSender(resultForShoot, nearestEnemy);
-                }
-                else
-                {
-                    UnreachedListSender(nearestEnemy);
-                }
+        //    }
+        //    else
+        //    {
+        //        Vector2Int nearestEnemy = result[0];
+        //        float nearestEnemyDistance = DistanceToOwnBase(nearestEnemy);
+        //        foreach (var target in result)
+        //        {
+        //            float enemyDistance = DistanceToOwnBase(target);
+        //            if (enemyDistance < nearestEnemyDistance)
+        //            {
+        //                nearestEnemy = target;
+        //                nearestEnemyDistance = enemyDistance;
+        //            }
+        //        }
+        //        if (IsTargetInRange(nearestEnemy))
+        //        {
+        //            return ListSender(resultForShoot, nearestEnemy);
+        //        }
+        //        else
+        //        {
+        //            UnreachedListSender(nearestEnemy);
+        //        }
 
-            }
-            return resultForShoot;
-        }
+        //    }
+        //    return resultForShoot;
+        //}
 
         private List<Vector2Int> ListSender(List<Vector2Int> shootList, Vector2Int target)
         {
