@@ -16,8 +16,17 @@ namespace UnitBrains.Player
         private float _cooldownTime = 0f;
         private bool _overheated;
         
+
+        public static int iDMarker = 0;
+        private int iDSelectUnit = iDMarker ++;
+        private const int limitTargets = 3;
+
         public List<Vector2Int> unReachableTarget = new List<Vector2Int>();
         public List<Vector2Int> resultForShoot = new List<Vector2Int>();
+
+
+       
+
         protected override void GenerateProjectiles(Vector2Int forTarget, List<BaseProjectile> intoList)
         {
 
@@ -63,11 +72,6 @@ namespace UnitBrains.Player
         protected override List<Vector2Int> SelectTargets()
         {
 
-            ///////////////////////////////////////
-            // Homework 1.4 (1st block, 4rd module)
-            ///////////////////////////////////////
-          
-       
             resultForShoot.Clear();
             List<Vector2Int> result = GetAllTargets().ToList();
 
@@ -88,36 +92,59 @@ namespace UnitBrains.Player
             }
             else
             {
-                Vector2Int nearestEnemy = result[0];
-                float nearestEnemyDistance = DistanceToOwnBase(nearestEnemy);
-                foreach (var target in result)
+                SortByDistanceToOwnBase(result);
+                int convertedID = IDConverter(iDSelectUnit, result); 
+                for (int i = 0; i < result.Count && i < limitTargets ; i++)
                 {
-                    float enemyDistance = DistanceToOwnBase(target);
-                    if (enemyDistance < nearestEnemyDistance)
+                    var target = result[i];
+                    int targetID = i;
+
+                    if (targetID == convertedID)
                     {
-                        nearestEnemy = target;
-                        nearestEnemyDistance = enemyDistance;
+                        if (IsTargetInRange(target))
+                        {
+                            return ListSender(resultForShoot, target);
+                        }
+                        else
+                        {
+                            UnreachedListSender(target);
+                        }
                     }
                 }
-                if (IsTargetInRange(nearestEnemy))
-                {
-                    return ListSender(resultForShoot, nearestEnemy);
-                }
-                else
-                {
-                    UnreachedListSender(nearestEnemy);
-                }
-
             }
             return resultForShoot;
         }
 
+        private int IDConverter(int id, List<Vector2Int> targetList) // if our Id is Higher than target number/ other IDs are dead/ anything else we should convert this ID
+        {
+            int counter = 0;
+            if (targetList.Count <= 3)
+            {
+                counter = id / targetList.Count;
+                id = id - counter * targetList.Count;
+                
+                return id;
+            }
+            else
+            {
+                if (id >= 3)
+                {
+                    
+                    counter = id / 3;
+                    id = id - counter * 3;
+                    return id;
+                }
+            }
+            return id;
+            
+        }
         private List<Vector2Int> ListSender(List<Vector2Int> shootList, Vector2Int target)
         {
             shootList.Clear();
             shootList.Add(target);
             return shootList;
         }
+        
         private void UnreachedListSender(Vector2Int target)
         {
             unReachableTarget.Clear();
