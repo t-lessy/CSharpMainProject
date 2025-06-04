@@ -19,8 +19,6 @@ namespace Controller
         private readonly Gameplay3dView _gameplayView;
         private readonly Settings _settings;
         private readonly TimeUtil _timeUtil;
-        private readonly IUnitCoordinator _playerCoordinator;
-        private readonly IUnitCoordinator _botCoordinator;
 
         public LevelController(RuntimeModel runtimeModel, RootController rootController)
         {
@@ -28,28 +26,17 @@ namespace Controller
             _rootController = rootController;
             _botController = new BotController(OnBotUnitChosen);
             _simulationController = new(runtimeModel, OnLevelFinished);
-            
+
             _rootView = ServiceLocator.Get<RootView>();
             _gameplayView = ServiceLocator.Get<Gameplay3dView>();
             _settings = ServiceLocator.Get<Settings>();
             _timeUtil = ServiceLocator.Get<TimeUtil>();
-            _playerCoordinator = new UnitCoordinator(
-            runtimeModel,
-            _timeUtil,
-            RuntimeModel.PlayerId,
-            RuntimeModel.BotPlayerId);
-
-            _botCoordinator = new UnitCoordinator(
-                runtimeModel,
-                _timeUtil,
-                RuntimeModel.BotPlayerId,
-                RuntimeModel.PlayerId);
         }
 
         public void StartLevel(int level)
         {
             ServiceLocator.RegisterAs(this, typeof(IPlayerUnitChoosingListener));
-            
+
             _rootView.HideLevelFinished();
 
             Random.InitState(level);
@@ -70,7 +57,7 @@ namespace Controller
         {
             if (unitConfig.Cost > _runtimeModel.Money[RuntimeModel.PlayerId])
                 return;
-            
+
             SpawnUnit(RuntimeModel.PlayerId, unitConfig);
             TryStartSimulation();
         }
@@ -87,12 +74,9 @@ namespace Controller
                 _runtimeModel.Map.Bases[forPlayer],
                 _runtimeModel.RoUnits.Select(x => x.Pos).ToHashSet());
 
-            var coord = forPlayer == RuntimeModel.PlayerId
-            ? _playerCoordinator
-            : _botCoordinator;
-            var unit = new Unit(config, pos, coord);
-            _runtimeModel.PlayersUnits[forPlayer].Add(unit);
+            var unit = new Unit(config, pos);
             _runtimeModel.Money[forPlayer] -= config.Cost;
+            _runtimeModel.PlayersUnits[forPlayer].Add(unit);
         }
 
         private void TryStartSimulation()
