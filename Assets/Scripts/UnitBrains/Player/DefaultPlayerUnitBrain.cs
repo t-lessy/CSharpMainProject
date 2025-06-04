@@ -26,7 +26,7 @@ namespace UnitBrains.Player
 
         public override Vector2Int GetNextStep()
         {
-            var coord = UserCoordinator.Instance;
+            var coord = Coordinator;
             var target = coord.RecommendedTarget;
             var center = coord.RecommendedPoint;
 

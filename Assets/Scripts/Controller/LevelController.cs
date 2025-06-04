@@ -1,4 +1,4 @@
-﻿using Assets.Scripts.Model.Runtime.Buffs;
+using Assets.Scripts.Model.Runtime.Buffs;
 using Model;
 using Model.Config;
 using Model.Runtime;
@@ -19,6 +19,8 @@ namespace Controller
         private readonly Gameplay3dView _gameplayView;
         private readonly Settings _settings;
         private readonly TimeUtil _timeUtil;
+        private readonly IUnitCoordinator _playerCoordinator;
+        private readonly IUnitCoordinator _botCoordinator;
 
         public LevelController(RuntimeModel runtimeModel, RootController rootController)
         {
@@ -31,6 +33,17 @@ namespace Controller
             _gameplayView = ServiceLocator.Get<Gameplay3dView>();
             _settings = ServiceLocator.Get<Settings>();
             _timeUtil = ServiceLocator.Get<TimeUtil>();
+            _playerCoordinator = new UnitCoordinator(
+            runtimeModel,
+            _timeUtil,
+            RuntimeModel.PlayerId,
+            RuntimeModel.BotPlayerId);
+
+            _botCoordinator = new UnitCoordinator(
+                runtimeModel,
+                _timeUtil,
+                RuntimeModel.BotPlayerId,
+                RuntimeModel.PlayerId);
         }
 
         public void StartLevel(int level)
@@ -73,10 +86,13 @@ namespace Controller
             var pos = _runtimeModel.Map.FindFreeCellNear(
                 _runtimeModel.Map.Bases[forPlayer],
                 _runtimeModel.RoUnits.Select(x => x.Pos).ToHashSet());
-            
-            var unit = new Unit(config, pos);
-            _runtimeModel.Money[forPlayer] -= config.Cost;
+
+            var coord = forPlayer == RuntimeModel.PlayerId
+            ? _playerCoordinator
+            : _botCoordinator;
+            var unit = new Unit(config, pos, coord);
             _runtimeModel.PlayersUnits[forPlayer].Add(unit);
+            _runtimeModel.Money[forPlayer] -= config.Cost;
         }
 
         private void TryStartSimulation()

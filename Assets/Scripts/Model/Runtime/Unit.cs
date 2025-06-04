@@ -1,4 +1,4 @@
-﻿using Assets.Scripts.Model.Runtime.Buffs;
+using Assets.Scripts.Model.Runtime.Buffs;
 using Codice.Client.BaseCommands;
 using Model.Config;
 using Model.Runtime.Projectiles;
@@ -36,6 +36,7 @@ namespace Model.Runtime
             Health = config.MaxHealth;
             _brain = UnitBrainProvider.GetBrain(config);
             _brain.SetUnit(this);
+            _brain.SetCoordinator(coordinator);
             _runtimeModel = ServiceLocator.Get<IReadOnlyRuntimeModel>();
         }
 
