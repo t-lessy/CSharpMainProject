@@ -61,6 +61,7 @@
   <ItemGroup>
     <Compile Include="Assets\Scripts\View\TileView.cs" />
     <Compile Include="Assets\Scripts\Model\Runtime\Projectiles\BaseProjectile.cs" />
+    <Compile Include="Assets\Scripts\Model\Runtime\Buffs\BuffSystem.cs" />
     <Compile Include="Assets\Scripts\View\UnitView.cs" />
     <Compile Include="Assets\Scripts\Model\Runtime\ReadOnly\IReadOnlyUnit.cs" />
     <Compile Include="Assets\Scripts\UnitBrains\BaseUnitBrain.cs" />
@@ -80,20 +81,24 @@
     <Compile Include="Assets\Scripts\UnitBrains\Pathfinding\DebugPathOutput.cs" />
     <Compile Include="Assets\Scripts\Model\Config\Settings.cs" />
     <Compile Include="Assets\Scripts\Model\Config\UnitConfig.cs" />
+    <Compile Include="Assets\Scripts\Model\Runtime\Buffs\SlowMovementDebuff.cs" />
     <Compile Include="Assets\Scripts\Utilities\PersistanceUtils.cs" />
     <Compile Include="Assets\Scripts\View\RootView.cs" />
     <Compile Include="Assets\Scripts\UnitBrains\Pathfinding\BaseUnitPath.cs" />
     <Compile Include="Assets\Scripts\UnitBrains\Player\SecondUnitBrain.cs" />
+    <Compile Include="Assets\Scripts\Model\Runtime\Buffs\SlowAttackDebuff.cs" />
     <Compile Include="Assets\Scripts\Model\PersistedModel.cs" />
     <Compile Include="Assets\Scripts\Model\Runtime\ReadOnly\IReadOnlyBase.cs" />
     <Compile Include="Assets\Scripts\UnitBrains\Player\UserCoordinator.cs" />
     <Compile Include="Assets\Scripts\Utilities\TimeUtil.cs" />
+    <Compile Include="Assets\Scripts\Model\Runtime\Buffs\HasteMovementBuff.cs" />
     <Compile Include="Assets\Scripts\UnitBrains\Player\ThirdUnitBrain.cs" />
     <Compile Include="Assets\Scripts\Controller\LevelController.cs" />
     <Compile Include="Assets\Scripts\Model\Runtime\ReadOnly\IReadOnlyProjectile.cs" />
     <Compile Include="Assets\Scripts\UnitBrains\Enemy\DefaultEnemyUnitBrain.cs" />
     <Compile Include="Assets\Scripts\View\ProjectileView.cs" />
     <Compile Include="Assets\Scripts\View\StartMenuView.cs" />
+    <Compile Include="Assets\Scripts\Model\Runtime\Buffs\HasteAttackBuff.cs" />
     <Compile Include="Assets\Scripts\Model\RuntimeModel.cs" />
     <Compile Include="Assets\Scripts\View\HealthBar.cs" />
     <Compile Include="Assets\Scripts\View\VFXView.cs" />
@@ -104,6 +109,7 @@
     <Compile Include="Assets\Scripts\UnitBrains\Pathfinding\DummyUnitPath.cs" />
     <Compile Include="Assets\Scripts\Controller\RootController.cs" />
     <Compile Include="Assets\Scripts\Model\Runtime\Unit.cs" />
+    <Compile Include="Assets\Scripts\Model\Runtime\Buffs\Buff.cs" />
     <Compile Include="Assets\Scripts\Model\IReadOnlyRuntimeModel.cs" />
     <Compile Include="Assets\Scripts\Model\Runtime\Projectiles\HorizontalLineProjectile.cs" />
     <Compile Include="Assets\Scripts\Model\Runtime\Projectiles\HomingProjectile.cs" />

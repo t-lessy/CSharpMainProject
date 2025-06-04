@@ -1,9 +1,8 @@
-﻿using System.Linq;
-using Assets.Scripts.UnitBrains.Player;
+using Assets.Scripts.Model.Runtime.Buffs;
 using Model;
 using Model.Config;
 using Model.Runtime;
-using UnitBrains.Player;
+using System.Linq;
 using UnityEngine;
 using Utilities;
 using View;
@@ -64,6 +63,7 @@ namespace Controller
             _runtimeModel.Bases[RuntimeModel.BotPlayerId] = new MainBase(_settings.MainBaseMaxHp);
 
             _gameplayView.Reinitialize();
+            ServiceLocator.Get<BuffSystem>().StopProcessing();
         }
 
         public void OnPlayersUnitChosen(UnitConfig unitConfig)
@@ -101,6 +101,7 @@ namespace Controller
                 _runtimeModel.Money[RuntimeModel.BotPlayerId] < _settings.GetCheapestEnemyUnitCost())
             {
                 _runtimeModel.Stage = RuntimeModel.GameStage.Simulation;
+                ServiceLocator.Get<BuffSystem>().StartProcessing();
             }
         }
 
@@ -116,6 +117,7 @@ namespace Controller
         {
             _runtimeModel.Stage = RuntimeModel.GameStage.Finished;
             _rootView.ShowLevelFinished(playerWon);
+            ServiceLocator.Get<BuffSystem>().StopProcessing();
             _timeUtil.RunDelayed(5f, () => _rootController.OnLevelFinished(playerWon));
         }
     }
