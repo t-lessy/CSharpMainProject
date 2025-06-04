@@ -1,8 +1,10 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using Assets.Scripts.Model.Runtime.Buffs;
+using Codice.Client.BaseCommands;
 using Model.Config;
 using Model.Runtime.Projectiles;
 using Model.Runtime.ReadOnly;
+using System.Collections.Generic;
+using System.Linq;
 using UnitBrains;
 using UnitBrains.Pathfinding;
 using UnityEngine;
@@ -26,7 +28,7 @@ namespace Model.Runtime
         private float _nextBrainUpdateTime = 0f;
         private float _nextMoveTime = 0f;
         private float _nextAttackTime = 0f;
-        
+
         public Unit(UnitConfig config, Vector2Int startPos)
         {
             Config = config;
@@ -41,22 +43,26 @@ namespace Model.Runtime
         {
             if (IsDead)
                 return;
-            
+
             if (_nextBrainUpdateTime < time)
             {
                 _nextBrainUpdateTime = time + Config.BrainUpdateInterval;
                 _brain.Update(deltaTime, time);
             }
-            
+
             if (_nextMoveTime < time)
             {
-                _nextMoveTime = time + Config.MoveDelay;
+                var bs = ServiceLocator.Get<BuffSystem>();
+                float moveMod = Mathf.Max(0.01f, bs.GetMoveModifier(this));
+                _nextMoveTime = time + Config.MoveDelay / moveMod;
                 Move();
             }
-            
+
             if (_nextAttackTime < time && Attack())
             {
-                _nextAttackTime = time + Config.AttackDelay;
+                var bs = ServiceLocator.Get<BuffSystem>();
+                float atkMod = Mathf.Max(0.01f, bs.GetAttackModifier(this));
+                _nextAttackTime = time + Config.AttackDelay / atkMod;
             }
         }
 
@@ -65,7 +71,7 @@ namespace Model.Runtime
             var projectiles = _brain.GetProjectiles();
             if (projectiles == null || projectiles.Count == 0)
                 return false;
-            
+
             _pendingProjectiles.AddRange(projectiles);
             return true;
         }
@@ -85,7 +91,7 @@ namespace Model.Runtime
             {
                 return;
             }
-            
+
             Pos = targetPos;
         }
 
