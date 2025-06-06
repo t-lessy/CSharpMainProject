@@ -1,6 +1,10 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
+using Model;
 using Model.Runtime.Projectiles;
+using UnitBrains.Pathfinding;
 using UnityEngine;
+using Utilities;
 
 namespace UnitBrains.Player
 {
@@ -12,6 +16,8 @@ namespace UnitBrains.Player
         private float _temperature = 0f;
         private float _cooldownTime = 0f;
         private bool _overheated;
+
+        private Vector2Int? _movementTarget = null;
         
         protected override void GenerateProjectiles(Vector2Int forTarget, List<BaseProjectile> intoList)
         {
@@ -41,39 +47,52 @@ namespace UnitBrains.Player
 
         public override Vector2Int GetNextStep()
         {
-            return base.GetNextStep();
+            if (_movementTarget == null || IsTargetInRange(_movementTarget.Value))
+                return unit.Pos;
+
+            return unit.Pos.CalcNextStepTowards(_movementTarget.Value);
         }
 
         protected override List<Vector2Int> SelectTargets()
         {
-            ///////////////////////////////////////
-            // Homework 1.4 (1st block, 4rd module)
-            ///////////////////////////////////////
-            
+            _movementTarget = null;
             var result = new List<Vector2Int>();
-            var targets = GetAllTargets();
+            var allTargets = GetAllTargets().ToList();
 
-            var closestTarget = new Vector2Int();
-            var minDistance = float.MaxValue;
+            Vector2Int? primaryTarget = null;
 
-            foreach (var target in targets)
+            if (allTargets.Any())
             {
-                float distance = DistanceToOwnBase(target);
-
-                if (distance < minDistance)
+                primaryTarget = allTargets
+                    .OrderBy(target => CalculateDistanceToTargetBase(target))
+                    .First();
+            }
+            else
+            {
+                var enemyBaseId = IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId;
+                primaryTarget = runtimeModel.RoMap.Bases[enemyBaseId];
+            }
+            if (primaryTarget.HasValue)
+            {
+                if (IsTargetInRange(primaryTarget.Value))
                 {
-                    minDistance = distance;
-                    closestTarget = target;
+                    result.Add(primaryTarget.Value);
+                }
+                else
+                {
+                    _movementTarget = primaryTarget.Value;
                 }
             }
 
-            if (minDistance < float.MaxValue)
-            {
-                result.Add(closestTarget);
-            }            
             return result;
+        }
 
-            ///////////////////////////////////////
+        private float CalculateDistanceToTargetBase(Vector2Int position)
+        {
+            var ownerId = IsPlayerUnitBrain ? RuntimeModel.PlayerId : RuntimeModel.BotPlayerId;
+            var ownBasePos = runtimeModel.RoMap.Bases[ownerId];
+
+            return Vector2Int.Distance(position, ownBasePos);
         }
 
         public override void Update(float deltaTime, float time)
