@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Model.Config;
+using Model.Runtime.Buffs;
 using Model.Runtime.Projectiles;
 using Model.Runtime.ReadOnly;
 using UnitBrains;
@@ -24,6 +25,8 @@ namespace Model.Runtime
         private IReadOnlyRuntimeModel _runtimeModel;
         private BaseUnitBrain _brain;
 
+        private BuffSystem _buffSystem;
+        
         private float _nextBrainUpdateTime = 0f;
         private float _nextMoveTime = 0f;
         private float _nextAttackTime = 0f;
@@ -37,12 +40,15 @@ namespace Model.Runtime
             _brain.SetUnit(this);
             _brain.SetCoordinator(coordinator);
             _runtimeModel = ServiceLocator.Get<IReadOnlyRuntimeModel>();
+            _buffSystem = ServiceLocator.Get<BuffSystem>();
         }
 
         public void Update(float deltaTime, float time)
         {
             if (IsDead)
                 return;
+
+            List<Buff> buffs = _buffSystem.GetActiveBuffs(this);
             
             if (_nextBrainUpdateTime < time)
             {
@@ -52,13 +58,19 @@ namespace Model.Runtime
             
             if (_nextMoveTime < time)
             {
-                _nextMoveTime = time + Config.MoveDelay;
+                float totalMoveSpeedBuff = buffs
+                    .Where(b => b.Type == Buff.BuffType.MoveSpeed)
+                    .Sum(b => b.Value);
+                _nextMoveTime = time + Config.MoveDelay - totalMoveSpeedBuff;
                 Move();
             }
             
             if (_nextAttackTime < time && Attack())
             {
-                _nextAttackTime = time + Config.AttackDelay;
+                float totalAttackSpeedBuff = buffs
+                    .Where(b => b.Type == Buff.BuffType.AttackSpeed)
+                    .Sum(b => b.Value);
+                _nextAttackTime = time + Config.AttackDelay - totalAttackSpeedBuff;
             }
         }
 
@@ -98,6 +110,10 @@ namespace Model.Runtime
 
         public void TakeDamage(int projectileDamage)
         {
+            var buffs = _buffSystem.GetActiveBuffs(this);
+            if (buffs.Any(b => b.Type == Buff.BuffType.Invulnerability))
+                return;
+
             Health -= projectileDamage;
         }
     }

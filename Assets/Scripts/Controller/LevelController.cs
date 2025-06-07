@@ -2,6 +2,7 @@
 using Model;
 using Model.Config;
 using Model.Runtime;
+using Model.Runtime.Buffs;
 using UnitBrains.Player;
 using UnityEngine;
 using Utilities;
@@ -19,6 +20,7 @@ namespace Controller
         private readonly Gameplay3dView _gameplayView;
         private readonly Settings _settings;
         private readonly TimeUtil _timeUtil;
+        private readonly BuffSystem _buffSystem;
 
         public LevelController(RuntimeModel runtimeModel, RootController rootController)
         {
@@ -31,6 +33,7 @@ namespace Controller
             _gameplayView = ServiceLocator.Get<Gameplay3dView>();
             _settings = ServiceLocator.Get<Settings>();
             _timeUtil = ServiceLocator.Get<TimeUtil>();
+            _buffSystem = ServiceLocator.Get<BuffSystem>();
         }
 
         public void StartLevel(int level)
@@ -85,6 +88,16 @@ namespace Controller
                 _runtimeModel.Money[RuntimeModel.BotPlayerId] < _settings.GetCheapestEnemyUnitCost())
             {
                 _runtimeModel.Stage = RuntimeModel.GameStage.Simulation;
+                
+                // add debuff (increase Attack and Move delay x2 times)
+                // add buff (invulnerability)
+                // for all player units for 5 sec at start of battle
+                foreach (var u in _runtimeModel.PlayersUnits[RuntimeModel.PlayerId])
+                {
+                    _buffSystem.AddBuffToUnit(u, new Buff(Buff.BuffType.AttackSpeed, 5f, -u.Config.AttackDelay));
+                    _buffSystem.AddBuffToUnit(u, new Buff(Buff.BuffType.MoveSpeed, 5f, -u.Config.MoveDelay));
+                    _buffSystem.AddBuffToUnit(u, new Buff(Buff.BuffType.Invulnerability, 5f, 1));
+                }
             }
         }
 
@@ -101,6 +114,7 @@ namespace Controller
             _runtimeModel.Stage = RuntimeModel.GameStage.Finished;
             _rootView.ShowLevelFinished(playerWon);
             _timeUtil.RunDelayed(5f, () => _rootController.OnLevelFinished(playerWon));
+            _buffSystem.Clear();
         }
     }
 }

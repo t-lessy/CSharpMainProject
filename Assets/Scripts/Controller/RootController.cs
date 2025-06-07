@@ -1,5 +1,6 @@
 ﻿using Model;
 using Model.Config;
+using Model.Runtime.Buffs;
 using UnityEngine;
 using Utilities;
 using View;
@@ -18,6 +19,7 @@ namespace Controller
         {
             _persisted = PersistanceUtils.LoadSingleton(new PersistedModel());
             ServiceLocator.Register(TimeUtil.Create());
+            ServiceLocator.Register(BuffSystem.Create());
             
             _runtimeModel = new();
             ServiceLocator.RegisterAs(_runtimeModel, typeof(IReadOnlyRuntimeModel));
