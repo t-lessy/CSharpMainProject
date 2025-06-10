@@ -49,9 +49,30 @@ namespace UnitBrains.Player
             //else
             //{
             //    return unit.Pos.CalcNextStepTowards(target);
+            ////}
+
+            //bool HasTargetsInDoubleRange() //тут начало
+            //{
+            //    var attackRangeSqr = (unit.Config.AttackRange * unit.Config.AttackRange) * 2;
+            //    foreach (var possibleTarget in GetAllTargets())
+            //    {
+            //        var diff = possibleTarget - unit.Pos;
+            //        if (diff.sqrMagnitude < attackRangeSqr)
+            //            return true;
+            //    }
+
+            //    return false;
             //}
-            return base.GetNextStep();
-            
+
+            //if (HasTargetsInDoubleRange())
+            //{
+            //    return UnitCoordinator.GetInstance().GetTarget();
+            //}
+
+            //return UnitCoordinator.GetInstance().GetPoint(); //Тут конец
+
+            return base.GetNextStep();        //Раньше только это было
+
         }
 
         protected override List<Vector2Int> SelectTargets()

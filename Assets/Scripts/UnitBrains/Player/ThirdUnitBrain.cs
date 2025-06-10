@@ -24,6 +24,27 @@ public class ThirdUnitBrain : DefaultPlayerUnitBrain
         if (!Targets.Any() && MovingCooldownCounter >= 4)
         {
             IsMoving = true;
+            //
+            //bool HasTargetsInDoubleRange()
+            //{
+            //    var attackRangeSqr = (unit.Config.AttackRange * unit.Config.AttackRange) * 2;
+            //    foreach (var possibleTarget in GetAllTargets())
+            //    {
+            //        var diff = possibleTarget - unit.Pos;
+            //        if (diff.sqrMagnitude < attackRangeSqr)
+            //            return true;
+            //    }
+
+            //    return false;
+            //}
+
+            //if (HasTargetsInDoubleRange())
+            //{
+            //    return UnitCoordinator.GetInstance().GetTarget();
+            //}
+
+            //return UnitCoordinator.GetInstance().GetPoint();
+            //
             return base.GetNextStep();
         }
         else

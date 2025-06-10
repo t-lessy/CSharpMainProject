@@ -35,7 +35,6 @@ namespace UnitBrains
         {
             if (HasTargetsInRange())
                 return unit.Pos;
-
             var target = runtimeModel.RoMap.Bases[
                 IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId];
 
