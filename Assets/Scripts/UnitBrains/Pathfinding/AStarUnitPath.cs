@@ -12,10 +12,10 @@ namespace UnitBrains.Pathfinding
         private const int PenaltyStepCost = 14; // Штраф за занятые клетки
 
         private static Vector2Int[] Directions = {
-            new(1, 0), // вверх
-            new(-1, 0), // вниз
-            new(0, 1), // вправо
-            new(0, -1), // влево
+            new(1, 0),
+            new(-1, 0), 
+            new(0, 1), 
+            new(0, -1),
         };
 
         public AStarUnitPath(IReadOnlyRuntimeModel runtimeModel, Vector2Int startPoint, Vector2Int endPoint)

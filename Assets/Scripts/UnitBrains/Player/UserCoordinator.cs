@@ -17,7 +17,7 @@ namespace UnitBrains.Player
         public Vector2Int RecommendedTarget { get; private set; }
         public Vector2Int RecommendedPoint { get; private set; }
 
-        public UnitCoordinator( IReadOnlyRuntimeModel model, TimeUtil timeUtil,
+        public UnitCoordinator(IReadOnlyRuntimeModel model, TimeUtil timeUtil,
             int ownPlayerId, int enemyPlayerId)
         {
             _model = model;
@@ -76,7 +76,6 @@ namespace UnitBrains.Player
                 var weakest = ordered.Aggregate((a, b) => a.Health < b.Health ? a : b);
 
                 RecommendedTarget = weakest.Pos;
-                // точка на отдалении от ближайшего
                 var nearest = ordered.First().Pos;
                 var dir = (Vector2)(nearest - ownBase);
                 RecommendedPoint = dir == Vector2.zero

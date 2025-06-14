@@ -3,6 +3,7 @@ using Model;
 using Model.Config;
 using Model.Runtime;
 using System.Linq;
+using UnitBrains.Player;
 using UnityEngine;
 using Utilities;
 using View;
@@ -19,6 +20,8 @@ namespace Controller
         private readonly Gameplay3dView _gameplayView;
         private readonly Settings _settings;
         private readonly TimeUtil _timeUtil;
+        private UnitCoordinator _playerCoordinator;
+        private UnitCoordinator _botCoordinator;
 
         public LevelController(RuntimeModel runtimeModel, RootController rootController)
         {
@@ -45,6 +48,18 @@ namespace Controller
             var map = MapGenerator.Generate(_settings.MapWidth, _settings.MapHeight, density, level);
             _runtimeModel.Clear();
             _runtimeModel.Map = new Map(map, Settings.PlayersCount);
+            _playerCoordinator = new UnitCoordinator(
+                _runtimeModel,
+                _timeUtil,
+                RuntimeModel.PlayerId,
+                RuntimeModel.BotPlayerId);
+
+            _botCoordinator = new UnitCoordinator(
+                _runtimeModel,
+                _timeUtil,
+                RuntimeModel.BotPlayerId,
+                RuntimeModel.PlayerId);
+
             _runtimeModel.Stage = RuntimeModel.GameStage.ChooseUnit;
             _runtimeModel.Bases[RuntimeModel.PlayerId] = new MainBase(_settings.MainBaseMaxHp);
             _runtimeModel.Bases[RuntimeModel.BotPlayerId] = new MainBase(_settings.MainBaseMaxHp);
@@ -75,6 +90,10 @@ namespace Controller
                 _runtimeModel.RoUnits.Select(x => x.Pos).ToHashSet());
 
             var unit = new Unit(config, pos);
+            var coord = forPlayer == RuntimeModel.PlayerId
+                ? _playerCoordinator
+                : _botCoordinator;
+            unit.SetCoordinator(coord);
             _runtimeModel.Money[forPlayer] -= config.Cost;
             _runtimeModel.PlayersUnits[forPlayer].Add(unit);
         }

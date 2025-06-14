@@ -1,15 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Assets.Scripts.Model.Runtime.Buffs
+﻿namespace Assets.Scripts.Model.Runtime.Buffs
 {
-    /// <summary>
-    /// Базовый абстрактный бафф/дебафф: хранит оставшуюся продолжительность и множитель.
-    /// В методе Tick уменьшается Duration и возвращается true, если эффект истёк.
-    /// </summary>
     public abstract class Buff
     {
         public float Duration { get; private set; }
@@ -21,9 +11,7 @@ namespace Assets.Scripts.Model.Runtime.Buffs
             Modifier = modifier;
         }
 
-        // Уменьшить Duration на deltaTime. 
-        //Вернуть true, если Duration ≤ 0 (эффект завершился).
-     
+        
         public bool Tick(float deltaTime)
         {
             Duration -= deltaTime;

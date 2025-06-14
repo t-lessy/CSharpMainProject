@@ -1,18 +1,13 @@
 ﻿using Model.Runtime;
-using System;
 using System.Collections.Generic;
+#if UNITY_EDITOR
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+#endif
 using UnityEngine;
 using Utilities;
 
 namespace Assets.Scripts.Model.Runtime.Buffs
 {
-    /// <summary>
-    /// Сервис, который через TimeUtil.FixedUpdate тикает все баффы
-    /// и выдаёт единые модификаторы для движения и атаки.
-    /// </summary>
     public class BuffSystem
     {
         private readonly TimeUtil _timeUtil;
@@ -22,11 +17,10 @@ namespace Assets.Scripts.Model.Runtime.Buffs
         public BuffSystem(TimeUtil timeUtil)
         {
             _timeUtil = timeUtil;
-            // каждый FixedUpdate будет вызывать UpdateAll
             _timeUtil.AddFixedUpdateAction(UpdateAll);
         }
 
-        /// <summary>Добавить бафф или дебафф конкретному юниту.</summary>
+
         public void AddBuff(Unit unit, Buff buff)
         {
             if (!_buffs.TryGetValue(unit, out var list))
@@ -34,26 +28,17 @@ namespace Assets.Scripts.Model.Runtime.Buffs
             list.Add(buff);
         }
 
-        /// <summary>
-        /// Итоговый модификатор скорости передвижения: 
-        /// 1f = без изменений, >1f = ускорение, <1f = замедление.
-        /// </summary>
+
         public float GetMoveModifier(Unit unit)
         {
             if (!_buffs.TryGetValue(unit, out var list))
                 return 1f;
 
-            // для каждого HasteMovementBuff берём (Modifier−1), 
-            // для каждого SlowMovementDebuff — (1−Modifier), складываем и прибавляем к 1
             float net = list.OfType<HasteMovementBuff>().Sum(b => b.Modifier - 1f)
                       - list.OfType<SlowMovementDebuff>().Sum(b => 1f - b.Modifier);
             return Mathf.Max(0f, 1f + net);
         }
 
-        /// <summary>
-        /// Итоговый модификатор скорости атаки: 
-        /// 1f = без изменений, >1f = ускорение, <1f = замедление.
-        /// </summary>
         public float GetAttackModifier(Unit unit)
         {
             if (!_buffs.TryGetValue(unit, out var list))
@@ -64,9 +49,6 @@ namespace Assets.Scripts.Model.Runtime.Buffs
             return Mathf.Max(0f, 1f + net);
         }
 
-        /// <summary>
-        /// Уменьшаем Duration у всех баффов и удаляем истёкшие.
-        /// </summary>
         private void UpdateAll(float deltaTime)
         {
             foreach (var key in _buffs.Keys.ToList())
@@ -80,7 +62,7 @@ namespace Assets.Scripts.Model.Runtime.Buffs
                 if (list.Count == 0)
                     _buffs.Remove(key);
             }
-        }     
+        }
 
         public void StartProcessing()
         {
@@ -95,5 +77,18 @@ namespace Assets.Scripts.Model.Runtime.Buffs
             _timeUtil.RemoveFixedUpdateAction(UpdateAll);
             _running = false;
         }
+#if UNITY_EDITOR
+        /// Возвращает инфо о ближайшем Haste-баффе на юните
+        public (bool has, float timeLeft, float multiplier) GetHasteAttackInfo(Unit u)
+        {
+            if (_buffs.TryGetValue(u, out var list))
+            {
+                var haste = list.OfType<HasteAttackBuff>().FirstOrDefault();
+                if (haste != null)
+                    return (true, haste.Duration, haste.Modifier);
+            }
+            return (false, 0f, 1f);
+        }
+#endif
     }
 }

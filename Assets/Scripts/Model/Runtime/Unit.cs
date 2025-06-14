@@ -1,5 +1,5 @@
 using Assets.Scripts.Model.Runtime.Buffs;
-using Codice.Client.BaseCommands;
+using Assets.Scripts.UnitBrains.Player;
 using Model.Config;
 using Model.Runtime.Projectiles;
 using Model.Runtime.ReadOnly;
@@ -93,6 +93,11 @@ namespace Model.Runtime
             }
 
             Pos = targetPos;
+        }
+
+        public void SetCoordinator(IUnitCoordinator coordinator)
+        {
+            _brain.SetCoordinator(coordinator);
         }
 
         public void ClearPendingProjectiles()
