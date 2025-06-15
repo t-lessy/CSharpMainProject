@@ -1,7 +1,10 @@
 ﻿using Model;
 using System.Collections.Generic;
+using System.Linq;
 using UnitBrains.Pathfinding;
 using UnityEngine;
+using static Codice.Client.Commands.WkTree.WorkspaceTreeNode;
+using static UnityEngine.GraphicsBuffer;
 
 namespace UnitBrains.Player
 {
@@ -30,20 +33,36 @@ namespace UnitBrains.Player
             var target = coord.RecommendedTarget;
             var center = coord.RecommendedPoint;
 
-            Vector2Int point = GetDistributedPointAround(center, unit.Pos);
+            bool isBaseTarget = runtimeModel.RoMap.Bases.Contains(target);
+            Vector2Int point = isBaseTarget
+                    ? target
+                    : GetDistributedPointAround(center, unit.Pos);
+
             float distToTarget = Vector2Int.Distance(unit.Pos, target);
             bool canAttack = distToTarget <= coord.StandardAttackRange * AttackRangeMultiplier;
 
-            Vector2Int nextStep = canAttack ? target : point;
+            Vector2Int destination = canAttack ? target : point;
 
-            if (!IsTargetInRange(nextStep))
+            if (destination == unit.Pos)
+                return unit.Pos;
+
+            var path = new AStarUnitPath(runtimeModel, unit.Pos, destination);
+
+
+            var fullPath = path.GetPath().ToList();
+
+            bool hasCurrentCell = fullPath.Contains(unit.Pos);
+
+            if (!hasCurrentCell || fullPath.Count < 2)
             {
-                var path = new AStarUnitPath(runtimeModel, unit.Pos, nextStep);
-                VisualizePath(path);
-                return path.GetNextStepFrom(unit.Pos);
+                var dir = destination - unit.Pos;
+                dir.x = Mathf.Clamp(dir.x, -1, 1);
+                dir.y = Mathf.Clamp(dir.y, -1, 1);
+                return unit.Pos + dir;
             }
 
-            return unit.Pos;
+            VisualizePath(path);
+            return path.GetNextStepFrom(unit.Pos);
         }
 
         private static readonly Vector2Int[] DistributionOffsets =
