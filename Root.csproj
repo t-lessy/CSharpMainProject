@@ -65,6 +65,7 @@
     <Compile Include="Assets\Scripts\Model\Runtime\Buffs\BuffSystem.cs" />
     <Compile Include="Assets\Scripts\View\UnitView.cs" />
     <Compile Include="Assets\Scripts\Model\Runtime\ReadOnly\IReadOnlyUnit.cs" />
+    <Compile Include="Assets\Scripts\Model\Runtime\Buffs\IUnitBuff.cs" />
     <Compile Include="Assets\Scripts\UnitBrains\BaseUnitBrain.cs" />
     <Compile Include="Assets\Scripts\Utilities\CameraPositioning.cs" />
     <Compile Include="Assets\Scripts\View\ChooseUnitView.cs" />
@@ -105,6 +106,7 @@
     <Compile Include="Assets\Scripts\View\VFXView.cs" />
     <Compile Include="Assets\Scripts\Controller\IPlayerUnitChoosingListener.cs" />
     <Compile Include="Assets\Scripts\Utilities\Extensions.cs" />
+    <Compile Include="Assets\Scripts\Model\Runtime\Buffs\DoubleShotBuff.cs" />
     <Compile Include="Assets\Scripts\Utilities\ServiceLocator.cs" />
     <Compile Include="Assets\Scripts\Model\Runtime\Projectiles\ArchToTileProjectile.cs" />
     <Compile Include="Assets\Scripts\UnitBrains\Pathfinding\DummyUnitPath.cs" />
@@ -117,6 +119,7 @@
     <Compile Include="Assets\Scripts\Utilities\MapGenerator.cs" />
     <Compile Include="Assets\Scripts\Controller\BotController.cs" />
     <Compile Include="Assets\Scripts\Controller\SimulationController.cs" />
+    <Compile Include="Assets\Scripts\Model\Runtime\Buffs\IncreaseRangeBuff.cs" />
     <Compile Include="Assets\Scripts\UnitBrains\Player\IUnitCoordinator.cs" />
     <Compile Include="Assets\Scripts\UnitBrains\Pathfinding\AStarUnitPath.cs" />
   </ItemGroup>

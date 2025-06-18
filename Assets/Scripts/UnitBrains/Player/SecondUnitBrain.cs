@@ -33,13 +33,14 @@ namespace UnitBrains.Player
                 return;
             }
 
-            int currentTemp = GetTemperature(); // сохранение текущей температуры
+            int currentTemp = GetTemperature();           // 0…3
+            int shots = (currentTemp + 1) * unit.CurrentProjectileMultiplier;
 
-            for (int i = 0; i < currentTemp + 1; i++) // увеличение снарядов с каждым выстрелом
+            for (int i = 0; i < shots; i++)                // теперь ×2, если висит DoubleShot
             {
                 var projectile = CreateProjectile(forTarget);
                 AddProjectileToList(projectile, intoList);
-                Debug.Log($"Выстрел {i}, температура: {currentTemp}");
+                //Debug.Log($"Выстрел {i}, температура: {currentTemp}");
             }
             IncreaseTemperature(); // нагрев после выстрела
         }

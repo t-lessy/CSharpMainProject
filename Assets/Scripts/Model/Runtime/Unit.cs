@@ -1,4 +1,3 @@
-using Assets.Scripts.Model.Runtime.Buffs;
 using Assets.Scripts.UnitBrains.Player;
 using Model.Config;
 using Model.Runtime.Projectiles;
@@ -21,9 +20,32 @@ namespace Model.Runtime
         public BaseUnitPath ActivePath => _brain?.ActivePath;
         public IReadOnlyList<BaseProjectile> PendingProjectiles => _pendingProjectiles;
 
+        private float _moveSpeedMultiplier = 1f;
+        private float _attackSpeedMultiplier = 1f;
+        private int _projectileMultiplier = 1;
+        private float _attackRangeMultiplier = 1f;
+
+        internal void AddMoveSpeedMultiplier(float m) => _moveSpeedMultiplier *= m;
+        internal void RemoveMoveSpeedMultiplier(float m) => _moveSpeedMultiplier /= m;
+
+        internal void AddAttackSpeedMultiplier(float m) => _attackSpeedMultiplier *= m;
+        internal void RemoveAttackSpeedMultiplier(float m) => _attackSpeedMultiplier /= m;
+
+        internal void AddProjectileMultiplier(int k) => _projectileMultiplier *= k;
+        internal void RemoveProjectileMultiplier(int k) => _projectileMultiplier /= k;
+
+        internal void AddAttackRangeMultiplier(float m) => _attackRangeMultiplier *= m;
+        internal void RemoveAttackRangeMultiplier(float m) => _attackRangeMultiplier /= m;
+
+        public float CurrentAttackSpeedMultiplier => _attackSpeedMultiplier;
+        public int CurrentProjectileMultiplier => _projectileMultiplier;
+        public float CurrentAttackRange => Config.AttackRange * _attackRangeMultiplier;
+
         private readonly List<BaseProjectile> _pendingProjectiles = new();
         private IReadOnlyRuntimeModel _runtimeModel;
         private BaseUnitBrain _brain;
+        public BaseUnitBrain Brain => _brain;
+        public override string ToString() => Config.Name;
 
         private float _nextBrainUpdateTime = 0f;
         private float _nextMoveTime = 0f;
@@ -52,16 +74,14 @@ namespace Model.Runtime
 
             if (_nextMoveTime < time)
             {
-                var bs = ServiceLocator.Get<BuffSystem>();
-                float moveMod = Mathf.Max(0.01f, bs.GetMoveModifier(this));
+                float moveMod = Mathf.Max(0.01f, _moveSpeedMultiplier);
                 _nextMoveTime = time + Config.MoveDelay / moveMod;
                 Move();
             }
 
             if (_nextAttackTime < time && Attack())
             {
-                var bs = ServiceLocator.Get<BuffSystem>();
-                float atkMod = Mathf.Max(0.01f, bs.GetAttackModifier(this));
+                float atkMod = Mathf.Max(0.01f, _attackSpeedMultiplier);
                 _nextAttackTime = time + Config.AttackDelay / atkMod;
             }
         }
