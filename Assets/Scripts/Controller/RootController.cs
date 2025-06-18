@@ -19,7 +19,6 @@ namespace Controller
         {
             _persisted = PersistanceUtils.LoadSingleton(new PersistedModel());
             ServiceLocator.Register(TimeUtil.Create());
-            ServiceLocator.Register(BuffSystem.Create());
             
             _runtimeModel = new();
             ServiceLocator.RegisterAs(_runtimeModel, typeof(IReadOnlyRuntimeModel));
@@ -32,6 +31,8 @@ namespace Controller
 
             var vfxView = SpawnVFXView();
             ServiceLocator.Register(vfxView);
+            
+            ServiceLocator.Register(BuffSystem.Create());
             
             _levelController = new(_runtimeModel, this);
             

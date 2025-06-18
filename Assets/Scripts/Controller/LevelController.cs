@@ -89,15 +89,16 @@ namespace Controller
             {
                 _runtimeModel.Stage = RuntimeModel.GameStage.Simulation;
                 
-                // add debuff (increase Attack and Move delay x2 times)
+                // Buff System Test Block - buff all player units at start
+                // add debuff (decrease Attack and Move delay x2 times)
                 // add buff (invulnerability)
                 // for all player units for 5 sec at start of battle
-                foreach (var u in _runtimeModel.PlayersUnits[RuntimeModel.PlayerId])
-                {
-                    _buffSystem.AddBuffToUnit(u, new Buff(Buff.BuffType.AttackSpeed, 5f, -u.Config.AttackDelay));
-                    _buffSystem.AddBuffToUnit(u, new Buff(Buff.BuffType.MoveSpeed, 5f, -u.Config.MoveDelay));
-                    _buffSystem.AddBuffToUnit(u, new Buff(Buff.BuffType.Invulnerability, 5f, 1));
-                }
+                // foreach (var u in _runtimeModel.PlayersUnits[RuntimeModel.PlayerId])
+                // {
+                //     _buffSystem.AddBuffToUnit(u, new Buff(Buff.BuffType.AttackSpeed, 5, -2));
+                //     _buffSystem.AddBuffToUnit(u, new Buff(Buff.BuffType.MoveSpeed, 5, -2));
+                //     _buffSystem.AddBuffToUnit(u, new Buff(Buff.BuffType.Invulnerability, 5, 1));
+                // }
             }
         }
 

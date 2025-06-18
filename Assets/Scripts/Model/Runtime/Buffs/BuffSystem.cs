@@ -1,14 +1,17 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
+using Model.Runtime.ReadOnly;
 using UnityEngine;
+using Utilities;
+using View;
 
 namespace Model.Runtime.Buffs
 {
     public class BuffSystem : MonoBehaviour
     {
-        private Dictionary<Unit, List<Buff>> _buffs = new();
-
+        private VFXView _vfxView = ServiceLocator.Get<VFXView>();
+        private Dictionary<IReadOnlyUnit, List<Buff>> _buffs = new();
+        
         public static BuffSystem Create()
         {
             var go = new GameObject("BuffSystem");
@@ -16,15 +19,16 @@ namespace Model.Runtime.Buffs
             return go.AddComponent<BuffSystem>();
         }
 
-        public void AddBuffToUnit(Unit unit, Buff buff)
+        public void AddBuffToUnit(IReadOnlyUnit unit, Buff buff)
         {
             if (!_buffs.ContainsKey(unit))
                 _buffs[unit] = new List<Buff>();
 
             _buffs[unit].Add(buff);
+            _vfxView.PlayVFX(unit.Pos, VFXView.VFXType.BuffApplied);
         }
 
-        public List<Buff> GetActiveBuffs(Unit unit)
+        public List<Buff> GetActiveBuffs(IReadOnlyUnit unit)
         {
             if (_buffs.ContainsKey(unit))
                 return _buffs[unit];
