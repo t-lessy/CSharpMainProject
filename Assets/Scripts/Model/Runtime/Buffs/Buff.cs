@@ -1,7 +1,6 @@
 ﻿using Model.Runtime;
 using UnitBrains;
 
-
 namespace Assets.Scripts.Model.Runtime.Buffs
 {
     public abstract class Buff<TBrain> : IUnitBuff where TBrain : BaseUnitBrain
