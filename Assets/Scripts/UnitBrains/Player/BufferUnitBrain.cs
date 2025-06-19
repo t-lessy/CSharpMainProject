@@ -132,7 +132,7 @@ namespace UnitBrains.Player
 
         private void ApplyBuff(Unit t)
         {
-            _buffSystem.AddBuff(t, new HasteAttackBuff(BuffDuration, BuffMultiplier));   // все юниты
+            _buffSystem.AddBuff(t, new HasteAttackBuff(BuffDuration, BuffMultiplier));   // только 1 юнит
             _buffSystem.AddBuff(t, new DoubleShotBuff(BuffDuration));   // только 2 юнит
             _buffSystem.AddBuff(t, new IncreaseRangeBuff(BuffDuration));   // только 3 юнит
             _vfxView.PlayVFX(t.Pos, VFXView.VFXType.BuffApplied);
