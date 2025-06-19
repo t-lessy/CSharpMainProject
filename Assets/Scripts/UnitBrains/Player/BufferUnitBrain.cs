@@ -43,10 +43,6 @@ namespace UnitBrains.Player
         private BuffSystem _buffSystem;
         private VFXView _vfxView;
 
-#if UNITY_EDITOR
-        private float _logTicker;
-#endif
-
         protected override void GenerateProjectiles(Vector2Int _, List<BaseProjectile> __) { }
 
         public override Vector2Int GetNextStep()
@@ -55,7 +51,7 @@ namespace UnitBrains.Player
             if (_castState != CastState.None && _stateTimer > 0f)
                 return unit.Pos;
 
-            // следуем за выбранным союзником
+            // следует за выбранным союзником
             if (_followTarget is { IsDead: false })
             {
                 if ((unit.Pos - _followTarget.Pos).sqrMagnitude <= DesiredGap * DesiredGap)
@@ -111,10 +107,6 @@ namespace UnitBrains.Player
                     _stateTimer = PauseBeforeCast;
                 }
             }
-
-#if UNITY_EDITOR
-            LogSelfStatus(dt);
-#endif
             base.Update(dt, time);
         }
 
@@ -123,10 +115,10 @@ namespace UnitBrains.Player
             float range2 = unit.Config.AttackRange * unit.Config.AttackRange;
 
             bool NeedBuff(Unit u) =>
-                   u != unit &&
-                   u.Config.IsPlayerUnit &&
-                  (u.Pos - unit.Pos).sqrMagnitude <= range2 &&
-                   _buffSystem.GetAttackModifier(u) <= 1f;
+                u.Brain is not BufferUnitBrain &&
+                u.Config.IsPlayerUnit &&
+                (u.Pos - unit.Pos).sqrMagnitude <= range2 &&
+                !_buffSystem.HasBuff<HasteAttackBuff>(u);
 
             Unit target = runtimeModel.RoUnits
                 .OfType<Unit>()
@@ -140,27 +132,11 @@ namespace UnitBrains.Player
 
         private void ApplyBuff(Unit t)
         {
-            _buffSystem.AddBuff(t, new HasteAttackBuff(BuffDuration, BuffMultiplier));
+            _buffSystem.AddBuff(t, new HasteAttackBuff(BuffDuration, BuffMultiplier));   // все юниты
+            _buffSystem.AddBuff(t, new DoubleShotBuff(BuffDuration));   // только 2 юнит
+            _buffSystem.AddBuff(t, new IncreaseRangeBuff(BuffDuration));   // только 3 юнит
             _vfxView.PlayVFX(t.Pos, VFXView.VFXType.BuffApplied);
             _nextBuffTime = Time.time + BuffCooldown;
-
-#if UNITY_EDITOR
-            Debug.Log($"<color=#00ff88>[BUFF]</color> {unit} → {t} | +" +
-                      $"{(BuffMultiplier - 1f) * 100:F0}% на {BuffDuration:F1} с");
-#endif
         }
-
-#if UNITY_EDITOR
-        private void LogSelfStatus(float dt)
-        {
-            _logTicker += dt;
-            if (_logTicker < 1f) return;
-            _logTicker = 0f;
-
-            var (has, left, mult) = _buffSystem.GetHasteAttackInfo(unit);
-            string txt = has ? $"есть, осталось {left:F1} с (×{mult:F2})" : "нет";
-            Debug.Log($"[BUFF-DEBUG] {unit}: {txt}");
-        }
-#endif
     }
 }
