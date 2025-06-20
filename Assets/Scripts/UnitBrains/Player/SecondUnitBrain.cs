@@ -13,6 +13,7 @@ using UnityEngine;
 using Utilities;
 using static UnityEditor.PlayerSettings;
 using static UnityEngine.GraphicsBuffer;
+using UnityEngine.UIElements;
 
 namespace UnitBrains.Player
 {
@@ -23,9 +24,10 @@ namespace UnitBrains.Player
 
         public const int MaxUnitAttack = 3;
 
-        public static string NameTargetUnit { get; set; } = "Cobra Commando";
-        private string TargetUnitName=string.Empty;
-        
+        //public override string TargetUnitName => "Cobra Commando";
+        public static string NameTargetUnit { get; set; } = "Cobra Commando"; 
+        private string TargetUnitName = string.Empty;
+
         private const float OverheatTemperature = 3f;
         private const float OverheatCooldown = 2f;
         private float _temperature = 0f;
@@ -55,60 +57,66 @@ namespace UnitBrains.Player
                 IncreaseTemperature();
             }
         }
-            ///////////////////////////////////////
-            ///
+        ///////////////////////////////////////
+        ///
 
         public override Vector2Int GetNextStep()
         {
             
+
             List<Vector2Int> unreachebleTarget = SelectTargets();
             List<Vector2Int> allTargets = SelectTargets();
             List<Vector2Int> result = SelectTargets();
 
             Vector2Int position = unit.Pos;
-            Vector2Int Nextposition = Vector2Int.right;
+            Vector2Int Nextposition = Vector2Int.right + Vector2Int.up;
 
             //return base.GetNextStep();
 
             // Если нет достижимых целей вообще, идем к недостижимой цели
-            if (result==null || result.Count==0)
+            if (result == null || result.Count == 0)
             {
-                
-                foreach(var target in unreachebleTarget)
+
+                foreach (var target in unreachebleTarget)
                 {
                     foreach (Model.Runtime.Unit unit in NewGroups)
                     {
                         return position.CalcNextStepTowards(target);
                     }
-                
+
                 }
-               
+
             }
             // Если цели в рэнджэ атаки есть, остаемся на месте
             else if (result != null && result.Count > 0)
             {
                 foreach (Model.Runtime.Unit unit in NewGroups)
                 {
-                    return  unit.Pos;
+                    return unit.Pos;
                 }
-                
+
             }
             
-            return  position.CalcNextStepTowards(runtimeModel.RoMap.Bases[IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId]);
+            
+            return position.CalcNextStepTowards(runtimeModel.RoMap.Bases[IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId]);
             
             
 
+
+            //return position + Nextposition;
 
 
         }
+        
 
         protected override List<Vector2Int> SelectTargets()
         {
             TargetUnitName = ProtectTargetName(NameTargetUnit);
+            
             ///////////////////////////////////////
             // Homework 1.4 (1st block, 4rd module)
             ///////////////////////////////////////
-            
+
             List<Vector2Int> allTargets =  GetAllTargets().ToList();
            /* allTargets.Clear();*/ /*очищаем с писок по заданию*/
 
