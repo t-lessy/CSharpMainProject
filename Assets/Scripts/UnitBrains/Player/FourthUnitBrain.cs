@@ -5,6 +5,7 @@ using Model;
 using Model.Runtime.Buffs;
 using Model.Runtime.ReadOnly;
 using UnityEngine;
+using Utilities;
 using Random = System.Random;
 
 namespace UnitBrains.Player
@@ -17,7 +18,9 @@ namespace UnitBrains.Player
         private static DateTime _lastBuffDateTime;
         private bool _moveDelayPassed;
         private IReadOnlyUnit _unitToBuff;
+        
         private Random _random = new Random();
+        private BuffSystem _buffSystem = ServiceLocator.Get<BuffSystem>();
         
         public override Vector2Int GetNextStep() =>
             _moveDelayPassed ? base.GetNextStep(): unit.Pos;
@@ -46,18 +49,24 @@ namespace UnitBrains.Player
                     _moveDelayPassed = true;
             }
 
-            if (_moveDelayPassed)
+            if (_moveDelayPassed && _unitToBuff != null && IsTargetInRange(_unitToBuff.Pos))
             {
-                if (_unitToBuff != null && IsTargetInRange(_unitToBuff.Pos))
+                switch (_unitToBuff.Config.Name)
                 {
-                    // buff - Invulnerability but only 0.75 AS and MS
-                    unit.BuffSystem.AddBuffToUnit(_unitToBuff, new Buff(Buff.BuffType.Invulnerability, 3, 1));
-                    unit.BuffSystem.AddBuffToUnit(_unitToBuff, new Buff(Buff.BuffType.MoveSpeed, 3, 0.75f));
-                    unit.BuffSystem.AddBuffToUnit(_unitToBuff, new Buff(Buff.BuffType.AttackSpeed, 3, 0.75f));
-                    _lastBuffDateTime = DateTime.Now;
-                    _moveDelayPassed = false;
-                    _unitToBuff = null;
+                    case "Ironclad Behemoth":
+                        _buffSystem.AddBuffToUnit(new AttackRangeBuff(_unitToBuff, 10, 3));
+                        break;
+                    case "Cobra Commando":
+                        _buffSystem.AddBuffToUnit(new MultiShotBuff(_unitToBuff, 10, 1));
+                        break;
+                    default:
+                        _buffSystem.AddBuffToUnit(new InvulnerabilityBuff(_unitToBuff, 10, 1));
+                        break;
                 }
+                
+                _lastBuffDateTime = DateTime.Now;
+                _moveDelayPassed = false;
+                _unitToBuff = null;     
             }
         }
         

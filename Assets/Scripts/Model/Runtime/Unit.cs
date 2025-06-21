@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Model.Config;
 using Model.Runtime.Buffs;
@@ -21,11 +20,17 @@ namespace Model.Runtime
         public bool IsDead => Health <= 0;
         public BaseUnitPath ActivePath => _brain?.ActivePath;
         public IReadOnlyList<BaseProjectile> PendingProjectiles => _pendingProjectiles;
-        public BuffSystem BuffSystem { get; }
 
         private readonly List<BaseProjectile> _pendingProjectiles = new();
         private IReadOnlyRuntimeModel _runtimeModel;
         private BaseUnitBrain _brain;
+        
+        // Actual values that can be modified by buffs
+        public float CurrentMoveDelay { get; private set; }
+        public float CurrentAttackDelay { get; private set; }
+        public float CurrentAttackRange { get; private set; }
+        public int ProjectilesPerShot { get; private set; }
+        public bool Invulnerability { get; private set; }
         
         private float _nextBrainUpdateTime = 0f;
         private float _nextMoveTime = 0f;
@@ -40,15 +45,18 @@ namespace Model.Runtime
             _brain.SetUnit(this);
             _brain.SetCoordinator(coordinator);
             _runtimeModel = ServiceLocator.Get<IReadOnlyRuntimeModel>();
-            BuffSystem = ServiceLocator.Get<BuffSystem>();
+
+            CurrentMoveDelay = Config.MoveDelay;
+            CurrentAttackDelay = Config.AttackDelay;
+            CurrentAttackRange = Config.AttackRange;
+            ProjectilesPerShot = 1;
+            Invulnerability = false;
         }
 
         public void Update(float deltaTime, float time)
         {
             if (IsDead)
                 return;
-
-            List<Buff> buffs = BuffSystem.GetActiveBuffs(this);
             
             if (_nextBrainUpdateTime < time)
             {
@@ -58,43 +66,13 @@ namespace Model.Runtime
             
             if (_nextMoveTime < time)
             {
-                _nextMoveTime = time + CalculateMoveSpeedDelay(buffs);
+                _nextMoveTime = time + CurrentMoveDelay;
                 Move();
             }
             
             if (_nextAttackTime < time && Attack())
             {
-                _nextAttackTime = time + CalculateAttackSpeedDelay(buffs);
-            }
-        }
-
-        private float CalculateMoveSpeedDelay(List<Buff> buffs)
-        {
-            try
-            {
-                float moveSpeedRelativeValue = buffs.Last(b => b.Type == Buff.BuffType.MoveSpeed).Value;
-                return moveSpeedRelativeValue > 0
-                    ? Config.MoveDelay / moveSpeedRelativeValue
-                    : Config.MoveDelay * -moveSpeedRelativeValue;
-            }
-            catch (InvalidOperationException e)
-            {
-                return Config.MoveDelay;
-            }
-        }
-        
-        private float CalculateAttackSpeedDelay(List<Buff> buffs)
-        {
-            try
-            {
-                float attackSpeedRelativeValue = buffs.Last(b => b.Type == Buff.BuffType.AttackSpeed).Value;
-                return attackSpeedRelativeValue > 0
-                    ? Config.AttackDelay / attackSpeedRelativeValue
-                    : Config.AttackDelay * -attackSpeedRelativeValue;
-            }
-            catch (InvalidOperationException e)
-            {
-                return Config.AttackDelay;
+                _nextAttackTime = time + CurrentAttackDelay;
             }
         }
 
@@ -134,11 +112,41 @@ namespace Model.Runtime
 
         public void TakeDamage(int projectileDamage)
         {
-            var buffs = BuffSystem.GetActiveBuffs(this);
-            if (buffs.Any(b => b.Type == Buff.BuffType.Invulnerability))
+            if (Invulnerability) 
                 return;
 
             Health -= projectileDamage;
         }
+        
+        public void ModifyMoveSpeed(float value) =>
+            CurrentMoveDelay = value > 0
+                ? Config.MoveDelay / value
+                : Config.MoveDelay * -value;
+        
+        public void ResetMoveSpeed() =>
+            CurrentMoveDelay = Config.MoveDelay;
+        
+        public void ModifyAttackSpeed(float value) =>
+            CurrentAttackDelay = value > 0
+                ? Config.AttackDelay / value
+                : Config.AttackDelay * -value;
+        
+        public void ResetAttackSpeed() =>
+            CurrentAttackDelay = Config.AttackDelay;
+
+        public void ModifyAttackRange(int value) =>
+            CurrentAttackRange += value;
+
+        public void ResetAttackRange() =>
+            CurrentAttackRange = Config.AttackRange;
+
+        public void ModifyProjectilesPerShot(int value) => 
+            ProjectilesPerShot += value;
+
+        public void ResetProjectilesPerShot() =>
+            ProjectilesPerShot = Config.ProjectilesPerShot;
+
+        public void SetInvulnerability(bool value) =>
+            Invulnerability = value;
     }
 }

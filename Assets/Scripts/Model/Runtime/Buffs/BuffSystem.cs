@@ -1,6 +1,5 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using Model.Runtime.ReadOnly;
 using UnityEngine;
 using Utilities;
 using View;
@@ -10,7 +9,7 @@ namespace Model.Runtime.Buffs
     public class BuffSystem : MonoBehaviour
     {
         private VFXView _vfxView = ServiceLocator.Get<VFXView>();
-        private Dictionary<IReadOnlyUnit, List<Buff>> _buffs = new();
+        private List<IBuff> _buffs = new();
         
         public static BuffSystem Create()
         {
@@ -19,21 +18,11 @@ namespace Model.Runtime.Buffs
             return go.AddComponent<BuffSystem>();
         }
 
-        public void AddBuffToUnit(IReadOnlyUnit unit, Buff buff)
+        public void AddBuffToUnit(IBuff buff)
         {
-            if (!_buffs.ContainsKey(unit))
-                _buffs[unit] = new List<Buff>();
-
-            _buffs[unit].Add(buff);
-            _vfxView.PlayVFX(unit.Pos, VFXView.VFXType.BuffApplied);
-        }
-
-        public List<Buff> GetActiveBuffs(IReadOnlyUnit unit)
-        {
-            if (_buffs.ContainsKey(unit))
-                return _buffs[unit];
-
-            return new();
+            buff.Apply();
+            _buffs.Add(buff);
+            _vfxView.PlayVFX(buff.Unit.Pos, VFXView.VFXType.BuffApplied);
         }
         
         public void Clear()
@@ -47,19 +36,19 @@ namespace Model.Runtime.Buffs
         {
             while (true)
             {
-                foreach (var unit in _buffs.Keys)
+                List<IBuff> toRemoveBuffs = new();
+                foreach (var buff in _buffs)
                 {
-                    List<Buff> toRemoveBuffs = new();
-                    foreach (var buff in _buffs[unit])
-                    {
-                        buff.Duration -= time;
-                        if (buff.Duration <= 0)
-                            toRemoveBuffs.Add(buff);
-                    }
-
-                    // Remove expired buffs
-                    foreach (var toRemoveBuff in toRemoveBuffs)
-                        _buffs[unit].Remove(toRemoveBuff);
+                    buff.ReduceRemainingTime(time);
+                    if (buff.IsExpired())
+                        toRemoveBuffs.Add(buff);
+                }
+                
+                // Remove expired buffs
+                foreach (var toRemoveBuff in toRemoveBuffs)
+                {
+                    _buffs.Remove(toRemoveBuff);
+                    toRemoveBuff.Remove();
                 }
 
                 yield return new WaitForSeconds(time);
