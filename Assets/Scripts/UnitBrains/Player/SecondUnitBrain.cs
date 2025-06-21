@@ -9,6 +9,7 @@ using Model;
 using Model.Runtime.Projectiles;
 using UnityEditor.Graphs;
 using UnityEngine;
+using UnityEngine.UIElements;
 using Utilities;
 using static UnityEditor.PlayerSettings;
 using static UnityEngine.GraphicsBuffer;
@@ -24,7 +25,7 @@ namespace UnitBrains.Player
         private float _cooldownTime = 0f;
         private bool _overheated;
 
-        private List<Vector2Int> unreachebleTarget = new();
+        private List<Vector2Int> unreachableTarget = new();
         protected override void GenerateProjectiles(Vector2Int forTarget, List<BaseProjectile> intoList)
         {
             float overheatTemperature = OverheatTemperature;
@@ -49,35 +50,34 @@ namespace UnitBrains.Player
         public override Vector2Int GetNextStep()
         {
 
-            List<Vector2Int> unreachebleTarget = SelectTargets();
+
+            
             List<Vector2Int> allTargets = SelectTargets();
             List<Vector2Int> result = SelectTargets();
 
             Vector2Int position = unit.Pos;
-            Vector2Int Nextposition = Vector2Int.right;
+            Vector2Int Nextposition = Vector2Int.right + Vector2Int.up;
 
-            //return base.GetNextStep();
-
-            // Если нет достижимых целей вообще, идем к недостижимой цели
-            if (result==null || result.Count==0)
+            if (result.Count != 0) //Если список достижимых целей не пуст идем к ним
             {
-                Debug.Log(" Если нет достижимых целей вообще, идем к недостижимой цели");
-                foreach(var target in unreachebleTarget)
+                foreach (var target in result)
                 {
-                    
-                    return position.CalcNextStepTowards(target);
-
+                    Debug.Log("Цель в радиусе атаки");
+                    return unit.Pos;
                 }
-               
+
+
             }
-            // Если цели в рэнджэ атаки есть, остаемся на месте
-            else if (result != null && result.Count > 0)
+            else if (result.Count == 0 && unreachableTarget.Count != 0) //Если список достижимых целей пуст,а недостижымых не пуст,то идем к недостижимым 
             {
-                Debug.Log(" Если цели в рэнджэ атаки есть, остаемся на месте");
-                return unit.Pos;
+                foreach (var target in unreachableTarget)
+                {
+                    Debug.Log("Целей в радиусе атаки нет,иду к ближайшей");
+                    return position.CalcNextStepTowards(target);
+                }
             }
-         
             return position.CalcNextStepTowards(runtimeModel.RoMap.Bases[IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId]);
+
 
 
 
@@ -87,28 +87,31 @@ namespace UnitBrains.Player
         {
             ///////////////////////////////////////
             // Homework 1.4 (1st block, 4rd module)
-            ///////////////////////////////////////
-            List<Vector2Int> allTargets =  GetAllTargets().ToList();
-            
-            List<Vector2Int> result = new();
-            
-
-            unreachebleTarget.Clear();
-
+            ///////////////////////////////////////\
             int enemyID = IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId;
             Vector2Int enemyBase = runtimeModel.RoMap.Bases[enemyID];
+            
+            List< Vector2Int > allTargets = GetAllTargets().ToList();
+            List<Vector2Int> result = new();
 
-            var MinimumDistance = float.MaxValue;
+            //while (result.Count > 1)
+            //{
+            //    result.RemoveAt(result.Count-1);
+            //}
+            //return result;
 
-            if ( allTargets.Count > 1)
+            var MinimumDistanceToBase = float.MaxValue;
+
+            if (allTargets.Count >= 1)
             {
                 Vector2Int IntermediateVector = new Vector2Int { };
                 foreach (var mainTarget in allTargets)
                 {
-                    if (MinimumDistance > DistanceToOwnBase(mainTarget))
+                    var currentDistance = DistanceToOwnBase(mainTarget);
+                    if (MinimumDistanceToBase > currentDistance)
                     {
-                        MinimumDistance = DistanceToOwnBase(mainTarget);
-                        
+                        MinimumDistanceToBase = DistanceToOwnBase(mainTarget);
+
                         IntermediateVector = mainTarget;
                     }
                 }
@@ -119,22 +122,61 @@ namespace UnitBrains.Player
                 }
                 else
                 {
-       
-                    unreachebleTarget.Add(IntermediateVector);
-                }   
-                
+
+                    unreachableTarget.Add(IntermediateVector);
+                }
             }
-            else if(IsTargetInRange(enemyBase))
+            else if (IsTargetInRange(enemyBase))
             {
-                
                 result.Add(enemyBase);
-               
             }
             else
             {
-                unreachebleTarget.Add(enemyBase);
+                unreachableTarget.Add(enemyBase);
             }
             return result;
+
+
+
+            //unreachebleTarget.Clear();
+
+            //var MinimumDistance = float.MaxValue;
+
+            //if ( allTargets.Count > 1)
+            //{
+            //    Vector2Int IntermediateVector = new Vector2Int { };
+            //    foreach (var mainTarget in allTargets)
+            //    {
+            //        if (MinimumDistance > DistanceToOwnBase(mainTarget))
+            //        {
+            //            MinimumDistance = DistanceToOwnBase(mainTarget);
+
+            //            IntermediateVector = mainTarget;
+            //        }
+            //    }
+            //    if (IsTargetInRange(IntermediateVector))
+            //    {
+            //        result.Clear();
+            //        result.Add(IntermediateVector);
+            //    }
+            //    else
+            //    {
+
+            //        unreachebleTarget.Add(IntermediateVector);
+            //    }   
+
+            //}
+            //else if(IsTargetInRange(enemyBase))
+            //{
+
+            //    result.Add(enemyBase);
+
+            //}
+            //else
+            //{
+            //    unreachebleTarget.Add(enemyBase);
+            //}
+            //return result;
             ///////////////////////////////////////
         }
 
