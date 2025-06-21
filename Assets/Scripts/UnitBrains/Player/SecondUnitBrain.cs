@@ -36,15 +36,6 @@ namespace UnitBrains.Player
                 IncreaseTemperature();
             }
         }
-
-        public override Vector2Int GetNextStep()
-        {
-            if (UnreacheableTargets.Count == 0)
-                return unit.Pos;
-            else
-                return unit.Pos.CalcNextStepTowards(UnreacheableTargets[0]);
-        }
-
         protected override List<Vector2Int> SelectTargets()
         {
             int maxTargets = 3;

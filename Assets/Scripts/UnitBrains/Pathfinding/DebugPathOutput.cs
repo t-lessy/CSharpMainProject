@@ -1,5 +1,8 @@
-﻿using System.Collections;
+﻿using Assets.Scripts.UnitBrains.Pathfinding;
+using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.Tracing;
+using System.Linq;
 using UnityEngine;
 using View;
 
@@ -8,7 +11,7 @@ namespace UnitBrains.Pathfinding
     public class DebugPathOutput : MonoBehaviour
     {
         [SerializeField] private GameObject cellHighlightPrefab;
-        //[SerializeField] private int maxHighlights = 5;
+        [SerializeField] private int maxHighlights = 5;
 
         public BaseUnitPath Path { get; private set; }
         private readonly List<GameObject> allHighlights = new();
@@ -21,7 +24,7 @@ namespace UnitBrains.Pathfinding
             {
                 DestroyHighlight(0);
             }
-            
+
             if (highlightCoroutine != null)
             {
                 StopCoroutine(highlightCoroutine);
@@ -29,11 +32,26 @@ namespace UnitBrains.Pathfinding
 
             highlightCoroutine = StartCoroutine(HighlightCoroutine(path));
         }
-
         private IEnumerator HighlightCoroutine(BaseUnitPath path)
         {
-            // TODO Implement me
-            yield break;
+            int counter = 0;
+            Vector2Int cell = path.StartPoint;
+            while (true)
+            {
+                if (System.Math.Abs(path.GetNextStepFrom(cell).x - path.EndPoint.x) <= 2 && System.Math.Abs(path.GetNextStepFrom(cell).y - path.EndPoint.y) <= 2 || counter == 0)
+                    cell = path.StartPoint;
+                else
+                    cell = path.GetNextStepFrom(cell);
+                CreateHighlight(cell);
+                counter++;
+                if (counter > maxHighlights)
+                {
+                    DestroyHighlight(0);
+                    counter--;
+                    yield return new WaitForSeconds(0.15f);
+
+                }
+            }
         }
 
         private void CreateHighlight(Vector2Int atCell)
