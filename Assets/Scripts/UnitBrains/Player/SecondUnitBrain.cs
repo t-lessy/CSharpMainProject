@@ -58,23 +58,23 @@ namespace UnitBrains.Player
             Vector2Int position = unit.Pos;
             Vector2Int Nextposition = Vector2Int.right + Vector2Int.up;
 
-            if (result.Count != 0) //Если список достижимых целей не пуст идем к ним
+            if (result.Count != 0) //Если список достижимых целей не пуст стоим на месте
             {
-                foreach (var target in result)
-                {
+                
+                
                     Debug.Log("Цель в радиусе атаки");
                     return unit.Pos;
-                }
+                
 
 
             }
             else if (result.Count == 0 && unreachableTarget.Count != 0) //Если список достижимых целей пуст,а недостижымых не пуст,то идем к недостижимым 
             {
-                foreach (var target in unreachableTarget)
-                {
+                
+                
                     Debug.Log("Целей в радиусе атаки нет,иду к ближайшей");
-                    return position.CalcNextStepTowards(target);
-                }
+                    return position.CalcNextStepTowards(unreachableTarget[0]);
+                
             }
             return position.CalcNextStepTowards(runtimeModel.RoMap.Bases[IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId]);
 
@@ -94,11 +94,7 @@ namespace UnitBrains.Player
             List< Vector2Int > allTargets = GetAllTargets().ToList();
             List<Vector2Int> result = new();
 
-            //while (result.Count > 1)
-            //{
-            //    result.RemoveAt(result.Count-1);
-            //}
-            //return result;
+            
 
             var MinimumDistanceToBase = float.MaxValue;
 
@@ -117,7 +113,7 @@ namespace UnitBrains.Player
                 }
                 if (IsTargetInRange(IntermediateVector))
                 {
-                    result.Clear();
+                    
                     result.Add(IntermediateVector);
                 }
                 else
@@ -126,12 +122,9 @@ namespace UnitBrains.Player
                     unreachableTarget.Add(IntermediateVector);
                 }
             }
-            else if (IsTargetInRange(enemyBase))
+            else 
             {
-                result.Add(enemyBase);
-            }
-            else
-            {
+
                 unreachableTarget.Add(enemyBase);
             }
             return result;
