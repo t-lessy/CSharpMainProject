@@ -12,6 +12,11 @@ namespace Model.Runtime
 {
     public class Unit : IReadOnlyUnit
     {
+        public static List<Unit> Group=new();
+        public static int UnitCounter=0;// Счетчик юнитов
+        public static int NumberUnit { get; set; }// Номер юнита
+        public const int MaxUnitInGroup = 3;// Макс количество юнитов в группе
+
         public UnitConfig Config { get; }
         public Vector2Int Pos { get; private set; }
         public int Health { get; private set; }
@@ -29,12 +34,23 @@ namespace Model.Runtime
         
         public Unit(UnitConfig config, Vector2Int startPos)
         {
+            Group.Clear();
             Config = config;
             Pos = startPos;
             Health = config.MaxHealth;
             _brain = UnitBrainProvider.GetBrain(config);
             _brain.SetUnit(this);
             _runtimeModel = ServiceLocator.Get<IReadOnlyRuntimeModel>();
+            if (config.IsPlayerUnit )// если юнит игрока
+            {
+                if (_runtimeModel != null)
+                Group.Add(this);// добавление в группу
+                
+                UnitCounter++;// Добавление к счету юнита +1
+                NumberUnit = UnitCounter;// Присвоение  юниту номера
+                Debug.Log($"Номер юнита {NumberUnit}");
+            }
+           
         }
 
         public void Update(float deltaTime, float time)
