@@ -20,15 +20,12 @@ namespace UnitBrains.Player
             {
                 return;
             }
-            IncreaseTemperature();
-            int CurrentTemp=GetTemperature();
-            for (int i = 0; i < CurrentTemp; i++)
+            for (int i = 0; i <= GetTemperature(); i++)
             {
                 var projectile = CreateProjectile(forTarget);
                 AddProjectileToList(projectile, intoList);
             }
-            
-            ///////////////////////////////////////
+            IncreaseTemperature();
         }
 
         public override Vector2Int GetNextStep()
