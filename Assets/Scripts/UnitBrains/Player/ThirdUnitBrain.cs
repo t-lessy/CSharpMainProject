@@ -1,3 +1,4 @@
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
@@ -5,86 +6,114 @@ using Codice.Client.Common;
 using Model;
 using UnitBrains.Pathfinding;
 using UnitBrains.Player;
+using UnityEditor;
 using UnityEngine;
+using Time = UnityEngine.Time;
 
 public class ThirdUnitBrain : DefaultPlayerUnitBrain
-{
+{ 
+    public enum UnitMode
+    {
+        Moving,
+        Attacking,
+        Switching,
+    }
+
     public override string TargetUnitName => "Ironclad Behemoth";
-    private BaseUnitPath _activePath = null;
-    public override BaseUnitPath ActivePath => _activePath;
-   
-    private bool _isMoving = false;
-    private bool _isAttacking = false;
+    public override bool IsPlayerUnitBrain => true;
+
+    private UnitMode _currentMode = UnitMode.Moving;
+    private UnitMode _targetMode = UnitMode.Moving;
+
+    private bool _isSwitching = false;
+    private float _transitionTimer = 0f;
+    private float TransitionDuration = 1.0f;
+
+    private float _switchStartTime;
+
 
     // Start is called before the first frame update
     void Start()
     {
-        
+
     }
 
     // Update is called once per frame
     public override void Update(float deltaTime, float time)
     {
-        float timeCount = 0f;
-
-        do
+        if (_isSwitching)
         {
-            timeCount += deltaTime;
+            //_transitionTimer += Time.deltaTime;
+            if (Time.time - _switchStartTime >= TransitionDuration)
+            {
+                _currentMode = _targetMode;
+                _isSwitching = false;
+                Debug.Log($"Переход завершён: {_currentMode}");
+            }
+            else
+                return;
         }
-        while (timeCount <= time);
+
+        switch (_currentMode)
+        {
+            case UnitMode.Switching:
+                Debug.Log($"Current Mode: {_currentMode}");
+                break;
+            case UnitMode.Moving:
+                GetNextStep();
+                Debug.Log($"Current Mode: {_currentMode}");
+                break;
+
+            case UnitMode.Attacking:
+                SelectTargets();
+                Debug.Log($"Current Mode: {_currentMode}");
+                break;
+        }
     }
     protected override List<Vector2Int> SelectTargets()
     {
-        _isAttacking = true;
-        var result = GetReachableTargets();
 
-        if (_isMoving)
+        if (_currentMode == UnitMode.Attacking)
         {
-            result.Clear();
+            return base.SelectTargets();
         }
         else
         {
-            Update(UnityEngine.Time.deltaTime, 1000);
-            while (result.Count > 1)
-                result.RemoveAt(result.Count - 1);
+            SwitchModeRequest(UnitMode.Attacking, Time.time);
+
+            return base.SelectTargets();
         }
-        _isAttacking = false;
-        return result;
+
     }
 
     public override Vector2Int GetNextStep()
     {
-        _isMoving = true;
 
-        if (_isAttacking)
+
+        if (_currentMode == UnitMode.Moving)
         {
-            _isMoving = false;
-            return unit.Pos;
+            return base.GetNextStep();
         }
         else
         {
-            Update(UnityEngine.Time.deltaTime, 1000);
-            if (HasTargetsInRange())
-                return unit.Pos;
-
-            var target = runtimeModel.RoMap.Bases[
-                IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId];
-
-            _activePath = new DummyUnitPath(runtimeModel, unit.Pos, target);
-            _isMoving = false;
-            //Thread.Sleep(10);
-            return _activePath.GetNextStepFrom(unit.Pos);
+            SwitchModeRequest(UnitMode.Moving, Time.time);
+            return base.GetNextStep();
         }
 
-    }
-    //public void DelateCount(float time)
-    //{
-    //    float timeCount = 0f;
 
-    //    do
-    //    {
-    //        timeCount += Time.deltaTime;
-    //    }
-    //    while (timeCount <= time); 
-    //}
+    }
+
+    public void SwitchModeRequest(UnitMode desiredMode, float currentTime)
+    {
+        if (_isSwitching || _currentMode == desiredMode)
+            return;
+
+        _targetMode = desiredMode;
+        _transitionTimer = 0f;
+        _isSwitching = true;
+        _currentMode = UnitMode.Switching;
+        _switchStartTime = currentTime;
+    }
+
+   
 }
