@@ -38,16 +38,17 @@ namespace UnitBrains.Pathfinding
             Vector2Int cell = path.StartPoint;
             while (true)
             {
-                if (System.Math.Abs(path.GetNextStepFrom(cell).x - path.EndPoint.x) <= 2 && System.Math.Abs(path.GetNextStepFrom(cell).y - path.EndPoint.y) <= 2 || counter == 0)
+                if (System.Math.Abs(path.GetNextStepFrom(cell).x - path.EndPoint.x) <= 1 && System.Math.Abs(path.GetNextStepFrom(cell).y - path.EndPoint.y) <= 1 || counter == 0)
                     cell = path.StartPoint;
                 else
                     cell = path.GetNextStepFrom(cell);
+
                 CreateHighlight(cell);
                 counter++;
+
                 if (counter > maxHighlights)
                 {
                     DestroyHighlight(0);
-                    counter--;
                     yield return new WaitForSeconds(0.15f);
 
                 }

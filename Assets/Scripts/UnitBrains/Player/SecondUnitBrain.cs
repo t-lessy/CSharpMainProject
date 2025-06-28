@@ -21,7 +21,7 @@ namespace UnitBrains.Player
         private float _temperature = 0f;
         private float _cooldownTime = 0f;
         private bool _overheated;
-        private List<Vector2Int> UnreacheableTargets = new();
+        private readonly List<Vector2Int> UnreacheableTargets = new();
 
         protected override void GenerateProjectiles(Vector2Int forTarget, List<BaseProjectile> intoList)
         {
@@ -64,7 +64,6 @@ namespace UnitBrains.Player
                 UnreacheableTargets.Add(mainTarget);
             return result;
         }
-
         public override void Update(float deltaTime, float time)
         {
             if (_overheated)
@@ -79,13 +78,11 @@ namespace UnitBrains.Player
                 }
             }
         }
-
         private int GetTemperature()
         {
             if (_overheated) return (int)OverheatTemperature;
             else return (int)_temperature;
         }
-
         private void IncreaseTemperature()
         {
             _temperature += 1f;

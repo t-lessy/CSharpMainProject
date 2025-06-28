@@ -1,4 +1,5 @@
-﻿using Codice.CM.Common.Merge;
+﻿using Codice.Client.BaseCommands;
+using Codice.CM.Common.Merge;
 using Model;
 using System;
 using System.Collections.Generic;
@@ -9,6 +10,7 @@ using System.Threading.Tasks;
 using UnitBrains.Pathfinding;
 using Unity.VisualScripting.Antlr3.Runtime.Collections;
 using UnityEngine;
+using static UnityEditor.PlayerSettings;
 
 namespace Assets.Scripts.UnitBrains.Pathfinding
 {
@@ -20,12 +22,12 @@ namespace Assets.Scripts.UnitBrains.Pathfinding
 
         protected override void Calculate()
         {
-            Node startNode = new(startPoint.x, startPoint.y);
-            Node targetNode = new(EndPoint.x, endPoint.y);
+            PathNode startNode = new(startPoint.x, startPoint.y);
+            PathNode targetNode = new(EndPoint.x, endPoint.y);
 
-            List<Node> openList = new() { startNode };
+            List<PathNode> openList = new() { startNode };
 
-            List<Node> closedList = new();
+            List<PathNode> closedList = new();
 
             List<Vector2Int> pathList = new() { };
 
@@ -33,7 +35,7 @@ namespace Assets.Scripts.UnitBrains.Pathfinding
 
             while (openList.Count > 0)
             {
-                Node currentNode = openList[0];
+                PathNode currentNode = openList[0];
 
                 foreach (var node in openList)
                 {
@@ -64,12 +66,14 @@ namespace Assets.Scripts.UnitBrains.Pathfinding
 
                         if (IsValid(newX, newY))
                         {
-                            Node neighbor = new(newX, newY);
+                            PathNode neighbor = new(newX, newY);
 
                             if (closedList.Contains(neighbor))
                                 continue;
 
                             neighbor.Parent = currentNode;
+                            if (runtimeModel.RoUnits.All(u => u.Pos != new Vector2Int(newX, newY)))
+                                neighbor.Cost = 0;
                             neighbor.CalculateEstimate(targetNode.X, targetNode.Y);
                             neighbor.CalculateValue();
 
@@ -84,7 +88,7 @@ namespace Assets.Scripts.UnitBrains.Pathfinding
         private int[] dy = { 0, 1, 0, -1 };
         private bool IsValid(int x, int y)
         {
-            return runtimeModel.IsTileWalkable(new Vector2Int(x, y));
+            return !runtimeModel.RoMap[new Vector2Int(x, y)];
         }
     }
 }
