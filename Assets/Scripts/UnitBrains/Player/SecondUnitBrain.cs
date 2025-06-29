@@ -64,11 +64,20 @@ namespace UnitBrains.Player
                 }
             }
 
-            result.Clear();
-            result.Add(closestTarget);
+            if (minDistance != float.MaxValue)
+            {
+                result.Clear();
+                result.Add(closestTarget);
+            }
+            else
+            {
+                result.Clear();
+            }
+
             return result;
         }
-        // hw4_select_target
+
+        // hw4_select_target_1.1
 
         public override void Update(float deltaTime, float time)
         {
