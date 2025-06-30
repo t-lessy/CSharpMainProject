@@ -1,20 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Numerics;
 using Model;
 using Model.Runtime;
-
-
-
-//using System.Diagnostics;
 using Model.Runtime.Projectiles;
-using UnityEditor.Graphs;
 using UnityEngine;
-using UnityEngine.UIElements;
 using Utilities;
-using static UnityEditor.PlayerSettings;
-using static UnityEngine.GraphicsBuffer;
+
 
 namespace UnitBrains.Player
 {
@@ -36,7 +27,6 @@ namespace UnitBrains.Player
             // Homework 1.3 (1st block, 3rd module)
             ///////////////////////////////////////
             ///
-
             if (GetTemperature() < overheatTemperature)
             {
                 for (int i = 0; i < _temperature + 1; i++)
@@ -49,59 +39,33 @@ namespace UnitBrains.Player
         }
             ///////////////////////////////////////
             ///
-
         public override Vector2Int GetNextStep()
         {
-
-
-            
             List<Vector2Int> allTargets = SelectTargets();
             List<Vector2Int> result = SelectTargets();
             var UnitGroups= SelectTargets();
 
             Vector2Int position = unit.Pos;
             Vector2Int Nextposition = Vector2Int.right + Vector2Int.up;
-
-            
-                
-                    if (result.Count != 0) //Если список достижимых целей не пуст стоим на месте
-                    {
-
-
-                        Debug.Log("Цель в радиусе атаки");
-                        return unit.Pos;
-
-
-
-                    }
-                    else if (result.Count == 0 && unreachableTarget.Count != 0) //Если список достижимых целей пуст,а недостижымых не пуст,то идем к недостижимым 
-                    {
-
-
-                        Debug.Log("Целей в радиусе атаки нет,иду к ближайшей");
-                        return position.CalcNextStepTowards(unreachableTarget[0]);
-
-                    }
-                
-                
-                
-            
-
-                    return position.CalcNextStepTowards(runtimeModel.RoMap.Bases[IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId]);
-
+            if (result.Count != 0) //Если список достижимых целей не пуст стоим на месте
+               {
+                   Debug.Log("Цель в радиусе атаки");
+                   return unit.Pos;
+               }
+               else if (result.Count == 0 && unreachableTarget.Count != 0) //Если список достижимых целей пуст,а недостижымых не пуст,то идем к недостижимым 
+               {
+                   Debug.Log("Целей в радиусе атаки нет,иду к ближайшей");
+                   return position.CalcNextStepTowards(unreachableTarget[0]);
+               }
+               return position.CalcNextStepTowards(runtimeModel.RoMap.Bases[IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId]);
         }
-
         protected override List<Vector2Int> SelectTargets()
         {
-            
-
             int enemyID = IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId;
             Vector2Int enemyBase = runtimeModel.RoMap.Bases[enemyID];
             
             List< Vector2Int > allTargets = GetAllTargets().ToList();
             List<Vector2Int> result = new();
-
-
 
             unreachableTarget.Clear();
             result.Clear();
@@ -109,44 +73,33 @@ namespace UnitBrains.Player
             var UnitGroups = new List<List<Unit>>();
             var CopyUnitGroups = UnitGroups.ToList();
 
-            if (allTargets.Count > 0)
+            if (allTargets.Count > 0) // проверка на пустой список
             {
-                SortByDistanceToOwnBase(allTargets);
-                
+                SortByDistanceToOwnBase(allTargets); // сортируем список по близости к базе игрока
+
                 for (int i = 0; i < Unit.Group.Count; i+=3)
                 {
-                   var NewGroups = (Unit.Group).Skip(i).Take(3).ToList();
+                   var NewGroups = (Unit.Group).Skip(i).Take(3).ToList(); // группируем юнитов из списка Group, с шагом 3 элемента списка, в 3 разных группы
                    UnitGroups.Add(NewGroups);
 
                 }
                 for (int i = 0;i < UnitGroups.Count; i ++)
-                {
-                    
+                {               
                         if (IsTargetInRange(allTargets[i]))
                         {
-
-                            result.Add(allTargets[i]);
-                        }
+                            result.Add(allTargets[i]);              // каждой группе назначается своя цель
+                    }
                         else
                         {
-
                             unreachableTarget.Add(allTargets[i]);
-                        }
-                    
-                }
-              
-
+                        }                    
+                }              
             }
             else 
             {
-
-                unreachableTarget.Add(enemyBase);
+                unreachableTarget.Add(enemyBase); //в сулчае если сп сок пуст возварщаем по итогу координаты базы противника
             }
-            return result;
-
-
-
-            
+            return result;            
         }
 
         public override void Update(float deltaTime, float time)
