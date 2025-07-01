@@ -11,7 +11,7 @@ using UnityEngine;
 using Time = UnityEngine.Time;
 
 public class ThirdUnitBrain : DefaultPlayerUnitBrain
-{ 
+{    
     public enum UnitMode
     {
         Moving,
@@ -26,24 +26,29 @@ public class ThirdUnitBrain : DefaultPlayerUnitBrain
     private UnitMode _targetMode = UnitMode.Moving;
 
     private bool _isSwitching = false;
-    private float _transitionTimer = 0f;
-    private float TransitionDuration = 1.0f;
-
     private float _switchStartTime;
 
+    private float TransitionDuration = 1.0f;
 
-    // Start is called before the first frame update
-    void Start()
-    {
+    
+    private int _currentAmountOfTargets = 0;
 
-    }
 
     // Update is called once per frame
     public override void Update(float deltaTime, float time)
     {
+        _currentAmountOfTargets = base.SelectTargets().Count;
+        if (_currentAmountOfTargets > 0)
+            _targetMode = UnitMode.Attacking;
+        else _targetMode = UnitMode.Moving;
+
+        if (_currentMode != _targetMode)
+            SwitchModeRequest(_targetMode, Time.time);
+
         if (_isSwitching)
         {
-            //_transitionTimer += Time.deltaTime;
+            Debug.Log($"Switching time");
+           
             if (Time.time - _switchStartTime >= TransitionDuration)
             {
                 _currentMode = _targetMode;
@@ -79,9 +84,7 @@ public class ThirdUnitBrain : DefaultPlayerUnitBrain
         }
         else
         {
-            SwitchModeRequest(UnitMode.Attacking, Time.time);
-
-            return base.SelectTargets();
+            return new List<Vector2Int>();
         }
 
     }
@@ -89,17 +92,14 @@ public class ThirdUnitBrain : DefaultPlayerUnitBrain
     public override Vector2Int GetNextStep()
     {
 
-
         if (_currentMode == UnitMode.Moving)
         {
             return base.GetNextStep();
         }
         else
         {
-            SwitchModeRequest(UnitMode.Moving, Time.time);
-            return base.GetNextStep();
+            return unit.Pos;
         }
-
 
     }
 
@@ -108,12 +108,10 @@ public class ThirdUnitBrain : DefaultPlayerUnitBrain
         if (_isSwitching || _currentMode == desiredMode)
             return;
 
-        _targetMode = desiredMode;
-        _transitionTimer = 0f;
         _isSwitching = true;
         _currentMode = UnitMode.Switching;
         _switchStartTime = currentTime;
     }
 
-   
+
 }
