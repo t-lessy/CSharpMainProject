@@ -37,8 +37,7 @@ namespace UnitBrains.Player
             {
                 return;
             }
-
-            
+                        
             for (int i = 0; i <= temperature; i++)
             {
                 var projectile = CreateProjectile(forTarget);
