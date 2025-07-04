@@ -5,6 +5,7 @@ using System.Linq;
 using Model;
 using Model.Runtime.ReadOnly;
 using PlasticGui.WorkspaceWindow.PendingChanges.Changelists;
+using TMPro;
 using UnityEditor.ShaderKeywordFilter;
 using UnityEngine;
 using UnityEngine.PlayerLoop;
@@ -13,20 +14,25 @@ using static UnityEngine.GraphicsBuffer;
 
 public class UnitCoordinator
 {
-    private static UnitCoordinator _instance;
 
-    private readonly IReadOnlyRuntimeModel _runtimeModel = ServiceLocator.Get<IReadOnlyRuntimeModel>();
+    private readonly IReadOnlyRuntimeModel _runtimeModel; //= ServiceLocator.Get<IReadOnlyRuntimeModel>();
     private TimeUtil _timeUtil = ServiceLocator.Get<TimeUtil>();  
 
-    private static Vector2Int _target;
-    private List<Vector2Int> _enemyUnitsPos;
+    private Vector2Int _target; //Добавить отдельно
+    private List<Vector2Int> _enemyUnitsPos; //Добавить отдельно
     private IEnumerable<IReadOnlyUnit> _enemyUnits;
-    private static int _counter;
-    private static int _resultIterationCounter;
+    private int _counter;
+    private int _resultIterationCounter;
 
+    private int _playerID;
+    private int _enemyID;
 
-    private UnitCoordinator()
+    public UnitCoordinator(IReadOnlyRuntimeModel runtimeModel, int forplayer, int enemyID)
     {
+        _runtimeModel = runtimeModel;
+        _playerID = forplayer;
+        _enemyID = enemyID;
+
         _enemyUnits = GetAllEnemyUnits();
         _enemyUnitsPos = unitsToListUnitsPos(_enemyUnits);
         _timeUtil.AddFixedUpdateAction(UpdateThis);
@@ -35,12 +41,12 @@ public class UnitCoordinator
         _target = new Vector2Int(0, 0);
     }
 
-    public static UnitCoordinator GetInstance()
-    {
-        if (_instance == null)
-            _instance = new UnitCoordinator();
-        return _instance;
-    }
+    //public static UnitCoordinator GetInstance()
+    //{
+    //    if (_instance == null)
+    //        _instance = new UnitCoordinator();
+    //    return _instance;
+    //}
 
     private void UpdateThis(float number)
     {
@@ -56,8 +62,8 @@ public class UnitCoordinator
     {
         int CompareByDistanceToOwnBase(Vector2Int a, Vector2Int b)
         {
-            var distanceA = DistanceToBase(a, RuntimeModel.PlayerId);
-            var distanceB = DistanceToBase(b, RuntimeModel.PlayerId);
+            var distanceA = DistanceToBase(a, _playerID);
+            var distanceB = DistanceToBase(b, _playerID);
             return distanceA.CompareTo(distanceB);
         }
 
@@ -68,8 +74,8 @@ public class UnitCoordinator
     {
         foreach (var enemyUnit in enemyUnitsPosition)
         {
-            float distanceToOwnBase = DistanceToBase(enemyUnit, RuntimeModel.PlayerId);
-            float distanceToEnemyBase = DistanceToBase(enemyUnit, RuntimeModel.BotPlayerId);
+            float distanceToOwnBase = DistanceToBase(enemyUnit, _playerID);
+            float distanceToEnemyBase = DistanceToBase(enemyUnit, _enemyID);
             if (distanceToOwnBase < distanceToEnemyBase)
                 return true;
         }
@@ -128,7 +134,7 @@ public class UnitCoordinator
     public Vector2Int GetTarget()
     {
         if (!_enemyUnitsPos.Any())
-            return _runtimeModel.RoMap.Bases[RuntimeModel.BotPlayerId];
+            return _runtimeModel.RoMap.Bases[_enemyID];
 
         if (EnemiesAreCloseToOurBase(_enemyUnitsPos))
         {
@@ -152,13 +158,13 @@ public class UnitCoordinator
     public Vector2Int GetPoint()
     {
         if (!_enemyUnitsPos.Any())
-            return _runtimeModel.RoMap.Bases[RuntimeModel.BotPlayerId];
+            return _runtimeModel.RoMap.Bases[_enemyID];
 
         if (EnemiesAreCloseToOurBase(_enemyUnitsPos))
         {
-            Vector2Int diff = _enemyUnitsPos[0] + _runtimeModel.RoMap.Bases[RuntimeModel.PlayerId];
+            Vector2Int diff = _enemyUnitsPos[0] + _runtimeModel.RoMap.Bases[_playerID];
             Vector2Int stepDiff = diff.SignOrZero();
-            Vector2Int result = _runtimeModel.RoMap.Bases[RuntimeModel.PlayerId] + stepDiff;
+            Vector2Int result = _runtimeModel.RoMap.Bases[_playerID] + stepDiff;
             return result;
         }
 

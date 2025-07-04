@@ -49,9 +49,9 @@ namespace UnitBrains.Player
                 return unit.Pos;
 
             if (HasTargetsInDoubleRange())
-                target = UnitCoordinator.GetInstance().GetTarget();
+                target = unit.UnitCoordinator.GetTarget();
             else
-                target = UnitCoordinator.GetInstance().GetPoint();
+                target = unit.UnitCoordinator.GetPoint();
 
             _activePath = new BrilliantUnitPath(runtimeModel, unit.Pos, target);
             return _activePath.GetNextStepFrom(unit.Pos);

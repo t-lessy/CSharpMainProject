@@ -19,17 +19,23 @@ namespace Controller
         private readonly Settings _settings;
         private readonly TimeUtil _timeUtil;
 
+        private UnitCoordinator _playerUnitCoordinator;
+        private UnitCoordinator _botPlayerUnitCoordinator;
+
         public LevelController(RuntimeModel runtimeModel, RootController rootController)
         {
             _runtimeModel = runtimeModel;
             _rootController = rootController;
             _botController = new BotController(OnBotUnitChosen);
             _simulationController = new(runtimeModel, OnLevelFinished);
-            
+
             _rootView = ServiceLocator.Get<RootView>();
             _gameplayView = ServiceLocator.Get<Gameplay3dView>();
             _settings = ServiceLocator.Get<Settings>();
             _timeUtil = ServiceLocator.Get<TimeUtil>();
+
+            _playerUnitCoordinator = new UnitCoordinator(runtimeModel, RuntimeModel.PlayerId, RuntimeModel.BotPlayerId);
+            _botPlayerUnitCoordinator = new UnitCoordinator(runtimeModel, RuntimeModel.BotPlayerId, RuntimeModel.PlayerId);
         }
 
         public void StartLevel(int level)
@@ -55,13 +61,17 @@ namespace Controller
         {
             if (unitConfig.Cost > _runtimeModel.Money[RuntimeModel.PlayerId])
                 return;
-            
+
+
+            // Сюда координатор всунуть
+
             SpawnUnit(RuntimeModel.PlayerId, unitConfig);
             TryStartSimulation();
         }
 
         private void OnBotUnitChosen(UnitConfig unitConfig)
         {
+            //Сюда, вероятно, тоже
             SpawnUnit(RuntimeModel.BotPlayerId, unitConfig);
             TryStartSimulation();
         }
@@ -71,10 +81,13 @@ namespace Controller
             var pos = _runtimeModel.Map.FindFreeCellNear(
                 _runtimeModel.Map.Bases[forPlayer],
                 _runtimeModel.RoUnits.Select(x => x.Pos).ToHashSet());
-            
+
             var unit = new Unit(config, pos);
+            unit.UnitCoordinator = forPlayer == RuntimeModel.PlayerId ? _playerUnitCoordinator : _playerUnitCoordinator;
             _runtimeModel.Money[forPlayer] -= config.Cost;
             _runtimeModel.PlayersUnits[forPlayer].Add(unit);
+
+            //Скорее сюда координатор засунуть
         }
 
         private void TryStartSimulation()
