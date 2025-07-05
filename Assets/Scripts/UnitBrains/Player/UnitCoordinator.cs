@@ -15,11 +15,11 @@ using static UnityEngine.GraphicsBuffer;
 public class UnitCoordinator
 {
 
-    private readonly IReadOnlyRuntimeModel _runtimeModel; //= ServiceLocator.Get<IReadOnlyRuntimeModel>();
+    private readonly IReadOnlyRuntimeModel _runtimeModel; 
     private TimeUtil _timeUtil = ServiceLocator.Get<TimeUtil>();  
 
-    private Vector2Int _target; //Добавить отдельно
-    private List<Vector2Int> _enemyUnitsPos; //Добавить отдельно
+    private Vector2Int _target; 
+    private List<Vector2Int> _enemyUnitsPos; 
     private IEnumerable<IReadOnlyUnit> _enemyUnits;
     private int _counter;
     private int _resultIterationCounter;
@@ -40,13 +40,6 @@ public class UnitCoordinator
         _resultIterationCounter = 0;
         _target = new Vector2Int(0, 0);
     }
-
-    //public static UnitCoordinator GetInstance()
-    //{
-    //    if (_instance == null)
-    //        _instance = new UnitCoordinator();
-    //    return _instance;
-    //}
 
     private void UpdateThis(float number)
     {

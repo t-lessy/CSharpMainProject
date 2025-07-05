@@ -3,11 +3,11 @@
   "WorkspaceRootPath": "C:\\UnityRepos\\CSharpMainProject\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{30E4A36B-DBC1-3EB5-7C27-41F2EDC2C301}|Root.csproj|C:\\UnityRepos\\CSharpMainProject\\assets\\scripts\\unitbrains\\player\\unitcoordinator.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{30E4A36B-DBC1-3EB5-7C27-41F2EDC2C301}|Root.csproj|c:\\unityrepos\\csharpmainproject\\assets\\scripts\\unitbrains\\player\\unitcoordinator.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{30E4A36B-DBC1-3EB5-7C27-41F2EDC2C301}|Root.csproj|solutionrelative:assets\\scripts\\unitbrains\\player\\unitcoordinator.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{30E4A36B-DBC1-3EB5-7C27-41F2EDC2C301}|Root.csproj|c:\\unityrepos\\csharpmainproject\\assets\\scripts\\controller\\levelcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{30E4A36B-DBC1-3EB5-7C27-41F2EDC2C301}|Root.csproj|C:\\UnityRepos\\CSharpMainProject\\assets\\scripts\\controller\\levelcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{30E4A36B-DBC1-3EB5-7C27-41F2EDC2C301}|Root.csproj|solutionrelative:assets\\scripts\\controller\\levelcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
@@ -52,7 +52,7 @@
               "RelativeDocumentMoniker": "Assets\\Scripts\\UnitBrains\\Player\\UnitCoordinator.cs",
               "ToolTip": "C:\\UnityRepos\\CSharpMainProject\\Assets\\Scripts\\UnitBrains\\Player\\UnitCoordinator.cs",
               "RelativeToolTip": "Assets\\Scripts\\UnitBrains\\Player\\UnitCoordinator.cs",
-              "ViewState": "AgIAABoAAAAAAAAAAAAQwCMAAAApAAAAAAAAAA==",
+              "ViewState": "AgIAAIoAAAAAAAAAAAAkwBEAAAA6AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-05-23T15:38:06.023Z",
               "IsPinned": true,
@@ -83,8 +83,7 @@
               "ViewState": "AgIAAB4AAAAAAAAAAAAmwB4AAAA5AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-05-31T17:34:16.875Z",
-              "IsPinned": true,
-              "EditorCaption": ""
+              "IsPinned": true
             },
             {
               "$type": "Document",
@@ -97,8 +96,7 @@
               "ViewState": "AgIAAA8AAAAAAAAAAAAowDQAAAAQAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-05-27T19:05:10.886Z",
-              "IsPinned": true,
-              "EditorCaption": ""
+              "IsPinned": true
             },
             {
               "$type": "Document",
@@ -111,8 +109,7 @@
               "ViewState": "AgIAAA8AAAAAAAAAAAA5wAgAAAAfAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-04-21T20:06:51.544Z",
-              "IsPinned": true,
-              "EditorCaption": ""
+              "IsPinned": true
             },
             {
               "$type": "Document",
@@ -124,8 +121,7 @@
               "RelativeToolTip": "Assets\\Scripts\\UnitBrains\\Pathfinding\\DummyUnitPath.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAACQAAAAfAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-05-31T14:49:20.249Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-05-31T14:49:20.249Z"
             },
             {
               "$type": "Document",
@@ -137,8 +133,7 @@
               "RelativeToolTip": "Assets\\Scripts\\UnitBrains\\Player\\ThirdUnitBrain.cs",
               "ViewState": "AgIAABMAAAAAAAAAAAAgwC0AAAA+AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-05-31T16:26:11.368Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-05-31T16:26:11.368Z"
             },
             {
               "$type": "Document",
