@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
+using Model;
 using Model.Runtime.Projectiles;
 using UnityEngine;
 using Utilities;
@@ -7,6 +9,9 @@ namespace UnitBrains.Player
 {
     public class SecondUnitBrain : DefaultPlayerUnitBrain
     {
+        private static int _idCounter = 0;
+        public const int maxClosestTargets = 3;
+        public readonly int UnitId = _idCounter++;
         public override string TargetUnitName => "Cobra Commando";
         private const float OverheatTemperature = 3f;
         private const float OverheatCooldown = 2f;
@@ -41,10 +46,7 @@ namespace UnitBrains.Player
 
         public override Vector2Int GetNextStep()
         {
-            // Seems like reachable targets check is done several times during step calculation.
-            // Will it be better to cache result somewhere? Not sure about significant performance gain though
-            // with such a small amount of units.
-            return HasTargetsInRange() || !_moveTarget.HasValue
+            return !_moveTarget.HasValue || IsTargetInRange(_moveTarget.Value)
                 ? unit.Pos
                 : unit.Pos.CalcNextStepTowards(_moveTarget.Value);
         }
@@ -55,10 +57,12 @@ namespace UnitBrains.Player
             // Homework 1.4 (1st block, 4rd module)
             ///////////////////////////////////////
 
-            // `GetAllTargets()` also contains enemy's base as last element, so whe all
-            // units are destroyed, we'll have it as move target
-            _moveTarget = FindClosestToBase(GetAllTargets());
+            List<Vector2Int> closestTargets = FindTargetsClosestToBase().ToList();
 
+            _moveTarget = closestTargets.Count > 0
+                ? closestTargets[UnitId % closestTargets.Count]
+                : null;
+            
             List<Vector2Int> result = new();
 
             if (_moveTarget.HasValue && IsTargetInRange(_moveTarget.Value))
@@ -85,23 +89,16 @@ namespace UnitBrains.Player
             }
         }
 
-        private Vector2Int? FindClosestToBase(IEnumerable<Vector2Int> targets)
+        private IEnumerable<Vector2Int> FindTargetsClosestToBase()
         {
-            float minDist = float.MaxValue;
-            Vector2Int? closestTarget = null;
+            var enemyBase = runtimeModel.RoMap.Bases[RuntimeModel.BotPlayerId];
+            
+            var targets = GetAllTargets()
+                .Where(t => t != enemyBase) // Add enemy base as a target only if there are no other units
+                .OrderBy(DistanceToOwnBase)
+                .Take(maxClosestTargets);
 
-            foreach (var targetPos in targets)
-            {
-                var targetDist = DistanceToOwnBase(targetPos);
-
-                if (targetDist < minDist)
-                {
-                    minDist = targetDist;
-                    closestTarget = targetPos;
-                }
-            }
-
-            return closestTarget;
+            return targets.DefaultIfEmpty(enemyBase);
         }
 
         private int GetTemperature()
