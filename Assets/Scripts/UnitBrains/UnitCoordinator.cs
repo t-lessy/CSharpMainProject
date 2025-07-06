@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using Model;
 using Model.Runtime.ReadOnly;
@@ -11,58 +12,96 @@ namespace UnitBrains.Coordinator
         private static UnitCoordinator _instance;
         public static UnitCoordinator Instance => _instance ??= new UnitCoordinator();
 
-        private IReadOnlyRuntimeModel _runtimeModel;
-
         public Vector2Int? RecommendedTarget { get; private set; }
         public Vector2Int? RecommendedPoint { get; private set; }
 
-        private UnitCoordinator() { }
+        private IReadOnlyRuntimeModel _runtimeModel;
+        private Vector2Int _playerBasePos;
+        private Vector2Int _enemyBasePos;
 
-        public void Init(IReadOnlyRuntimeModel model, TimeUtil timeUtil)
+        public void Init(IReadOnlyRuntimeModel runtimeModel, TimeUtil timeUtil)
         {
-            if (_runtimeModel != null) return;
-
-            _runtimeModel = model;
-            timeUtil.AddFixedUpdateAction(OnFixedUpdate);
+            _runtimeModel = runtimeModel;
+            _playerBasePos = runtimeModel.RoMap.Bases[RuntimeModel.PlayerId];
+            _enemyBasePos = runtimeModel.RoMap.Bases[RuntimeModel.BotPlayerId];
+            timeUtil.AddUpdateAction(Update);
         }
 
-        private void OnFixedUpdate(float dt)
+        public void Update(float deltaTime)
         {
-            if (_runtimeModel == null) return;
-            UpdateRecommendations();
-        }
+            var enemyUnits = GetAllEnemyUnits().ToList();
+            var enemyBase = _runtimeModel.RoUnits.FirstOrDefault(u =>
+                u.Pos == _enemyBasePos && !u.Config.IsPlayerUnit);
 
-        private void UpdateRecommendations()
-        {
-            var basePos = _runtimeModel.RoMap.Bases[RuntimeModel.PlayerId];
-            var enemies = _runtimeModel.RoBotUnits.ToList();
-
-            if (enemies.Count == 0)
+            if (enemyUnits.Any())
             {
-                RecommendedTarget = null;
-                RecommendedPoint = null;
-                return;
+                bool enemiesOnOurHalf = enemyUnits.Any(IsOnOurHalf);
+
+                RecommendedTarget = enemiesOnOurHalf
+                    ? GetEnemyClosestToBase(enemyUnits)
+                    : GetWeakestEnemy(enemyUnits);
+
+                RecommendedPoint = enemiesOnOurHalf
+                    ? GetDefensivePosition()
+                    : GetOffensivePosition();
             }
-
-            var ourHalf = _runtimeModel.RoMap.Height / 2;
-            bool enemyOnOurSide = enemies.Any(e => e.Pos.y < ourHalf);
-
-            if (enemyOnOurSide)
+            else if (enemyBase != null && enemyBase.Health > 0)
             {
-                var closest = enemies.OrderBy(e => (e.Pos - basePos).sqrMagnitude).First();
-                RecommendedTarget = closest.Pos;
-                RecommendedPoint = basePos + Vector2Int.up;
+                RecommendedTarget = _enemyBasePos;
+                RecommendedPoint = _enemyBasePos;
             }
             else
             {
-                var weakest = enemies.OrderBy(e => e.Health).First();
-                RecommendedTarget = weakest.Pos;
-
-                var direction = weakest.Pos - basePos;
-                direction.Clamp(Vector2Int.one * -1, Vector2Int.one); // ограничиваем до -1, 0, 1 по каждой оси
-                RecommendedPoint = weakest.Pos - direction;
+                RecommendedTarget = null;
+                RecommendedPoint = null;
             }
+        }
+
+        private Vector2Int GetDefensivePosition()
+        {
+            return _playerBasePos + new Vector2Int(0, -2);
+        }
+
+        private Vector2Int GetOffensivePosition()
+        {
+            var closestEnemy = GetEnemyClosestToBase(GetAllEnemyUnits().ToList());
+            if (!closestEnemy.HasValue)
+                return GetDefensivePosition();
+
+            var enemyPos = closestEnemy.Value;
+            var direction = (new Vector2(_playerBasePos.x, _playerBasePos.y) -
+                            new Vector2(enemyPos.x, enemyPos.y)).normalized;
+            var directionInt = new Vector2Int(
+                Mathf.RoundToInt(direction.x),
+                Mathf.RoundToInt(direction.y));
+            return enemyPos + directionInt * 3;
+        }
+
+        private Vector2Int? GetEnemyClosestToBase(List<IReadOnlyUnit> enemies)
+        {
+            return enemies.Count == 0 ? null : enemies
+                .OrderBy(u => Vector2Int.Distance(u.Pos, _playerBasePos))
+                .First()
+                .Pos;
+        }
+
+        private Vector2Int? GetWeakestEnemy(List<IReadOnlyUnit> enemies)
+        {
+            return enemies.Count == 0 ? null : enemies
+                .OrderBy(u => u.Health)
+                .ThenBy(u => Vector2Int.Distance(u.Pos, _playerBasePos))
+                .First()
+                .Pos;
+        }
+
+        private bool IsOnOurHalf(IReadOnlyUnit unit)
+        {
+            return unit.Pos.y < _runtimeModel.RoMap.Height / 2;
+        }
+
+        private IEnumerable<IReadOnlyUnit> GetAllEnemyUnits()
+        {
+            return _runtimeModel.RoUnits.Where(u => !u.Config.IsPlayerUnit && u.Pos != _enemyBasePos);
         }
     }
 }
-

@@ -3,6 +3,7 @@ using Model.Runtime.Projectiles;
 using UnityEngine;
 using UnitBrains.Coordinator;
 using Model;
+using UnitBrains.Pathfinding;
 
 namespace UnitBrains.Player
 {
@@ -23,40 +24,46 @@ namespace UnitBrains.Player
             return distanceA.CompareTo(distanceB);
         }
 
+        public override void Update(float deltaTime, float time)
+        {
+            base.Update(deltaTime, time);
+            UnitCoordinator.Instance.Update(deltaTime);
+        }
+
         protected override List<Vector2Int> SelectTargets()
         {
             var coordinator = UnitCoordinator.Instance;
+            var recommendedTarget = coordinator.RecommendedTarget;
 
-            // Если координатор указал цель и она в пределах двойного радиуса атаки — атакуем
-            if (coordinator.RecommendedTarget.HasValue &&
-                IsWithinDoubleAttackRange(coordinator.RecommendedTarget.Value))
+            if (recommendedTarget.HasValue && IsTargetInRange(recommendedTarget.Value))
             {
-                return new List<Vector2Int> { coordinator.RecommendedTarget.Value };
+                return new List<Vector2Int> { recommendedTarget.Value };
             }
 
-            // Если нет цели, но есть точка — двигаемся к ней
             if (coordinator.RecommendedPoint.HasValue)
             {
-                // Можно использовать это, чтобы повлиять на GetNextStep
                 _targetsToMove = new List<Vector2Int> { coordinator.RecommendedPoint.Value };
             }
 
-            // Ищем цели в досягаемости
             var result = GetReachableTargets();
             if (result.Count > 1)
-                result.RemoveAt(result.Count - 1);
+                SortByDistanceToOwnBase(result);
 
             return result;
         }
-
 
         public override Vector2Int GetNextStep()
         {
             var coordinator = UnitCoordinator.Instance;
             if (coordinator.RecommendedPoint.HasValue)
-                return coordinator.RecommendedPoint.Value;
+            {
+                var path = new AStarUnitPath(runtimeModel, unit.Pos, coordinator.RecommendedPoint.Value);
+                return path.GetNextStepFrom(unit.Pos);
+            }
 
-            return base.GetNextStep();
+            var enemyBasePos = runtimeModel.RoMap.Bases[RuntimeModel.BotPlayerId];
+            var pathToBase = new AStarUnitPath(runtimeModel, unit.Pos, enemyBasePos);
+            return pathToBase.GetNextStepFrom(unit.Pos);
         }
 
         private bool IsWithinDoubleAttackRange(Vector2Int pos)
