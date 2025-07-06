@@ -84,8 +84,8 @@ namespace Assets.Scripts.UnitBrains.Pathfinding
             }
             path = pathList.ToArray();
         }
-        private int[] dx = { -1, 0, 1, 0 };
-        private int[] dy = { 0, 1, 0, -1 };
+        private readonly int[] dx = { -1, 0, 1, 0 };
+        private readonly int[] dy = { 0, 1, 0, -1 };
         private bool IsValid(int x, int y)
         {
             return !runtimeModel.RoMap[new Vector2Int(x, y)];

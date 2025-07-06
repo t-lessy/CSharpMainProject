@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using Assets.Scripts.UnitBrains;
+using Controller;
 using Model.Config;
 using Model.Runtime.Projectiles;
 using Model.Runtime.ReadOnly;
@@ -45,7 +47,7 @@ namespace Model.Runtime
         private static int SetID()
         {
             _idValue++;
-            return _idValue-1;
+            return _idValue - 1;
         }
 
         public void Update(float deltaTime, float time)
