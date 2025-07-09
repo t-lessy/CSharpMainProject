@@ -2,6 +2,7 @@
 using System.Linq;
 using Model;
 using Model.Runtime.Projectiles;
+using UnitBrains.Pathfinding;
 using UnityEngine;
 using Utilities;
 
@@ -46,9 +47,14 @@ namespace UnitBrains.Player
 
         public override Vector2Int GetNextStep()
         {
-            return !_moveTarget.HasValue || IsTargetInRange(_moveTarget.Value)
-                ? unit.Pos
-                : unit.Pos.CalcNextStepTowards(_moveTarget.Value);
+            if (!_moveTarget.HasValue || IsTargetInRange(_moveTarget.Value))
+            {
+                _activePath = null;
+                return unit.Pos;
+            }
+        
+            _activePath = new AStarUnitPath(runtimeModel, unit.Pos, _moveTarget.Value, IsPlayerUnitBrain);
+            return _activePath.GetNextStepFrom(unit.Pos);
         }
 
         protected override List<Vector2Int> SelectTargets()

@@ -46,6 +46,7 @@
   </ItemGroup>
   <ItemGroup>
      <Compile Include="Assets\Scripts\View\TileView.cs" />
+     <Compile Include="Assets\Scripts\UnitBrains\Pathfinding\PriorityQueue.cs" />
      <Compile Include="Assets\Scripts\Model\Runtime\Projectiles\BaseProjectile.cs" />
      <Compile Include="Assets\Scripts\View\UnitView.cs" />
      <Compile Include="Assets\Scripts\Model\Runtime\ReadOnly\IReadOnlyUnit.cs" />
@@ -94,6 +95,8 @@
      <Compile Include="Assets\Scripts\Utilities\MapGenerator.cs" />
      <Compile Include="Assets\Scripts\Controller\BotController.cs" />
      <Compile Include="Assets\Scripts\Controller\SimulationController.cs" />
+     <Compile Include="Assets\Scripts\UnitBrains\Pathfinding\GraphUtils.cs" />
+     <Compile Include="Assets\Scripts\UnitBrains\Pathfinding\AStarUnitPath.cs" />
      <None Include="Assets\Scripts\Root.asmdef" />
      <Folder Include="Assets\Scripts" />
      <Folder Include="Assets\Scripts\Model\Runtime\Projectiles" />
