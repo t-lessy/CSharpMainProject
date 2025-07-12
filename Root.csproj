@@ -48,6 +48,7 @@
      <Compile Include="Assets\Scripts\View\TileView.cs" />
      <Compile Include="Assets\Scripts\UnitBrains\Pathfinding\PriorityQueue.cs" />
      <Compile Include="Assets\Scripts\Model\Runtime\Projectiles\BaseProjectile.cs" />
+     <Compile Include="Assets\Scripts\UnitBrains\Player\UnitCoordinator.cs" />
      <Compile Include="Assets\Scripts\View\UnitView.cs" />
      <Compile Include="Assets\Scripts\Model\Runtime\ReadOnly\IReadOnlyUnit.cs" />
      <Compile Include="Assets\Scripts\UnitBrains\BaseUnitBrain.cs" />
@@ -59,6 +60,7 @@
      <Compile Include="Assets\Scripts\View\Gameplay3dView.cs" />
      <Compile Include="Assets\Scripts\EnterPoint.cs" />
      <Compile Include="Assets\Scripts\Model\Runtime\MainBase.cs" />
+     <Compile Include="Assets\Scripts\UnitBrains\Pathfinding\Graphs\GridGraph.cs" />
      <Compile Include="Assets\Scripts\Model\Runtime\ReadOnly\IReadOnlyMap.cs" />
      <Compile Include="Assets\Scripts\Model\Runtime\Projectiles\ProjectileType.cs" />
      <Compile Include="Assets\Scripts\UnitBrains\UnitBrainProvider.cs" />
@@ -84,6 +86,7 @@
      <Compile Include="Assets\Scripts\View\VFXView.cs" />
      <Compile Include="Assets\Scripts\Controller\IPlayerUnitChoosingListener.cs" />
      <Compile Include="Assets\Scripts\Utilities\Extensions.cs" />
+     <Compile Include="Assets\Scripts\UnitBrains\Pathfinding\MapUtils.cs" />
      <Compile Include="Assets\Scripts\Utilities\ServiceLocator.cs" />
      <Compile Include="Assets\Scripts\Model\Runtime\Projectiles\ArchToTileProjectile.cs" />
      <Compile Include="Assets\Scripts\UnitBrains\Pathfinding\DummyUnitPath.cs" />
@@ -101,6 +104,7 @@
      <Folder Include="Assets\Scripts" />
      <Folder Include="Assets\Scripts\Model\Runtime\Projectiles" />
      <Folder Include="Assets\Scripts\Model\Runtime" />
+     <Folder Include="Assets\Scripts\UnitBrains\Pathfinding\Graphs" />
      <Folder Include="Assets\Scripts\UnitBrains" />
      <Folder Include="Assets\Scripts\Model\Runtime\ReadOnly" />
      <Folder Include="Assets\Scripts\Controller" />

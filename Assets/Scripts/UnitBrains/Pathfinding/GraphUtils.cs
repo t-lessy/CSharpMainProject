@@ -105,7 +105,7 @@ namespace UnitBrains.Pathfinding
             Stack<TNode> foundPath = new();
             TNode node = targetNode;
 
-            while (!node.Equals(startNode) && visitMap.TryGetValue(node, out TNode? prev))
+            while (!node.Equals(startNode) && visitMap.TryGetValue(node, out TNode prev))
             {
                 foundPath.Push(node);
                 node = prev;
