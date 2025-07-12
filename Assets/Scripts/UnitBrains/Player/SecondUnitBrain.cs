@@ -22,6 +22,12 @@ namespace UnitBrains.Player
                 return;
             }
 
+            // Проверка на радиус атаки перед выстрелом
+            if (!IsInAttackRange(forTarget))
+            {
+                return;
+            }
+
             IncreaseTemperature();
 
             int bulletCount = GetTemperature();
@@ -55,10 +61,10 @@ namespace UnitBrains.Player
                 return new List<Vector2Int> { closest };
             }
 
-            // Если нет целей — атакуем базу противника (уже включена в GetAllTargets)
+            
             foreach (var target in GetAllTargets())
             {
-                return new List<Vector2Int> { target }; // просто берём первую
+                return new List<Vector2Int> { target }; 
             }
 
             return new List<Vector2Int>();
@@ -74,9 +80,9 @@ namespace UnitBrains.Player
             var target = targets[0];
 
             if (IsTargetInRange(target))
-                return unit.Pos; // остаёмся на месте
+                return unit.Pos; 
 
-            // двигаемся по кратчайшему пути
+            
             return new DummyUnitPath(runtimeModel, unit.Pos, target).GetNextStepFrom(unit.Pos);
         }
 
@@ -105,6 +111,14 @@ namespace UnitBrains.Player
             _temperature += 1f;
             if (_temperature >= OverheatTemperature)
                 _overheated = true;
+        }
+
+        // проверка радиуса атаки
+        private bool IsInAttackRange(Vector2Int targetPos)
+        {
+            var attackRangeSqr = unit.Config.AttackRange * unit.Config.AttackRange;
+            var diff = targetPos - unit.Pos;
+            return diff.sqrMagnitude <= attackRangeSqr;
         }
     }
 }
