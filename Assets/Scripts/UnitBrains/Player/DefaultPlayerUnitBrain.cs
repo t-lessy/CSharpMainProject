@@ -9,6 +9,13 @@ namespace UnitBrains.Player
 {
     public class DefaultPlayerUnitBrain : BaseUnitBrain
     {
+        private UnitCoordinator _coordinator;
+
+        public void SetCoordinator(UnitCoordinator coordinator)
+        {
+            _coordinator = coordinator;
+        }
+
         protected float DistanceToOwnBase(Vector2Int fromPos) =>
             Vector2Int.Distance(fromPos, runtimeModel.RoMap.Bases[RuntimeModel.PlayerId]);
 
@@ -24,25 +31,21 @@ namespace UnitBrains.Player
             return distanceA.CompareTo(distanceB);
         }
 
-        public override void Update(float deltaTime, float time)
-        {
-            base.Update(deltaTime, time);
-            UnitCoordinator.Instance.Update(deltaTime);
-        }
-
         protected override List<Vector2Int> SelectTargets()
         {
-            var coordinator = UnitCoordinator.Instance;
-            var recommendedTarget = coordinator.RecommendedTarget;
+            if (_coordinator == null)
+                return base.SelectTargets();
+
+            var recommendedTarget = _coordinator.RecommendedTarget;
 
             if (recommendedTarget.HasValue && IsTargetInRange(recommendedTarget.Value))
             {
                 return new List<Vector2Int> { recommendedTarget.Value };
             }
 
-            if (coordinator.RecommendedPoint.HasValue)
+            if (_coordinator.RecommendedPoint.HasValue)
             {
-                _targetsToMove = new List<Vector2Int> { coordinator.RecommendedPoint.Value };
+                _targetsToMove = new List<Vector2Int> { _coordinator.RecommendedPoint.Value };
             }
 
             var result = GetReachableTargets();
@@ -54,10 +57,9 @@ namespace UnitBrains.Player
 
         public override Vector2Int GetNextStep()
         {
-            var coordinator = UnitCoordinator.Instance;
-            if (coordinator.RecommendedPoint.HasValue)
+            if (_coordinator?.RecommendedPoint.HasValue ?? false)
             {
-                var path = new AStarUnitPath(runtimeModel, unit.Pos, coordinator.RecommendedPoint.Value);
+                var path = new AStarUnitPath(runtimeModel, unit.Pos, _coordinator.RecommendedPoint.Value);
                 return path.GetNextStepFrom(unit.Pos);
             }
 
