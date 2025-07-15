@@ -13,19 +13,18 @@ namespace UnitBrains.Player
         private float _temperature = 0f;
         private float _cooldownTime = 0f;
         private bool _overheated;
-        List<Vector2Int> result = new List<Vector2Int>(); //цели в зоне досягаемости 
+        List<Vector2Int> targetsInRange = new List<Vector2Int>(); //цели в зоне досягаемости 
         List<Vector2Int> outOfRangeTargets = new List<Vector2Int>(); //цели вне зоне досягаемости 
 
         private static int Counter = 0; // счетчик 
-        private int UnitNumber; // номер юнита 
+        private int UnitNumber = Counter++; // номер юнита 
         private const int MaxTargets = 3;
-        private bool isInitialized = false;
 
 
         protected override void GenerateProjectiles(Vector2Int forTarget, List<BaseProjectile> intoList)
         {
             float overheatTemperature = OverheatTemperature;
-        
+
             //Если нынешняя температура больше или равна темпераратуры перегрева -> Прерываем метод
             if (GetTemperature() >= overheatTemperature)
                 return;
@@ -44,92 +43,52 @@ namespace UnitBrains.Player
         public override Vector2Int GetNextStep()
         {
             // Проверка, есть ли цели в зоне досягаемости 
-            if (result.Count > 0)
+            if (targetsInRange.Count > 0)
             {
-                // Берем первую цель из result
-                Vector2Int targetPosInRange = result.First();
-
-                // Если цель в пределах области атаки
-                if (IsTargetInRange(targetPosInRange))
-                {
-                    return unit.Pos; // стоим и атакуем(так как цель в пределах досягаемости)
-                }
-                else
-                {
-                    // Если цель не в пределах области атаки, двигаемся к ней чтобы атаковать 
-                    return CalcNextStepTowards(unit.Pos, targetPosInRange);
-                }
+                return unit.Pos;
             }
             // Если есть цели в зоне не досягаемости
             else if (outOfRangeTargets.Count > 0)
             {
                 // Берем первую цель из outOfRangeTargets 
-                Vector2Int targetPos = outOfRangeTargets.First();
+                Vector2Int targetPos = outOfRangeTargets[0];
 
                 // Если цель не в пределах досягаемости, двигаемся к ней
                 return CalcNextStepTowards(unit.Pos, targetPos);
             }
-
-            // Если нет целей вообще, стоим на месте
             return unit.Pos;
         }
 
         protected override List<Vector2Int> SelectTargets()
         {
-            if (!isInitialized)
-            {
-                UnitNumber = Counter;
-                Debug.Log("Номер юнита: " + UnitNumber);
-                Counter = (Counter + 1) % MaxTargets;
-                isInitialized = true;
-            }
-
             outOfRangeTargets.Clear(); // очищаем список целей вне зоны
+            targetsInRange.Clear(); // очищаем список целей в зоне
+
             List<Vector2Int> allTargets = GetAllTargets().ToList();
 
             if (allTargets.Any())
             {
-                Vector2Int mostDangerousTarget = allTargets.First();
-                float minDistance = DistanceToOwnBase(mostDangerousTarget);
-
                 // Перебираем остальные цели, чтобы найти ближайшую
                 foreach (Vector2Int target in allTargets)
                 {
-                    float distance = DistanceToOwnBase(target);
-                    if (distance < minDistance)
+                    if (IsTargetInRange(target))
                     {
-                        minDistance = distance;
-                        mostDangerousTarget = target;
+                        targetsInRange.Add(target); //добавляем цель в список досягаемости
                     }
                 }
-                // Проверяем, в зоне ли досягаемости эта цель
-                if (IsTargetInRange(mostDangerousTarget))
+                if (targetsInRange.Count == 0)
                 {
-                    result.Add(mostDangerousTarget); //добавляем цель в список досягаемости
-                }
-                else
-                {
-                    outOfRangeTargets.Add(mostDangerousTarget); // иначе в список вне досягаемости
+                    Vector2Int targetOutOfRange = allTargets[0];
+                    outOfRangeTargets.Add(targetOutOfRange);
+                    return new List<Vector2Int>();
                 }
 
-            } 
-
-            SortByDistanceToOwnBase(allTargets);   // Сортируем цели по расстоянию до базы
-            
-            int targetIndex = UnitNumber % allTargets.Count; // Выбираем цель для текущего юнита на основе его номера
-            Vector2Int chosenTarget = allTargets[targetIndex];
-
-            // Проверяем, в зоне ли цель
-            if (IsTargetInRange(chosenTarget))
-            {
-                result.Add(chosenTarget); // Если да — атакуем
-            }
-            else
-            {
-                outOfRangeTargets.Add(chosenTarget); // Если нет — добавим в список недоступных
+                int index = Mathf.Min(UnitNumber % MaxTargets, targetsInRange.Count - 1);
+                Vector2Int mostDangerousTarget = targetsInRange[index];
+                return new List<Vector2Int>() { mostDangerousTarget };  
             }
 
-            return result;
+            return new List<Vector2Int>();
         }
 
         public override void Update(float deltaTime, float time)
