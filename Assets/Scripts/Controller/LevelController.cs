@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using Model;
+using Model.BuffSystem;
 using Model.Config;
 using Model.Runtime;
 using UnitBrains.Coordinator;
@@ -55,6 +56,9 @@ namespace Controller
 
             _playerCoordinator = new UnitCoordinator(_runtimeModel, _timeUtil, RuntimeModel.PlayerId);
             _botCoordinator = new UnitCoordinator(_runtimeModel, _timeUtil, RuntimeModel.BotPlayerId);
+
+            var buffSystemObj = new GameObject("BuffSystem");
+            buffSystemObj.AddComponent<BuffSystemManager>();
         }
 
         public void OnPlayersUnitChosen(UnitConfig unitConfig)
