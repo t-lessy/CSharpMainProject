@@ -37,7 +37,7 @@ namespace UnitBrains.Pathfinding
 
             // Don't show error, this is normal situation, when unit is blocked by other units and cannot move.
             // Debug.LogError($"Unit {unitPos} is not on the path");
-            Debug.Log($"Unit {unitPos} is not on the path");
+            // Debug.Log($"Unit {unitPos} is not on the path");
             return unitPos;
         }
 

@@ -57,8 +57,10 @@
      <Compile Include="Assets\Scripts\View\UnitCardView.cs" />
      <Compile Include="Assets\Scripts\UnitBrains\Player\DefaultPlayerUnitBrain.cs" />
      <Compile Include="Assets\Scripts\View\LevelFinishedView.cs" />
+     <Compile Include="Assets\Scripts\UnitBrains\Player\BufBuffyUnitBrain.cs" />
      <Compile Include="Assets\Scripts\View\Gameplay3dView.cs" />
      <Compile Include="Assets\Scripts\EnterPoint.cs" />
+     <Compile Include="Assets\Scripts\Model\Runtime\StateMachine.cs" />
      <Compile Include="Assets\Scripts\Model\Runtime\MainBase.cs" />
      <Compile Include="Assets\Scripts\UnitBrains\Pathfinding\Graphs\GridGraph.cs" />
      <Compile Include="Assets\Scripts\Model\Runtime\ReadOnly\IReadOnlyMap.cs" />
@@ -67,6 +69,7 @@
      <Compile Include="Assets\Scripts\Model\Runtime\Map.cs" />
      <Compile Include="Assets\Scripts\UnitBrains\Pathfinding\DebugPathOutput.cs" />
      <Compile Include="Assets\Scripts\Model\Config\Settings.cs" />
+     <Compile Include="Assets\Scripts\Systems\Buffs\BuffSystem.cs" />
      <Compile Include="Assets\Scripts\Model\Config\UnitConfig.cs" />
      <Compile Include="Assets\Scripts\Utilities\PersistanceUtils.cs" />
      <Compile Include="Assets\Scripts\View\RootView.cs" />
@@ -75,6 +78,7 @@
      <Compile Include="Assets\Scripts\Model\PersistedModel.cs" />
      <Compile Include="Assets\Scripts\Model\Runtime\ReadOnly\IReadOnlyBase.cs" />
      <Compile Include="Assets\Scripts\Utilities\TimeUtil.cs" />
+     <Compile Include="Assets\Scripts\Systems\Buffs\Buff.cs" />
      <Compile Include="Assets\Scripts\UnitBrains\Player\ThirdUnitBrain.cs" />
      <Compile Include="Assets\Scripts\Controller\LevelController.cs" />
      <Compile Include="Assets\Scripts\Model\Runtime\ReadOnly\IReadOnlyProjectile.cs" />
@@ -102,6 +106,7 @@
      <Compile Include="Assets\Scripts\UnitBrains\Pathfinding\AStarUnitPath.cs" />
      <None Include="Assets\Scripts\Root.asmdef" />
      <Folder Include="Assets\Scripts" />
+     <Folder Include="Assets\Scripts\Systems\Buffs" />
      <Folder Include="Assets\Scripts\Model\Runtime\Projectiles" />
      <Folder Include="Assets\Scripts\Model\Runtime" />
      <Folder Include="Assets\Scripts\UnitBrains\Pathfinding\Graphs" />
@@ -113,6 +118,7 @@
      <Folder Include="Assets\Scripts\View" />
      <Folder Include="Assets\Scripts\Model" />
      <Folder Include="Assets\Scripts\Model\Config" />
+     <Folder Include="Assets\Scripts\Systems" />
      <Folder Include="Assets\Scripts\UnitBrains\Player" />
      <Folder Include="Assets\Scripts\Editor" />
      <Folder Include="Assets\Scripts\Utilities" />
