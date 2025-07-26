@@ -38,15 +38,11 @@ namespace UnitBrains.Player
                 float dist = DistanceToOwnBase(target);
                 if (dist < min_num)
                 {
-                    result.Clear();
+                    dist = min_num;
                 }
-                while (result.Count > 1)
-                {
-                    result.RemoveAt(result.Count - 1);
-                }
-                return result;
             }
             
+            return result;
         }
 
         public override void Update(float deltaTime, float time)
