@@ -45,13 +45,17 @@
     <Analyzer Include="C:\Program Files\Unity\Hub\Editor\2022.3.12f1\Editor\Data\Tools\Unity.SourceGenerators\Unity.Properties.SourceGenerator.dll" />
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\Scripts\Systems\BuffSystem\Effects\MoveSpeedBuff.cs" />
+     <Compile Include="Assets\Scripts\Systems\BuffSystem\ModifiableParams.cs" />
      <Compile Include="Assets\Scripts\View\TileView.cs" />
      <Compile Include="Assets\Scripts\UnitBrains\Pathfinding\PriorityQueue.cs" />
      <Compile Include="Assets\Scripts\Model\Runtime\Projectiles\BaseProjectile.cs" />
      <Compile Include="Assets\Scripts\UnitBrains\Player\UnitCoordinator.cs" />
      <Compile Include="Assets\Scripts\View\UnitView.cs" />
      <Compile Include="Assets\Scripts\Model\Runtime\ReadOnly\IReadOnlyUnit.cs" />
+     <Compile Include="Assets\Scripts\Systems\BuffSystem\BuffSystem.cs" />
      <Compile Include="Assets\Scripts\UnitBrains\BaseUnitBrain.cs" />
+     <Compile Include="Assets\Scripts\Systems\BuffSystem\Effects\AttackSpeedBuff.cs" />
      <Compile Include="Assets\Scripts\Utilities\CameraPositioning.cs" />
      <Compile Include="Assets\Scripts\View\ChooseUnitView.cs" />
      <Compile Include="Assets\Scripts\View\UnitCardView.cs" />
@@ -66,10 +70,10 @@
      <Compile Include="Assets\Scripts\Model\Runtime\ReadOnly\IReadOnlyMap.cs" />
      <Compile Include="Assets\Scripts\Model\Runtime\Projectiles\ProjectileType.cs" />
      <Compile Include="Assets\Scripts\UnitBrains\UnitBrainProvider.cs" />
+     <Compile Include="Assets\Scripts\Systems\BuffSystem\Effects\DoubleShotBuff.cs" />
      <Compile Include="Assets\Scripts\Model\Runtime\Map.cs" />
      <Compile Include="Assets\Scripts\UnitBrains\Pathfinding\DebugPathOutput.cs" />
      <Compile Include="Assets\Scripts\Model\Config\Settings.cs" />
-     <Compile Include="Assets\Scripts\Systems\Buffs\BuffSystem.cs" />
      <Compile Include="Assets\Scripts\Model\Config\UnitConfig.cs" />
      <Compile Include="Assets\Scripts\Utilities\PersistanceUtils.cs" />
      <Compile Include="Assets\Scripts\View\RootView.cs" />
@@ -77,11 +81,12 @@
      <Compile Include="Assets\Scripts\UnitBrains\Player\SecondUnitBrain.cs" />
      <Compile Include="Assets\Scripts\Model\PersistedModel.cs" />
      <Compile Include="Assets\Scripts\Model\Runtime\ReadOnly\IReadOnlyBase.cs" />
+     <Compile Include="Assets\Scripts\Systems\BuffSystem\IBuffEffect.cs" />
      <Compile Include="Assets\Scripts\Utilities\TimeUtil.cs" />
-     <Compile Include="Assets\Scripts\Systems\Buffs\Buff.cs" />
      <Compile Include="Assets\Scripts\UnitBrains\Player\ThirdUnitBrain.cs" />
      <Compile Include="Assets\Scripts\Controller\LevelController.cs" />
      <Compile Include="Assets\Scripts\Model\Runtime\ReadOnly\IReadOnlyProjectile.cs" />
+     <Compile Include="Assets\Scripts\Systems\BuffSystem\Effects\AttackRangeBuff.cs" />
      <Compile Include="Assets\Scripts\UnitBrains\Enemy\DefaultEnemyUnitBrain.cs" />
      <Compile Include="Assets\Scripts\View\ProjectileView.cs" />
      <Compile Include="Assets\Scripts\View\StartMenuView.cs" />
@@ -106,7 +111,7 @@
      <Compile Include="Assets\Scripts\UnitBrains\Pathfinding\AStarUnitPath.cs" />
      <None Include="Assets\Scripts\Root.asmdef" />
      <Folder Include="Assets\Scripts" />
-     <Folder Include="Assets\Scripts\Systems\Buffs" />
+     <Folder Include="Assets\Scripts\Systems\BuffSystem" />
      <Folder Include="Assets\Scripts\Model\Runtime\Projectiles" />
      <Folder Include="Assets\Scripts\Model\Runtime" />
      <Folder Include="Assets\Scripts\UnitBrains\Pathfinding\Graphs" />
@@ -119,6 +124,7 @@
      <Folder Include="Assets\Scripts\Model" />
      <Folder Include="Assets\Scripts\Model\Config" />
      <Folder Include="Assets\Scripts\Systems" />
+     <Folder Include="Assets\Scripts\Systems\BuffSystem\Effects" />
      <Folder Include="Assets\Scripts\UnitBrains\Player" />
      <Folder Include="Assets\Scripts\Editor" />
      <Folder Include="Assets\Scripts\Utilities" />

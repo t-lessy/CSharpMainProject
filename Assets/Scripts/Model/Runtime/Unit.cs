@@ -3,7 +3,7 @@ using System.Linq;
 using Model.Config;
 using Model.Runtime.Projectiles;
 using Model.Runtime.ReadOnly;
-using Systems.Buffs;
+using Systems.BuffSystem;
 using UnitBrains;
 using UnitBrains.Pathfinding;
 using UnityEngine;
@@ -18,17 +18,19 @@ namespace Model.Runtime
         public int Health { get; private set; }
         public bool IsDead => Health <= 0;
         public BaseUnitPath ActivePath => _brain?.ActivePath;
+        public ModifiableParams Params => _params;
         public IReadOnlyList<BaseProjectile> PendingProjectiles => _pendingProjectiles;
+        public BaseUnitBrain Brain => _brain;
 
         private readonly List<BaseProjectile> _pendingProjectiles = new();
         private IReadOnlyRuntimeModel _runtimeModel;
         private BaseUnitBrain _brain;
-        private BuffSystem _buffSystem = ServiceLocator.Get<BuffSystem>();
 
         private float _nextBrainUpdateTime = 0f;
         private float _nextMoveTime = 0f;
         private float _nextAttackTime = 0f;
-        
+        private readonly ModifiableParams _params;
+
         public Unit(UnitConfig config, Vector2Int startPos)
         {
             Config = config;
@@ -37,32 +39,34 @@ namespace Model.Runtime
             _brain = UnitBrainProvider.GetBrain(config);
             _brain.SetUnit(this);
             _runtimeModel = ServiceLocator.Get<IReadOnlyRuntimeModel>();
+
+            UnitParamSet baseParams = new UnitParamSet();
+            baseParams.MoveDelay = Config.MoveDelay;
+            baseParams.AttackDelay = Config.AttackDelay;
+            baseParams.AttackRange = Config.AttackRange;
+            _params = new ModifiableParams(baseParams, this);
         }
 
         public void Update(float deltaTime, float time)
         {
             if (IsDead)
                 return;
-            
+
             if (_nextBrainUpdateTime < time)
             {
                 _nextBrainUpdateTime = time + Config.BrainUpdateInterval;
                 _brain.Update(deltaTime, time);
             }
-            
+
             if (_nextMoveTime < time)
             {
-                // Speed multiplier 2 means that the delay should be 2 times less.
-                float delayCoeff = 1 / _buffSystem.GetSpeedMultiplier(this);
-                _nextMoveTime = time + Config.MoveDelay * delayCoeff;
+                _nextMoveTime = time + Params.Current.MoveDelay;
                 Move();
             }
-            
+
             if (_nextAttackTime < time && Attack())
             {
-                // Attack speed multiplier 2 means that the delay should be 2 times less.
-                float delayCoeff = 1 / _buffSystem.GetAttackSpeedMultiplier(this);
-                _nextAttackTime = time + Config.AttackDelay * delayCoeff;
+                _nextAttackTime = time + Params.Current.AttackDelay;
             }
         }
 
@@ -71,7 +75,7 @@ namespace Model.Runtime
             var projectiles = _brain.GetProjectiles();
             if (projectiles == null || projectiles.Count == 0)
                 return false;
-            
+
             _pendingProjectiles.AddRange(projectiles);
             return true;
         }
@@ -91,7 +95,7 @@ namespace Model.Runtime
             {
                 return;
             }
-            
+
             Pos = targetPos;
         }
 

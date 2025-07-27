@@ -1,6 +1,6 @@
 ﻿using Model;
 using Model.Config;
-using Systems.Buffs;
+using Systems.BuffSystem;
 using UnityEngine;
 using Utilities;
 using View;

@@ -4,7 +4,8 @@ using System.Linq;
 using JetBrains.Annotations;
 using Model.Runtime;
 using Model.Runtime.ReadOnly;
-using Systems.Buffs;
+using Systems.BuffSystem;
+using Systems.BuffSystem.Effects;
 using UnityEngine;
 using Utilities;
 using View;
@@ -12,14 +13,6 @@ using Random = System.Random;
 
 namespace UnitBrains.Player
 {
-    enum BuffType
-    {
-        SpeedUp,
-        SlowDown,
-        AttackSpeedUp,
-        AttackSlowDown,
-    }
-
     enum BufBuffyActionState
     {
         Idle,
@@ -71,8 +64,19 @@ namespace UnitBrains.Player
         private readonly BuffSystem _buffSystem = ServiceLocator.Get<BuffSystem>();
         private readonly Random _random = new();
 
-        private BuffType[] _buffs = { BuffType.SpeedUp, BuffType.AttackSpeedUp };
-        private BuffType[] _debuffs = { BuffType.SlowDown, BuffType.AttackSlowDown };
+        private IBuffEffect[] _buffs =
+        {
+            new MoveSpeedBuff(1.3f),
+            new AttackSpeedBuff(1.5f),
+            new DoubleShotBuff(),
+            new AttackRangeBuff(2f)
+        };
+
+        private IBuffEffect[] _debuffs =
+        {
+            new MoveSpeedBuff(0.7f),
+            new AttackSpeedBuff(0.5f)
+        };
 
         public override void Update(float deltaTime, float time)
         {
@@ -112,15 +116,13 @@ namespace UnitBrains.Player
                 case BufBuffyMoveState.Buffing:
                     if (hasAllyInRange && _actionState.State == BufBuffyActionState.Idle)
                     {
-                        // TODO: move to better place - buff shouldn't be applied inside brain.
-                        //   As far as i understood, brain should give just decision, and action should be done
-                        //   by Unit, but this Buffer unit is too specific, to need to dive deeper on this matter.
-                        Buff buff = GetBuffForUnit(reachableAlly);
+                        IBuffEffect buff = GetBuffForUnit(reachableAlly);
 
-                        _buffSystem.ApplyBuff(reachableAlly, buff);
-                        _vfxView.PlayVFX(reachableAlly.Pos, VFXView.VFXType.BuffApplied);
-                        
-                        Debug.Log($"Applied buff, {buff}");
+                        if (buff != null)
+                        {
+                            _buffSystem.ApplyBuff(reachableAlly.Params, buff);
+                            _vfxView.PlayVFX(reachableAlly.Pos, VFXView.VFXType.BuffApplied);
+                        }
 
                         _actionState.Go(BufBuffyActionState.Cooldown);
                         _actionState.GoDelayed(BufBuffyActionState.Idle, ActionCooldownSec);
@@ -153,22 +155,18 @@ namespace UnitBrains.Player
             }
         }
 
-        private Buff GetBuffForUnit(IReadOnlyUnit target)
+        [CanBeNull]
+        private IBuffEffect GetBuffForUnit(IReadOnlyUnit target)
         {
             var arr = target.Config.IsPlayerUnit ? _buffs : _debuffs;
-            var buffType = arr[_random.Next(arr.Length)];
+            var buff = arr[_random.Next(arr.Length)];
 
-            // TODO: actual values should be defined in some config file, so game designer can play
-            //   with values without recompilation of project.
-            switch (buffType)
+            if (buff is IConditionalBuff cond && !cond.CanApplyTo(target.Params))
             {
-                case BuffType.SpeedUp: return Buff.SpeedUp(2f, 1.3f);
-                case BuffType.SlowDown: return Buff.SlowDown(2f, 0.7f);
-                case BuffType.AttackSpeedUp: return Buff.AttackSpeedUp(3f, 1.5f);
-                case BuffType.AttackSlowDown: return Buff.AttackSlowDown(3f, 0.5f);
-                default:
-                    throw new ArgumentOutOfRangeException();
+                return null;
             }
+            
+            return buff;
         }
 
         public override Vector2Int GetNextStep()
@@ -193,7 +191,7 @@ namespace UnitBrains.Player
             {
                 var diff = possibleTarget.Pos - unit.Pos;
 
-                if (diff.sqrMagnitude < buffRangeSqr && !_buffSystem.HasAnyBuff(possibleTarget))
+                if (diff.sqrMagnitude < buffRangeSqr && !_buffSystem.HasAnyBuff(possibleTarget.Params))
                 {
                     return possibleTarget;                    
                 }

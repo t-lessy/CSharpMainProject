@@ -4,7 +4,6 @@ using Model;
 using Model.Runtime.Projectiles;
 using UnitBrains.Pathfinding;
 using UnityEngine;
-using Utilities;
 
 namespace UnitBrains.Player
 {
@@ -32,9 +31,9 @@ namespace UnitBrains.Player
                 return;
             }
 
-            int currentTemp = GetTemperature();
-            
-            for (int i = 0; i <= currentTemp; i++)
+            int projectilesCount = unit.Params.Current.ProjectilesCount;
+
+            for (int i = 0; i < projectilesCount; i++)
             {
                 var projectile = CreateProjectile(forTarget);
                 AddProjectileToList(projectile, intoList);                
