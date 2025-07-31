@@ -1,5 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using Model;
 using Model.Runtime.Projectiles;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace UnitBrains.Player
@@ -9,10 +10,18 @@ namespace UnitBrains.Player
         public override string TargetUnitName => "Cobra Commando";
         private const float OverheatTemperature = 3f;
         private const float OverheatCooldown = 2f;
+        private const int MaxTargets = 3; 
+        private static int _unitCounter = 0; 
+        private readonly int _unitNumber; 
         private float _temperature = 0f;
         private float _cooldownTime = 0f;
         private bool _overheated;
-        
+
+        public SecondUnitBrain()
+        {
+            _unitNumber = _unitCounter++;
+        }
+
         protected override void GenerateProjectiles(Vector2Int forTarget, List<BaseProjectile> intoList)
         {
             float overheatTemperature = OverheatTemperature;
@@ -46,27 +55,29 @@ namespace UnitBrains.Player
             ///////////////////////////////////////
             // Homework 1.4 (1st block, 4rd module)
             ///////////////////////////////////////
-            List<Vector2Int> result = GetReachableTargets();
-            while (result.Count > 1)
-            {
-                result.RemoveAt(result.Count - 1);
-            }
-            float minDistance = float.MaxValue;
-            Vector2Int criticalTarget = Vector2Int.zero;
 
-            foreach (Vector2Int target in result)
+            List<Vector2Int> result = new List<Vector2Int>();
+            List<Vector2Int> allTargets = GetReachableTargets();
+
+            if (allTargets.Count == 0)
             {
-                if (minDistance > DistanceToOwnBase(target))
-                {
-                    criticalTarget = target;
-                    minDistance = DistanceToOwnBase(target);
-                }
+                
+                Vector2Int baseTarget = runtimeModel.RoMap.Bases[RuntimeModel.BotPlayerId];
+                if (IsTargetInRange(baseTarget))
+                    result.Add(baseTarget);
+                return result;
             }
 
-            result.Clear();
-            if (minDistance != float.MaxValue)
-                result.Add(criticalTarget);
+            allTargets.Sort((a, b) => DistanceToOwnBase(a).CompareTo(DistanceToOwnBase(b)));
+
+            int targetIndex = _unitNumber % Mathf.Min(MaxTargets, allTargets.Count);
+            Vector2Int selectedTarget = allTargets[targetIndex];
+
+            if (IsTargetInRange(selectedTarget))
+                result.Add(selectedTarget);
+
             return result;
+
             ///////////////////////////////////////
         }
 
