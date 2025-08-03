@@ -18,22 +18,15 @@ namespace Assets.Scripts.UnitBrains
 {
     public class UnitCoordinator
     {
-        private static UnitCoordinator _instance;
         public Vector2Int? RecomendedTarget { get; private set; }
         public Vector2Int? RecomendedPosition { get; private set; }
         private readonly IReadOnlyRuntimeModel _runtimeModel;
         private readonly TimeUtil _timeUtil;
-        private UnitCoordinator()
+        public UnitCoordinator()
         {
             _runtimeModel = ServiceLocator.Get<IReadOnlyRuntimeModel>();
             _timeUtil = ServiceLocator.Get<TimeUtil>();
             _timeUtil.AddFixedUpdateAction(GetRecomendation);
-        }
-        public static UnitCoordinator GetInstance()
-        {
-            _instance ??= new UnitCoordinator();
-
-            return _instance;
         }
         private void GetRecomendation(float dt)
         {

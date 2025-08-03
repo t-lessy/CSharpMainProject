@@ -41,6 +41,8 @@ namespace UnitBrains.Player
             int maxTargets = 3;
 
             UnreacheableTargets.Clear();
+            if (_overheated)
+                return UnreacheableTargets;
             List<Vector2Int> result = GetAllTargets().ToList();
             SortByDistanceToOwnBase(result);
             Vector2Int mainTarget = new();
@@ -56,12 +58,18 @@ namespace UnitBrains.Player
                     mainTarget = result[index];
                 }
             else
+            {
                 mainTarget = runtimeModel.RoMap.Bases[IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId];
+            }
             result.Clear();
             if (IsTargetInRange(mainTarget))
+            {
                 result.Add(mainTarget);
+            }
             else
+            {
                 UnreacheableTargets.Add(mainTarget);
+            }
             return result;
         }
         public override void Update(float deltaTime, float time)

@@ -14,7 +14,6 @@ namespace UnitBrains.Player
     {
         public override BaseUnitPath ActivePath => _coordinatedPath;
         private BaseUnitPath _coordinatedPath;
-        private readonly UnitCoordinator _coordinator = UnitCoordinator.GetInstance();
         protected float DistanceToOwnBase(Vector2Int fromPos) =>
             Vector2Int.Distance(fromPos, runtimeModel.RoMap.Bases[RuntimeModel.PlayerId]);
 

@@ -13,12 +13,9 @@ using Utilities;
 public class ThirdUnitBrain : DefaultPlayerUnitBrain
 {
     public override string TargetUnitName => "Ironclad Behemoth";
-
     private bool _pause = false;
     private float _pauseTime = 0f;
-
     private int mode = 0;
-
 
     protected override void GenerateProjectiles(Vector2Int forTarget, List<BaseProjectile> intoList)
     {
@@ -47,7 +44,6 @@ public class ThirdUnitBrain : DefaultPlayerUnitBrain
             return base.SelectTargets();
         }
     }
-
     public override void Update(float deltaTime, float time)
     {
         int lastMode = mode;
