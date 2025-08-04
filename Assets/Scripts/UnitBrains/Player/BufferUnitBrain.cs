@@ -70,7 +70,6 @@ namespace UnitBrains.Player
                     {
                         _pauseBeforeBuff = false;
                         SetBuff();
-                        Debug.Log(time);
                     }
                 }
             }
