@@ -1,7 +1,6 @@
 ﻿using Assets.Scripts.UnitBrains;
 using Assets.Scripts.UnitBrains.Buffs;
 using Assets.Scripts.UnitBrains.Pathfinding;
-using Codice.Client.Common;
 using Codice.CM.Client.Differences.Merge;
 using Model;
 using Model.Runtime;
@@ -30,8 +29,6 @@ namespace UnitBrains.Player
         private readonly VFXView _vfxView = ServiceLocator.Get<VFXView>();
         public override BaseUnitPath ActivePath => _activePath;
         private BaseUnitPath _activePath = null;
-        private float _nextBuffTime = 0f;
-        private bool _pauseBeforeBuff = false;
 
         protected override void GenerateProjectiles(Vector2Int forTarget, List<BaseProjectile> intoList)
         {
@@ -52,16 +49,18 @@ namespace UnitBrains.Player
         }
         public override void Update(float deltaTime, float time)
         {
-            if (_nextBuffTime < time)
+            var target = SelectTargets()[0];
+            if (!_pause && IsTargetInRange(target))
             {
-                _nextBuffTime = time + UnityEngine.Time.deltaTime * 45;
-                _pause = true;
-                _pauseBeforeBuff = true;
+                if (CanSetBuff(target))
+                {
+                    _pause = true;
+                }
             }
 
             if (_pause)
             {
-                _pauseTime += UnityEngine.Time.deltaTime * 10;
+                _pauseTime += Time.deltaTime * 10;
                 if (_pauseTime >= 0.5f)
                 {
                     _pause = false;
@@ -109,12 +108,10 @@ namespace UnitBrains.Player
                 {
                     Unit = u,
                     BuffDuration = _buffSystem.ContainsKey(u) ? _buffSystem.GetBuff(u).Duration : 0f,
-                    HealthLoss = u.Config.MaxHealth - u.Health,
-                    Distance = Math.Max(unit.Pos.x - u.Pos.x, unit.Pos.y - u.Pos.y),
+                    HealthLoss = u.Config.MaxHealth - u.Health
                 })
                 .Where(u => u.Unit != unit)
-                .OrderBy(u => u.Distance)
-                .ThenBy(x => x.BuffDuration)
+                .OrderBy(x => x.BuffDuration)
                 .ThenBy(x => x.HealthLoss)
                 .FirstOrDefault();
             if (target != null)
