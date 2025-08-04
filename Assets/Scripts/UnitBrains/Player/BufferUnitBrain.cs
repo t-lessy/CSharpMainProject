@@ -82,9 +82,12 @@ namespace UnitBrains.Player
 
         private List<IReadOnlyUnit> GetAlliesInRange()
         {
-            return GetUnitsInRadius(unit.Config.AttackRange, false)
-                .Where(u => u != unit && u.Config.IsPlayerUnit)
-                .ToList();
+            //return GetUnitsInRadius(unit.Config.AttackRange, false)
+                //.Where(u => u != unit && u.Config.IsPlayerUnit)
+                //.ToList();
+            return runtimeModel.RoUnits
+                .Where(u => u.Config.IsPlayerUnit == IsPlayerUnitBrain).ToList();
+
         }
 
         private bool HasBuff(IReadOnlyUnit unit)
