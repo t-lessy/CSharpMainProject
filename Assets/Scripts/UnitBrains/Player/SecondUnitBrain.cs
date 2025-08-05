@@ -45,7 +45,7 @@ namespace UnitBrains.Player
             // Проверка, есть ли цели в зоне досягаемости 
             if (targetsInRange.Count > 0)
             {
-                return unit.Pos;
+                return unit.Pos; //стоим атакуем
             }
             // Если есть цели в зоне не досягаемости
             else if (outOfRangeTargets.Count > 0)
