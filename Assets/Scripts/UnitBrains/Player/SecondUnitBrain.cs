@@ -21,6 +21,7 @@ namespace UnitBrains.Player
         public const int MaxTargets = 3;
 
         private Vector2Int? _selectTarget = null;
+        private BaseUnitPath _activePath = null;
 
         public SecondUnitBrain()
         {
@@ -44,12 +45,6 @@ namespace UnitBrains.Player
                 AddProjectileToList(projectile, intoList);
             }
             IncreaseTemperature();
-
-            ///////////////////////////////////////
-            // Homework 1.3 (1st block, 3rd module)
-            ///////////////////////////////////////           
-
-            ///////////////////////////////////////
         }
 
         public override Vector2Int GetNextStep()
@@ -57,7 +52,12 @@ namespace UnitBrains.Player
             if (_selectTarget == null || IsTargetInRange(_selectTarget.Value))
                 return unit.Pos;
 
-            return unit.Pos.CalcNextStepTowards(_selectTarget.Value);
+            if (_activePath == null || _activePath.EndPoint != _selectTarget.Value)
+            {
+                _activePath = new NewUnitPath(runtimeModel, unit.Pos, _selectTarget.Value);
+            }
+
+            return _activePath.GetNextStepFrom(unit.Pos);
         }
 
         protected override List<Vector2Int> SelectTargets()
@@ -89,15 +89,19 @@ namespace UnitBrains.Player
                 int targetIndex = UnitNumber % selectedCandidates.Count;
                 Vector2Int chosenTarget = selectedCandidates[targetIndex];
 
+                _selectTarget = chosenTarget;
+
                 if (IsTargetInRange(chosenTarget))
                 {
                     result.Add(chosenTarget);
                 }
-                else
-                {
-                    _selectTarget = chosenTarget;
-                }
             }
+
+            if (_activePath != null && _selectTarget.HasValue && _activePath.EndPoint != _selectTarget.Value)
+            {
+                _activePath = null;
+            }
+
             return result;
         }
 
@@ -113,6 +117,11 @@ namespace UnitBrains.Player
                     _cooldownTime = 0;
                     _overheated = false;
                 }
+            }
+
+            if (_activePath != null && unit.Pos == _activePath.EndPoint)
+            {
+                _activePath = null;
             }
         }
 
