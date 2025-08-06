@@ -35,15 +35,32 @@ namespace UnitBrains.Player
 
         protected override List<Vector2Int> SelectTargets()
         {
-            ///////////////////////////////////////
-            // Homework 1.4 (1st block, 4rd module)
-            ///////////////////////////////////////
             List<Vector2Int> result = GetReachableTargets();
-            while (result.Count > 1)
+            if (result.Count == 0)
             {
-                result.RemoveAt(result.Count - 1);
+                return result; //Список возвращается если не будет целей
             }
-            return result;
+            Vector2Int minTarget = result[0]; //Беру первое попавшееся значение из листа result за эталон
+            float minDistance = DistanceToOwnBase(minTarget); //Беру в качестве эталона расстояние до базы от первой же цели
+
+            foreach (Vector2Int target in result)//Цикл для каждой цели target из листа result:
+            {
+                float distance= DistanceToOwnBase(target);//Берётся значение каждой из цели до базы
+                if (distance < minDistance) //если расстояние distance до базы меньше эталонного
+                {
+                    minDistance=distance; //присваивается новое миниальное расстояние
+                    minTarget=target; //берется ближайшая цель на основе расстояния до базы
+                }
+            }
+            result.Clear(); 
+            result.Add(minTarget); // Очищаем весь лист result и добавляем в него только ближайшую
+            return result; // Возврат итогового списка
+
+            //while (result.Count > 1)
+            //{
+            //    result.RemoveAt(result.Count - 1);
+            //}
+            //return result;
             ///////////////////////////////////////
         }
 
