@@ -16,7 +16,7 @@ public class ThirdUnitBrain : DefaultPlayerUnitBrain
     private bool _pause = false;
     private float _pauseTime = 0f;
     private int mode = 0;
-
+    public override bool IsPause => _pause;
     protected override void GenerateProjectiles(Vector2Int forTarget, List<BaseProjectile> intoList)
     {
         var projectile = CreateProjectile(forTarget);
@@ -41,19 +41,24 @@ public class ThirdUnitBrain : DefaultPlayerUnitBrain
         }
         else
         {
-            return base.SelectTargets();
+            if (base.SelectTargets().Count > 0)
+            {
+                if (IsTargetInRange(base.SelectTargets()[0]))
+                    return base.SelectTargets();
+                else
+                {
+                    return new List<Vector2Int>();
+                }
+            }
+            else
+            {
+                return new List<Vector2Int>();
+            }
         }
     }
     public override void Update(float deltaTime, float time)
     {
-        int lastMode = mode;
-        mode = base.SelectTargets().Count;
-
-        if (lastMode != mode)
-        {
-            _pause = true;
-        }
-
+        Debug.Log($"{unit.Config.AttackRange} * {unit.AttackRangeMultiplier} = {unit.Config.AttackRange * unit.AttackRangeMultiplier}, sqrt = {unit.Config.AttackRange * unit.AttackRangeMultiplier * unit.Config.AttackRange * unit.AttackRangeMultiplier}");
         if (_pause == true)
         {
             if (_pauseTime < 1f)
@@ -65,6 +70,14 @@ public class ThirdUnitBrain : DefaultPlayerUnitBrain
                 _pause = false;
                 _pauseTime = 0;
             }
+        }
+
+        int lastMode = mode;
+        mode = base.SelectTargets().Count;
+
+        if (lastMode != mode)
+        {
+            _pause = true;
         }
     }
 }

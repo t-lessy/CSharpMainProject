@@ -36,7 +36,7 @@ namespace UnitBrains.Player
 
             bool recomendationIsAvailable = false;
             if (_coordinator.RecomendedPosition != null)
-                recomendationIsAvailable = CalculateDistance((Vector2Int)_coordinator.RecomendedPosition, unit.Pos) <= unit.Config.AttackRange + 2;
+                recomendationIsAvailable = CalculateDistance((Vector2Int)_coordinator.RecomendedPosition, unit.Pos) <= unit.Config.AttackRange * unit.AttackRangeMultiplier + 2;
 
             var target = runtimeModel.RoMap.Bases[
                 IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId];

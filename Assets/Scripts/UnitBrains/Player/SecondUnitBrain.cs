@@ -22,13 +22,16 @@ namespace UnitBrains.Player
         private float _cooldownTime = 0f;
         private bool _overheated;
         private readonly List<Vector2Int> UnreacheableTargets = new();
+        public override bool IsPause => _overheated;
 
         protected override void GenerateProjectiles(Vector2Int forTarget, List<BaseProjectile> intoList)
         {
             float overheatTemperature = OverheatTemperature;
             if (GetTemperature() < overheatTemperature)
             {
-                for (int i = 1; i <= GetTemperature() + 1; i++)
+                int baseNumberOfProjectiles = GetTemperature() + 1;
+                int numberOfProjectiles = unit.DoubleShot ? baseNumberOfProjectiles * 2 : baseNumberOfProjectiles;
+                for (int i = 1; i <= numberOfProjectiles; i++)
                 {
                     var projectile = CreateProjectile(forTarget);
                     AddProjectileToList(projectile, intoList);

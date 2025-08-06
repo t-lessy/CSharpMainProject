@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Runtime.CompilerServices;
 using Assets.Scripts.UnitBrains;
+using Assets.Scripts.UnitBrains.Buffs;
 using Controller;
 using Model.Config;
 using Model.Runtime.Projectiles;
@@ -27,11 +28,18 @@ namespace Model.Runtime
         private readonly List<BaseProjectile> _pendingProjectiles = new();
         private readonly IReadOnlyRuntimeModel _runtimeModel;
         private readonly BaseUnitBrain _brain;
-        private readonly BuffSystem _buffSystem;
 
         private float _nextBrainUpdateTime = 0f;
         private float _nextMoveTime = 0f;
         private float _nextAttackTime = 0f;
+
+        private float _attackSpeed = 1f;
+        private float _moveSpeed = 1f;
+        private bool _doubleShot = false;
+        private float _attackRangeModifier = 1f;
+        public BaseUnitBrain Brain => _brain;
+        public bool DoubleShot => _doubleShot;
+        public float AttackRangeMultiplier => _attackRangeModifier;
         public int ID { get; private set; }
 
         public Unit(UnitConfig config, Vector2Int startPos)
@@ -42,18 +50,15 @@ namespace Model.Runtime
             _brain = UnitBrainProvider.GetBrain(config);
             _brain.SetUnit(this);
             _runtimeModel = ServiceLocator.Get<IReadOnlyRuntimeModel>();
-            _buffSystem = ServiceLocator.Get<BuffSystem>();
             if (config.Cost == 70)
                 ID = SetID();
         }
-
         private static int _idValue = 0;
         private static int SetID()
         {
             _idValue++;
             return _idValue - 1;
         }
-
         public void Update(float deltaTime, float time)
         {
             if (IsDead)
@@ -65,26 +70,17 @@ namespace Model.Runtime
                 _brain.Update(deltaTime, time);
             }
 
-            float moveModifier = 1;
-            float attackModifier = 1;
-
-            if (_buffSystem.ContainsKey(this))
-            {
-                moveModifier /= _buffSystem.GetMoveMultiplier(this);
-                attackModifier /= _buffSystem.GetAttackMultiplier(this);
-            }
             if (_nextMoveTime < time)
             {
-                _nextMoveTime = time + Config.MoveDelay * moveModifier;
+                _nextMoveTime = time + Config.MoveDelay * _moveSpeed;
                 Move();
             }
 
             if (_nextAttackTime < time && Attack())
             {
-                _nextAttackTime = time + Config.AttackDelay * attackModifier;
+                _nextAttackTime = time + Config.AttackDelay * _attackSpeed;
             }
         }
-
         private bool Attack()
         {
             var projectiles = _brain.GetProjectiles();
@@ -94,7 +90,6 @@ namespace Model.Runtime
             _pendingProjectiles.AddRange(projectiles);
             return true;
         }
-
         private void Move()
         {
             var targetPos = _brain.GetNextStep();
@@ -113,12 +108,10 @@ namespace Model.Runtime
 
             Pos = targetPos;
         }
-
         public void ClearPendingProjectiles()
         {
             _pendingProjectiles.Clear();
         }
-
         public void TakeDamage(int projectileDamage)
         {
             Health -= projectileDamage;
@@ -126,6 +119,38 @@ namespace Model.Runtime
         public void SetUnitCoordinator(UnitCoordinator coordinator)
         {
             _brain._coordinator = coordinator;
+        }
+        public void ChangeAttackSpeed(float speed)
+        {
+            _attackSpeed *= speed;
+        }
+        public void ChangeMoveSpeed(float speed)
+        {
+            _moveSpeed *= speed;
+        }
+        public void ResetMoveSpeed()
+        {
+            _moveSpeed = 1f;
+        }
+        public void ResetAttackSpeed()
+        {
+            _attackSpeed = 1f;
+        }
+        public void DoubleShotOn()
+        {
+            _doubleShot = true;
+        }
+        public void DoubleShotOff()
+        {
+            _doubleShot = false;
+        }
+        public void IncreaseAttackRange(float multiplier)
+        {
+            _attackRangeModifier *= multiplier;
+        }
+        public void ResetAttackRange()
+        {
+            _attackRangeModifier = 1f;
         }
     }
 }

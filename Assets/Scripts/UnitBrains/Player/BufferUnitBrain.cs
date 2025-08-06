@@ -77,7 +77,7 @@ namespace UnitBrains.Player
         private void SetBuff()
         {
             var target = SelectTargets()[0];
-            if (!_pause && IsTargetInRange(target) && target != unit.Pos)
+            if (!_pause && IsTargetInRange(target))
             {
                 if (CanSetBuff(target))
                 {
@@ -90,15 +90,19 @@ namespace UnitBrains.Player
             Unit targetUnit = (Unit)runtimeModel.RoPlayerUnits
                 .FirstOrDefault(u => u.Pos == pos);
 
-            if (targetUnit == null || targetUnit == unit)
+            if (targetUnit == null || targetUnit.Pos == unit.Pos)
             {
                 return false;
             }
 
-            _buffSystem.AddBuff(targetUnit, new AccelerationAttack());
+            if (targetUnit.Brain is SecondUnitBrain)
+                _buffSystem.AddBuff(targetUnit, new DoubleShot());
+            if (targetUnit.Brain is ThirdUnitBrain)
+                _buffSystem.AddBuff(targetUnit, new IncreaseRange());
+            else if (targetUnit.Brain is DefaultPlayerUnitBrain)
+                _buffSystem.AddBuff(targetUnit, new AccelerationAttack());
             _vfxView.PlayVFX(targetUnit.Pos, VFXView.VFXType.BuffApplied);
             return true;
-
         }
         protected override List<Vector2Int> SelectTargets()
         {
@@ -108,14 +112,12 @@ namespace UnitBrains.Player
                 .Select(u => new
                 {
                     Unit = u,
-                    BuffDuration = _buffSystem.ContainsKey(u) ? _buffSystem.GetBuff(u).Duration : 0f,
+                    BuffDuration = _buffSystem.BuffsContainsKey(u) ? _buffSystem.GetBuff(u).Duration : 0f,
                     HealthLoss = u.Config.MaxHealth - u.Health,
                     Distance = Math.Max(unit.Pos.x - u.Pos.x, unit.Pos.y - u.Pos.y),
                 })
-                .Where(u => u.Unit != unit)
+                .Where(u => u.Unit.Brain is not BufferUnitBrain && u.BuffDuration == 0)
                 .OrderBy(u => u.Distance)
-                .ThenBy(x => x.BuffDuration)
-                .ThenBy(x => x.HealthLoss)
                 .FirstOrDefault();
             if (target != null)
                 return new List<Vector2Int>() { target.Unit.Pos };
@@ -128,7 +130,7 @@ namespace UnitBrains.Player
             int count = 0;
             foreach (Unit unit in runtimeModel.RoPlayerUnits)
             {
-                if (_buffSystem.ContainsKey(unit))
+                if (_buffSystem.BuffsContainsKey(unit))
                 {
                     count++;
                     var buff = _buffSystem.GetBuff(unit);
