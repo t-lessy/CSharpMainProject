@@ -31,11 +31,6 @@ namespace Model.Runtime
         private float _nextMoveTime = 0f;
         private float _nextAttackTime = 0f;
 
-        // Базовая статистика для модификаторов
-        private readonly float _baseMoveDelay;
-        private readonly float _baseAttackDelay;
-        private readonly float _baseBrainUpdateInterval;
-
         public Unit(UnitConfig config, Vector2Int startPos)
         {
             Config = config;
@@ -44,11 +39,6 @@ namespace Model.Runtime
             _brain = UnitBrainProvider.GetBrain(config);
             _brain.SetUnit(this);
             _runtimeModel = ServiceLocator.Get<IReadOnlyRuntimeModel>();
-
-            // Сохраняем базовые значения характеристик
-            _baseMoveDelay = config.MoveDelay;
-            _baseAttackDelay = config.AttackDelay;
-            _baseBrainUpdateInterval = config.BrainUpdateInterval;
         }
 
         public void SetCoordinator(UnitCoordinator coordinator)
@@ -65,61 +55,24 @@ namespace Model.Runtime
             if (IsDead)
                 return;
 
-            // Обновление с учетом модификаторов
             if (_nextBrainUpdateTime < time)
             {
-                _nextBrainUpdateTime = time + GetModifiedBrainUpdateInterval();
+                _nextBrainUpdateTime = time + Config.BrainUpdateInterval;
                 _brain.Update(deltaTime, time);
                 _coordinator?.Update(deltaTime);
             }
 
             if (_nextMoveTime < time)
             {
-                _nextMoveTime = time + GetModifiedMoveDelay();
+                _nextMoveTime = time + Config.MoveDelay;
                 Move();
             }
 
             if (_nextAttackTime < time && Attack())
             {
-                _nextAttackTime = time + GetModifiedAttackDelay();
+                _nextAttackTime = time + Config.AttackDelay;
             }
         }
-
-        #region Buff System Integration
-
-        /// <summary>
-        /// Применяет эффект баффа/дебаффа к юниту
-        /// </summary>
-        public void ApplyEffect(BuffType type, float modifier, float duration)
-        {
-            var buff = new BuffDebuff(type, modifier, duration);
-            ServiceLocator.Get<BuffSystemManager>()?.ApplyBuff(this, buff);
-        }
-
-        private float GetModifiedMoveDelay()
-        {
-            var buffSystem = ServiceLocator.Get<BuffSystemManager>();
-            float modifier = buffSystem?.GetModifier(this, BuffType.MoveSpeed) ?? 1f;
-            return _baseMoveDelay / modifier;
-        }
-
-        private float GetModifiedAttackDelay()
-        {
-            var buffSystem = ServiceLocator.Get<BuffSystemManager>();
-            float modifier = buffSystem?.GetModifier(this, BuffType.AttackSpeed) ?? 1f;
-            return _baseAttackDelay / modifier;
-        }
-
-        private float GetModifiedBrainUpdateInterval()
-        {
-            var buffSystem = ServiceLocator.Get<BuffSystemManager>();
-            float modifier = buffSystem?.GetModifier(this, BuffType.AttackSpeed) ?? 1f;
-            return _baseBrainUpdateInterval / modifier;
-        }
-
-        #endregion
-
-        #region Core Unit Logic
 
         private bool Attack()
         {
@@ -160,7 +113,5 @@ namespace Model.Runtime
         {
             Health = Mathf.Max(0, Health - projectileDamage);
         }
-
-        #endregion
     }
 }

@@ -1,4 +1,3 @@
-// Scripts/Model/BuffSystem/BuffSystemManager.cs
 using System.Collections.Generic;
 using Model.Runtime.ReadOnly;
 using UnityEngine;
@@ -6,9 +5,9 @@ using Utilities;
 
 namespace Model.BuffSystem
 {
-    public class BuffSystemManager : MonoBehaviour  // Переименовали класс
+    public class BuffSystemManager : MonoBehaviour
     {
-        private readonly Dictionary<IReadOnlyUnit, List<BuffDebuff>> _activeBuffs = new();
+        private readonly Dictionary<IReadOnlyUnit, List<IBuff>> _activeBuffs = new();
 
         private void Awake()
         {
@@ -20,25 +19,21 @@ namespace Model.BuffSystem
             UpdateBuffs(Time.deltaTime);
         }
 
-        public void ApplyBuff(IReadOnlyUnit unit, BuffDebuff buff)
+        public void ApplyBuff(IReadOnlyUnit unit, IBuff buff)
         {
+            if (!buff.CanApply(unit))
+                return;
+
             if (!_activeBuffs.ContainsKey(unit))
-                _activeBuffs[unit] = new List<BuffDebuff>();
+                _activeBuffs[unit] = new List<IBuff>();
 
             _activeBuffs[unit].Add(buff);
+            buff.Apply(unit);
         }
 
-        public float GetModifier(IReadOnlyUnit unit, BuffType type)
+        public bool HasBuffs(IReadOnlyUnit unit)
         {
-            if (!_activeBuffs.TryGetValue(unit, out var buffs))
-                return 1f;
-
-            float modifier = 1f;
-            foreach (var buff in buffs)
-                if (buff.Type == type)
-                    modifier *= buff.Modifier;
-
-            return modifier;
+            return _activeBuffs.ContainsKey(unit) && _activeBuffs[unit].Count > 0;
         }
 
         private void UpdateBuffs(float deltaTime)
@@ -47,7 +42,15 @@ namespace Model.BuffSystem
 
             foreach (var kvp in _activeBuffs)
             {
-                kvp.Value.ForEach(b => b.Update(deltaTime));
+                foreach (var buff in kvp.Value)
+                {
+                    buff.Update(deltaTime);
+                    if (buff.IsExpired)
+                    {
+                        buff.Reset(kvp.Key);
+                    }
+                }
+
                 kvp.Value.RemoveAll(b => b.IsExpired);
 
                 if (kvp.Value.Count == 0)

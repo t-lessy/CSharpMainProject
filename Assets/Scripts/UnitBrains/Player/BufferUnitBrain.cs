@@ -1,24 +1,24 @@
 using System.Collections.Generic;
-using Model;
 using System.Linq;
+using Model;
 using Model.BuffSystem;
+using Model.BuffSystem.Buffs;
 using Model.Runtime.Projectiles;
 using Model.Runtime.ReadOnly;
 using UnityEngine;
 using Utilities;
 using View;
-using Unit = Model.Runtime.Unit;
 
 namespace UnitBrains.Player
 {
     public class BufferUnitBrain : BaseUnitBrain
     {
-        public override string TargetUnitName => "Buffer"; // Указываем имя юнита
-        public override bool IsPlayerUnitBrain => true; // Это юнит игрока
+        public override string TargetUnitName => "Buffer";
+        public override bool IsPlayerUnitBrain => true;
 
-        private const float BuffCooldown = 5f; // Период между баффами
-        private const float BuffDuration = 3f; // Длительность баффа
-        private const float StopDuration = 0.5f; // Длительность остановки
+        private const float BuffCooldown = 5f;
+        private const float BuffDuration = 3f;
+        private const float StopDuration = 0.5f;
 
         private float _lastBuffTime;
         private float _stopEndTime;
@@ -28,16 +28,13 @@ namespace UnitBrains.Player
         {
             if (unit.IsDead) return;
 
-            // Проверяем, нужно ли выйти из состояния остановки
             if (_isStopped && time >= _stopEndTime)
             {
                 _isStopped = false;
             }
 
-            // Если в режиме остановки - не действуем
             if (_isStopped) return;
 
-            // Проверяем возможность наложения баффа
             if (time >= _lastBuffTime + BuffCooldown)
             {
                 TryApplyBuff(time);
@@ -46,13 +43,11 @@ namespace UnitBrains.Player
 
         protected override List<Vector2Int> SelectTargets()
         {
-            // Этот юнит не атакует
             return new List<Vector2Int>();
         }
 
         protected override void GenerateProjectiles(Vector2Int forTarget, List<BaseProjectile> intoList)
         {
-            // Не генерируем снаряды
         }
 
         private void TryApplyBuff(float currentTime)
@@ -60,21 +55,17 @@ namespace UnitBrains.Player
             var allies = GetAlliesInRange();
             if (allies.Count == 0) return;
 
-            // Находим союзника без баффов
             var target = allies.FirstOrDefault(a => !HasBuff(a));
             if (target == null) return;
 
-            // Останавливаемся перед баффом
             _isStopped = true;
-            _stopEndTime = currentTime + StopDuration * 2; // Остановка до и после
+            _stopEndTime = currentTime + StopDuration * 2;
 
-            // Накладываем бафф после первой половины остановки
             if (currentTime >= _lastBuffTime + BuffCooldown + StopDuration)
             {
                 ApplyBuffTo(target);
                 _lastBuffTime = currentTime;
 
-                // Визуальный эффект
                 var vfx = ServiceLocator.Get<VFXView>();
                 vfx?.PlayVFX(unit.Pos, VFXView.VFXType.BuffApplied);
             }
@@ -82,19 +73,14 @@ namespace UnitBrains.Player
 
         private List<IReadOnlyUnit> GetAlliesInRange()
         {
-            //return GetUnitsInRadius(unit.Config.AttackRange, false)
-                //.Where(u => u != unit && u.Config.IsPlayerUnit)
-                //.ToList();
             return runtimeModel.RoUnits
                 .Where(u => u.Config.IsPlayerUnit == IsPlayerUnitBrain).ToList();
-
         }
 
         private bool HasBuff(IReadOnlyUnit unit)
         {
             var buffSystem = ServiceLocator.Get<BuffSystemManager>();
-            return buffSystem?.GetModifier(unit, BuffType.MoveSpeed) != 1f ||
-                   buffSystem?.GetModifier(unit, BuffType.AttackSpeed) != 1f;
+            return buffSystem?.HasBuffs(unit) ?? false;
         }
 
         private void ApplyBuffTo(IReadOnlyUnit target)
@@ -102,11 +88,15 @@ namespace UnitBrains.Player
             var buffSystem = ServiceLocator.Get<BuffSystemManager>();
             if (buffSystem == null) return;
 
-            // Бафф скорости атаки (+30%)
-            buffSystem.ApplyBuff(target, new BuffDebuff(BuffType.AttackSpeed, 1.3f, BuffDuration));
-
-            // Бафф скорости движения (+20%)
-            buffSystem.ApplyBuff(target, new BuffDebuff(BuffType.MoveSpeed, 1.2f, BuffDuration));
+            switch (target.Config.Name)
+            {
+                case "Cobra Commando":
+                    buffSystem.ApplyBuff(target, new DoubleShotBuff(BuffDuration));
+                    break;
+                case "Ironclad Behemoth":
+                    buffSystem.ApplyBuff(target, new IncreasedRangeBuff(BuffDuration));
+                    break;
+            }
         }
 
         public override Vector2Int GetNextStep()
@@ -114,7 +104,6 @@ namespace UnitBrains.Player
             if (_isStopped)
                 return unit.Pos;
 
-            // Обычное движение к базе противника
             var enemyBasePos = runtimeModel.RoMap.Bases[RuntimeModel.BotPlayerId];
             var path = new AStarUnitPath(runtimeModel, unit.Pos, enemyBasePos);
             return path.GetNextStepFrom(unit.Pos);

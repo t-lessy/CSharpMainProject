@@ -20,7 +20,17 @@ namespace UnitBrains
         protected Unit unit { get; private set; }
         protected IReadOnlyRuntimeModel runtimeModel => ServiceLocator.Get<IReadOnlyRuntimeModel>();
         private BaseUnitPath _activePath = null;
-        
+
+        private MonoBehaviour _coroutineRunner;
+
+        protected void StartCoroutine(System.Collections.IEnumerator routine)
+        {
+            if (_coroutineRunner != null)
+            {
+                _coroutineRunner.StartCoroutine(routine);
+            }
+        }
+
         private readonly Vector2[] _projectileShifts = new Vector2[]
         {
             new (0f, 0f),
@@ -54,7 +64,7 @@ namespace UnitBrains
         }
 
 
-        public List<BaseProjectile> GetProjectiles()
+        public virtual List<BaseProjectile> GetProjectiles()
         {
             List<BaseProjectile> result = new ();
             foreach (var target in SelectTargets())
@@ -126,7 +136,7 @@ namespace UnitBrains
             return units;
         }
 
-        protected bool HasTargetsInRange()
+        protected virtual bool HasTargetsInRange()
         {
             var attackRangeSqr = unit.Config.AttackRange * unit.Config.AttackRange;
             foreach (var possibleTarget in GetAllTargets())
