@@ -50,7 +50,7 @@ namespace UnitBrains.Player
             ///////////////////////////////////////
             List<Vector2Int> result = GetReachableTargets();
 
-            float maxDistance = float.MaxValue;
+            float closestDistance = float.MaxValue;
             Vector2Int active_target = new Vector2Int();
 
             while (result.Count > 1)
@@ -59,7 +59,7 @@ namespace UnitBrains.Player
 
 
                     float distance = DistanceToOwnBase(target);
-                    if (distance < maxDistance) maxDistance = distance;
+                    if (distance < closestDistance) closestDistance = distance;
                     active_target = target;
 
                 }
