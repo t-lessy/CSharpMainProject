@@ -1,9 +1,9 @@
 ﻿using Model;
 using Model.Runtime.Projectiles;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using Utilities;
 
 namespace UnitBrains.Player
 {
@@ -40,14 +40,6 @@ namespace UnitBrains.Player
             }
         }
 
-        public override Vector2Int GetNextStep()
-        {
-            if (_targetsToMove.Count == 0 || HasTargetsInRange())
-                return unit.Pos;
-
-            return unit.Pos.CalcNextStepTowards(_targetsToMove.First());
-        }
-
         protected override List<Vector2Int> SelectTargets()
         {
             var result = new List<Vector2Int>();
@@ -55,55 +47,56 @@ namespace UnitBrains.Player
             var playerBase = runtimeModel.RoMap.Bases[RuntimeModel.PlayerId];
             var enemyBase = runtimeModel.RoMap.Bases[RuntimeModel.BotPlayerId];
 
-            var mostDangerousTargets = allTargets
-                .Where(target => target != playerBase)
-                .ToList();
+            var enemyUnits = allTargets.Where(t => t != playerBase).ToList();
+            bool hasEnemyUnits = enemyUnits.Any();
 
-            SortByDistanceToOwnBase(mostDangerousTargets);
-
-            if (mostDangerousTargets.Count > 0)
+            if (hasEnemyUnits)
             {
-                var availableTargets = mostDangerousTargets.Take(_maxTargetUnit).ToList();
-                var targetIndex = _unitId % availableTargets.Count;
-                var selectedTarget = availableTargets[targetIndex];
+                enemyUnits.Sort((a, b) =>
+                    DistanceTo(a, unit.Pos).CompareTo(DistanceTo(b, unit.Pos)));
 
-                var targetsToCheck = availableTargets
-                    .OrderBy(t => t == selectedTarget ? 0 : 1)
-                    .ToList();
+                var nearestEnemies = enemyUnits.Take(_maxTargetUnit).ToList();
+                var targetIndex = _unitId % nearestEnemies.Count;
+                var selectedEnemy = nearestEnemies[targetIndex];
 
-                foreach (var target in targetsToCheck)
+                if (IsTargetInRange(selectedEnemy))
                 {
-                    if (IsTargetInRange(target))
-                    {
-                        _targetsToMove.Clear();
-                        result.Add(target);
-                        break;
-                    }
+                    _targetsToMove.Clear();
+                    result.Add(selectedEnemy);
                 }
-
-
-                if (result.Count == 0)
+                else
                 {
-                    _targetsToMove = new List<Vector2Int> { selectedTarget };
+                    _targetsToMove = new List<Vector2Int> { selectedEnemy };
                 }
             }
-            else
+
+            if (!hasEnemyUnits || result.Count == 0)
             {
                 if (IsTargetInRange(enemyBase))
+                {
                     result.Add(enemyBase);
+                }
                 else
-                    _targetsToMove = new List<Vector2Int> { enemyBase };
+                {
+                    if (_targetsToMove.Count == 0)
+                        _targetsToMove = new List<Vector2Int> { enemyBase };
+                }
             }
 
             return result;
         }
 
+        private int DistanceTo(Vector2Int a, Vector2Int b)
+        {
+            return Math.Abs(a.x - b.x) + Math.Abs(a.y - b.y);
+        }
+
         public override void Update(float deltaTime, float time)
         {
             if (_overheated)
-            {              
+            {
                 _cooldownTime += Time.deltaTime;
-                float t = _cooldownTime / (OverheatCooldown/10);
+                float t = _cooldownTime / (OverheatCooldown / 10);
                 _temperature = Mathf.Lerp(OverheatTemperature, 0, t);
                 if (t >= 1)
                 {
@@ -115,7 +108,7 @@ namespace UnitBrains.Player
 
         private int GetTemperature()
         {
-            if(_overheated) return (int) OverheatTemperature;
+            if (_overheated) return (int)OverheatTemperature;
             else return (int)_temperature;
         }
 

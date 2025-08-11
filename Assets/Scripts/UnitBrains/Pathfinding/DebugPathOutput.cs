@@ -13,6 +13,7 @@ namespace UnitBrains.Pathfinding
         public BaseUnitPath Path { get; private set; }
         private readonly List<GameObject> allHighlights = new();
         private Coroutine highlightCoroutine;
+        private const float HighlightDelay = 0.2f;
 
         public void HighlightPath(BaseUnitPath path)
         {
@@ -29,13 +30,30 @@ namespace UnitBrains.Pathfinding
 
             highlightCoroutine = StartCoroutine(HighlightCoroutine(path));
         }
-
         private IEnumerator HighlightCoroutine(BaseUnitPath path)
         {
-            // TODO Implement me
-            yield break;
-        }
+            int counter = 0;
+            Vector2Int currentCell = path.StartPoint;
 
+            while (true)
+            {
+                Vector2Int nextCell = path.GetNextStepFrom(currentCell);
+
+                currentCell = (Mathf.Abs(nextCell.x - path.EndPoint.x) <= 1 &&
+                             Mathf.Abs(nextCell.y - path.EndPoint.y) <= 1 ||
+                             counter == 0)
+                    ? path.StartPoint
+                    : nextCell;
+
+                CreateHighlight(currentCell);
+                counter++;
+
+                if (counter > maxHighlights)
+                    DestroyHighlight(0);
+
+                yield return new WaitForSeconds(HighlightDelay);
+            }
+        }
         private void CreateHighlight(Vector2Int atCell)
         {
             var pos = Gameplay3dView.ToWorldPosition(atCell, 1f);
