@@ -14,6 +14,7 @@ namespace Assets.Scripts.UnitBrains.Pathfinding
     {
         //private IReadOnlyRuntimeModel _runtimeModel;
         private const int MaxLength = 100;
+
         private int[] dx = { -1, 0, 1, 0 };
         private int[] dy = { 0, 1, 0, -1 };
         public AStar(IReadOnlyRuntimeModel runtimeModel, Vector2Int startPoint, Vector2Int endPoint) : base(runtimeModel, startPoint, endPoint)
@@ -26,11 +27,12 @@ namespace Assets.Scripts.UnitBrains.Pathfinding
             Node targetNode = new Node(endPoint.x, endPoint.y);
 
             List<Node> openList = new List<Node> { startNode };///////////////////////!!!!!!!!!!!!!!!!!!!!!!!!!!!!\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+            
             List<Node> closedList = new List<Node>();
+
 
             while (openList.Count > 0 && openList.Count < MaxLength)// пока открытый список не пуст делаем
             {
-
                 var currentNode = openList[0];// стартовый узел приравнивается переменной  currentNode
                 foreach (var node in openList) // проходим по открытому списку и сравниваем Value его элементов, самый маленький Value приравнивается currentNode 
                 {
@@ -41,7 +43,8 @@ namespace Assets.Scripts.UnitBrains.Pathfinding
                     }
 
                 }
-                openList.Remove(currentNode);// удаляем  из открытого списка старую ячейку
+
+                openList.Clear();//обнуляем список предыдущих возможных ячеек для ходьбы
                 closedList.Add(currentNode);// добавляем ее в закртый список
                 if (currentNode.X == targetNode.X && currentNode.Y == targetNode.Y)// сравниваем текущую ноду с конечной целью,при совпадении добавляем все ячейки пути в список path,пока текущая ячейка не будет пуста
                 {
@@ -63,11 +66,12 @@ namespace Assets.Scripts.UnitBrains.Pathfinding
                     if (IsValid(newX, newY, runtimeModel))//получившуюяся ячеку провиряем на ограничения, если она "валидна" создаем Node сосед с этими координатами
                     {
                         Node neighboor = new Node(newX, newY);
+
                         if (closedList.Contains(neighboor)) continue;// проверка на то,что такая ячейка уже есть в закрытом списке ( пройдена )
 
                         neighboor.Parent = currentNode;// добавляем текцщую ячейку в родительскую для того чтобы запомнить пердыдущую ячейку
                         neighboor.CalculateEstimate(targetNode.X, targetNode.Y);//высчитываем эвристику
-                        neighboor.CalculateValue(IsHorizontalMovement(newX));// считаем итоговую оценку
+                        neighboor.CalculateValue();// считаем итоговую оценку
 
                         openList.Add(neighboor);//добавляем валидного, лучшего по оценку соседа  в открытый список
                     }
@@ -100,8 +104,8 @@ namespace Assets.Scripts.UnitBrains.Pathfinding
     {
         public int X;
         public int Y;
-        public int Horizontalcost = 10;
-        public int Verticalcost = 15;
+        
+        public int cost = 10;
         public int Estimate;// оценка расстояния до цели
         public int Value;
         public Node Parent;
@@ -110,16 +114,10 @@ namespace Assets.Scripts.UnitBrains.Pathfinding
             X = x;
             Y = y;
         }
-        public void CalculateValue(bool movement)
+        public void CalculateValue()
         {
-            if (movement)
-            {
-                Value = Horizontalcost + Estimate;
-            }
-            else
-            {
-                Value = Verticalcost + Estimate;
-            }
+            
+                Value = cost + Estimate;
 
         }
         public void CalculateEstimate(int targetX, int targetY)
