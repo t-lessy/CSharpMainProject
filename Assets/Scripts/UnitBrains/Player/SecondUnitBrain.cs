@@ -1,6 +1,10 @@
 ﻿using System.Collections.Generic;
+using Model;
 using Model.Runtime.Projectiles;
 using UnityEngine;
+using UnityEngine.UIElements;
+using Utilities;
+using System.Linq;
 
 namespace UnitBrains.Player
 {
@@ -12,7 +16,8 @@ namespace UnitBrains.Player
         private float _temperature = 0f;
         private float _cooldownTime = 0f;
         private bool _overheated;
-        
+        private List<Vector2Int> _pendingTargets = new List<Vector2Int>();//цели для движения
+
         protected override void GenerateProjectiles(Vector2Int forTarget, List<BaseProjectile> intoList)
         {
             float overheatTemperature = OverheatTemperature;
@@ -24,7 +29,7 @@ namespace UnitBrains.Player
             
             //2.a Увеличение снарядов
             int MissileCount = GetTemperature(); // кол-во снарядов = текущей температуре
-            for (int i = 0; i < MissileCount; i++) ;
+            for (int i = 0; i < MissileCount; i++)
             {
                 var projectile = CreateProjectile(forTarget);
                 AddProjectileToList(projectile, intoList);
@@ -35,31 +40,53 @@ namespace UnitBrains.Player
 
         public override Vector2Int GetNextStep()
         {
-            return base.GetNextStep();
+            Vector2Int position = Vector2Int.zero;
+
+
+            var reachableTargets = GetReachableTargets();
+            if (reachableTargets.Count > 0)//Если в зоне атаки, атакуем
+            {
+                return position;
+            }
+
+            if (_pendingTargets != null && _pendingTargets.Count > 0)//Если врагов нет
+            {
+                Vector2Int nextPosition = _pendingTargets[0];
+                Vector2Int step = position.CalcNextStepTowards(nextPosition);
+                return step;
+            }
+            return position;
         }
 
         protected override List<Vector2Int> SelectTargets()
 
         {
-
-            List<Vector2Int> result = GetReachableTargets();
-            if (result.Count == 0)
-                return result;
-
-            Vector2Int target = result[0]; // Изначальная цель
-            var minDistance = DistanceToOwnBase(target); // с float не пробовал, но думаю разницы нет
-
-            for (int i = 1; i < result.Count; i++)
+            _pendingTargets.Clear();//очистка списка целей
+            List<Vector2Int> allTarget = GetAllTargets().ToList();
+            List<Vector2Int> result = new List<Vector2Int>();
+            if (allTarget.Count > 0)
             {
-                var distance = DistanceToOwnBase(result[i]); // Ближайшая цель на начало расчета
-                if (distance < minDistance)
+                Vector2Int target = allTarget[0];// Выбираем ближайшую цель к базе
+                float minDistance = DistanceToOwnBase(target);
+                for (int i = 1; i < allTarget.Count; i++)
                 {
-                    minDistance = distance;
-                    target = result[i];
+                    float distance = DistanceToOwnBase(allTarget[i]);
+                    if (distance < minDistance)
+                    {
+                        minDistance = distance;
+                        target = allTarget[i];
+                    }
                 }
+                if (GetReachableTargets().Contains(target))// Проверка досягаемости
+                    result.Add(target);
+                else _pendingTargets.Add(target);
             }
-            result.Clear(); //очистить
-            result.Add(target); //добавить
+            else
+            {
+                int enemyId = IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId;// если мы игрок → враг бот, // если мы бот → враг игрок
+                Vector2Int enemyBase = runtimeModel.RoMap.Bases[enemyId];//координаты базы врага
+                _pendingTargets.Add(enemyBase);//цели для движения
+            }
             return result;
         }
 
