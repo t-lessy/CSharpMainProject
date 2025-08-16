@@ -40,7 +40,7 @@ namespace UnitBrains.Player
 
         public override Vector2Int GetNextStep()
         {
-            Vector2Int position = Vector2Int.zero;
+            Vector2Int position = unit.Pos;
 
 
             var reachableTargets = GetReachableTargets();
