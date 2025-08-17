@@ -106,7 +106,9 @@
     <Compile Include="Assets\Scripts\Controller\RootController.cs" />
     <Compile Include="Assets\Scripts\Model\Runtime\Unit.cs" />
     <Compile Include="Assets\Scripts\Model\IReadOnlyRuntimeModel.cs" />
+    <Compile Include="Assets\Scripts\Model\Config\EffectsForUnits.cs" />
     <Compile Include="Assets\Scripts\Model\Runtime\Projectiles\HorizontalLineProjectile.cs" />
+    <Compile Include="Assets\Scripts\Model\Config\TimerForEffects.cs" />
     <Compile Include="Assets\Scripts\Model\Runtime\Projectiles\HomingProjectile.cs" />
     <Compile Include="Assets\Scripts\Utilities\MapGenerator.cs" />
     <Compile Include="Assets\Scripts\Controller\BotController.cs" />

@@ -19,6 +19,9 @@ namespace Model.Runtime
         public BaseUnitPath ActivePath => _brain?.ActivePath;
         public IReadOnlyList<BaseProjectile> PendingProjectiles => _pendingProjectiles;
 
+        public float AttackDelay;//
+        public float MoveDelay;//
+
 
         private readonly List<BaseProjectile> _pendingProjectiles = new();
         private IReadOnlyRuntimeModel _runtimeModel;
@@ -28,7 +31,10 @@ namespace Model.Runtime
         private float _nextMoveTime = 0f;
         private float _nextAttackTime = 0f;
 
-        public UnitCoordinator UnitCoordinator; //Добавил
+        public UnitCoordinator UnitCoordinator;
+
+        private EffectsForUnits _effects;//
+
         public Unit(UnitConfig config, Vector2Int startPos)
         {
             Config = config;
@@ -37,6 +43,14 @@ namespace Model.Runtime
             _brain = UnitBrainProvider.GetBrain(config);
             _brain.SetUnit(this);
             _runtimeModel = ServiceLocator.Get<IReadOnlyRuntimeModel>();
+
+            AttackDelay = config.AttackDelay;//
+            MoveDelay = config.MoveDelay; //
+
+            //_effects = ServiceLocator.Get<EffectsForUnits>(); //
+            //_effects.SetUnitAttackDelay(this, 6000, 0.25f); //
+            //_effects.SetUnitMoveDelay(this, 5000, 4); //
+
         }
 
         public void Update(float deltaTime, float time)
@@ -52,13 +66,13 @@ namespace Model.Runtime
             
             if (_nextMoveTime < time)
             {
-                _nextMoveTime = time + Config.MoveDelay;
+                _nextMoveTime = time + MoveDelay;  // изначально Config.MoveDelay
                 Move();
             }
             
             if (_nextAttackTime < time && Attack())
             {
-                _nextAttackTime = time + Config.AttackDelay;
+                _nextAttackTime = time + AttackDelay;   // изначально Config.AttackDelay
             }
         }
 

@@ -22,6 +22,8 @@ namespace Controller
         private UnitCoordinator _playerUnitCoordinator;
         private UnitCoordinator _botPlayerUnitCoordinator;
 
+        //private EffectsForUnits _effectsForUnits;
+
         public LevelController(RuntimeModel runtimeModel, RootController rootController)
         {
             _runtimeModel = runtimeModel;
@@ -36,6 +38,7 @@ namespace Controller
 
             _playerUnitCoordinator = new UnitCoordinator(runtimeModel, RuntimeModel.PlayerId, RuntimeModel.BotPlayerId);
             _botPlayerUnitCoordinator = new UnitCoordinator(runtimeModel, RuntimeModel.BotPlayerId, RuntimeModel.PlayerId);
+            //_effectsForUnits = ServiceLocator.Get<EffectsForUnits>();
         }
 
         public void StartLevel(int level)
@@ -62,16 +65,12 @@ namespace Controller
             if (unitConfig.Cost > _runtimeModel.Money[RuntimeModel.PlayerId])
                 return;
 
-
-            // Сюда координатор всунуть
-
             SpawnUnit(RuntimeModel.PlayerId, unitConfig);
             TryStartSimulation();
         }
 
         private void OnBotUnitChosen(UnitConfig unitConfig)
         {
-            //Сюда, вероятно, тоже
             SpawnUnit(RuntimeModel.BotPlayerId, unitConfig);
             TryStartSimulation();
         }
@@ -86,8 +85,6 @@ namespace Controller
             unit.UnitCoordinator = forPlayer == RuntimeModel.PlayerId ? _playerUnitCoordinator : _playerUnitCoordinator;
             _runtimeModel.Money[forPlayer] -= config.Cost;
             _runtimeModel.PlayersUnits[forPlayer].Add(unit);
-
-            //Скорее сюда координатор засунуть
         }
 
         private void TryStartSimulation()
@@ -96,6 +93,8 @@ namespace Controller
                 _runtimeModel.Money[RuntimeModel.BotPlayerId] < _settings.GetCheapestEnemyUnitCost())
             {
                 _runtimeModel.Stage = RuntimeModel.GameStage.Simulation;
+                //_effectsForUnits.SetAllUnitsMoveDelay(5000, 4f);
+                //_effectsForUnits.SetAllUnitsAttackDelay(6000, 0.25f);
             }
         }
 
