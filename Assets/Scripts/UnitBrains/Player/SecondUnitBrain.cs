@@ -53,27 +53,26 @@ namespace UnitBrains.Player
             float closestDistance = float.MaxValue;
             Vector2Int active_target = new Vector2Int();
 
-            while (result.Count > 1)
-            {
-                foreach (Vector2Int target in result) {
+
+            foreach (Vector2Int target in result) {
 
 
-                    float distance = DistanceToOwnBase(target);
-                    if (distance < closestDistance) closestDistance = distance;
-                    active_target = target;
+                float distance = DistanceToOwnBase(target);
+                if (distance < closestDistance) closestDistance = distance;
+                active_target = target;
 
-                }
+             }
 
-                result.RemoveAt(result.Count - 1);
 
-            }
             if (active_target != Vector2Int.zero) {
 
                 result.Clear();
                 result.Add(active_target);
+
             }
-            
+
             return result;
+            
             ///////////////////////////////////////
         }
 
