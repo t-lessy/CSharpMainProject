@@ -1,10 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Assets.Scripts.UnitBrains.Pathfinding;
 using Model;
 using Model.Runtime;
 using Model.Runtime.Projectiles;
 using UnityEngine;
 using Utilities;
+using static UnityEngine.GraphicsBuffer;
 
 
 namespace UnitBrains.Player
@@ -41,6 +43,13 @@ namespace UnitBrains.Player
             ///
         public override Vector2Int GetNextStep()
         {
+            int enemyID = IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId;
+            Vector2Int enemyBase = runtimeModel.RoMap.Bases[enemyID];
+            //var target = runtimeModel.RoMap.Bases[
+            //    IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId];
+
+            //_activePath = new AStar(runtimeModel, unit.Pos, target);
+            //return _activePath.GetNextStepFrom(unit.Pos);
             List<Vector2Int> allTargets = SelectTargets();
             List<Vector2Int> result = SelectTargets();
             var UnitGroups= SelectTargets();
@@ -48,16 +57,19 @@ namespace UnitBrains.Player
             Vector2Int position = unit.Pos;
             Vector2Int Nextposition = Vector2Int.right + Vector2Int.up;
             if (result.Count != 0) //Если список достижимых целей не пуст стоим на месте
-               {
-                   Debug.Log("Цель в радиусе атаки");
-                   return unit.Pos;
-               }
-               else if (result.Count == 0 && unreachableTarget.Count != 0) //Если список достижимых целей пуст,а недостижымых не пуст,то идем к недостижимым 
-               {
-                   Debug.Log("Целей в радиусе атаки нет,иду к ближайшей");
-                   return position.CalcNextStepTowards(unreachableTarget[0]);
-               }
-               return position.CalcNextStepTowards(runtimeModel.RoMap.Bases[IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId]);
+            {
+                 Debug.Log("Цель в радиусе атаки");
+                 return unit.Pos;
+            }
+            else if (result.Count == 0 && unreachableTarget.Count != 0) //Если список достижимых целей пуст,а недостижымых не пуст,то идем к недостижимым 
+            {
+                 _activePath = new AStar(runtimeModel, unit.Pos, unreachableTarget[0]);
+                 Debug.Log("Целей в радиусе атаки нет,иду к ближайшей");
+                 return _activePath.GetNextStepFrom(unit.Pos);
+                 //return position.CalcNextStepTowards(unreachableTarget[0]);
+            }
+            _activePath = new AStar(runtimeModel, unit.Pos, enemyBase);
+            return position.CalcNextStepTowards(runtimeModel.RoMap.Bases[IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId]);
         }
         protected override List<Vector2Int> SelectTargets()
         {

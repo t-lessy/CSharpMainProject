@@ -339,61 +339,63 @@ namespace Assets.Scripts.UnitBrains.Pathfinding
                 }
 
                 if (currentNode.H < bestNode.H)// если эвристика текущей меньше чем у лучшей назначаем ее лучшей
-
+                {
                     bestNode = currentNode;
+                }
 
-                openList.Remove(currentNode);
-                closedList.Add(currentNode);
+                openList.Remove(currentNode);// убираем и открытого спсика эту ноду
+                closedList.Add(currentNode);// добавляем в закрытый список, уже пройденных нод
 
+                //обработка соседнгих клеток
                 for (int i = 0; i < dx.Length; i++)
                 {
-                    Vector2Int neighborPos = new(currentNode.X + dx[i], currentNode.Y + dy[i]);
+                    Vector2Int neighborPos = new(currentNode.X + dx[i], currentNode.Y + dy[i]);//создаем переменную векторного типа обохначающую соседнюю клетку
 
-                    if (!IsValid(neighborPos))
+                    if (!IsValid(neighborPos))// если проходит по условиям "валидности" переходим к след шагу
                         continue;
 
-                    if (!allNodes.TryGetValue(neighborPos, out Node neighbor))
+                    if (!allNodes.TryGetValue(neighborPos, out Node neighbor))//проверяем есть ли этот сосед в обработанных точках ранее
                     {
                         neighbor = new Node(neighborPos.x, neighborPos.y);
                         neighbor.CalculateEstimate(targetNode.X, targetNode.Y);
-                        allNodes[neighborPos] = neighbor;
+                        allNodes[neighborPos] = neighbor;// в случае если не был, то добавляем в словарь для возможного дальнецшего доступа
                     }
 
-                    if (closedList.Contains(neighbor))
+                    if (closedList.Contains(neighbor))// проверяем есть ли в писке уже пройденных,нет? переходим к след шагу
                         continue;
 
-                    int tentativeG = currentNode.G + GetMovementCost(neighborPos);
+                    int tentativeG = currentNode.G + GetMovementCost(neighborPos);//расчиытваем стоимость пути до соседнего узла
 
-                    if (tentativeG < neighbor.G || !openList.Contains(neighbor))
-                    {
-                        neighbor.G = tentativeG;
+                    if (tentativeG < neighbor.G || !openList.Contains(neighbor))// если новая стоимость пути лучше прежней и данный сосед не добавлен в открытый список
+                    {                                                                //назначаем ей новую стоимость и добавляем в родительскую ноду
+                        neighbor.G = tentativeG;                                         //отмечаем что она не заблокирована
                         neighbor.Parent = currentNode;
-                        pathBlocked = false;
-
+                        pathBlocked = false;                                                           
+                  
                         if (!openList.Contains(neighbor))
                             openList.Add(neighbor);
                     }
                 }
             }
 
-            if (pathBlocked)
+            if (pathBlocked)//если путь заблокирован
             {
-                lastBlockedPosition = _currentPosition;
-                waitCounter = WaitFrames;
+                lastBlockedPosition = _currentPosition;// в переменную последняя заблоченная позиция передаем координаты нашей точки
+                waitCounter = WaitFrames; // передаем значение "таймера" в  счетчик ожидания
             }
             else
             {
-                ReconstructPath(bestNode);
+                ReconstructPath(bestNode);//если нет строим путь
             }
         }
 
         private int GetMovementCost(Vector2Int pos)
         {
-            // Можно добавить разные стоимости для разных типов terrain
+            // Можно добавить разные стоимости для разных типов метсности
             return runtimeModel.RoUnits.Any(u => u.Pos == pos) ? 30 : 10;
         }
 
-        private bool CheckNeighborsAvailable()
+        private bool CheckNeighborsAvailable()//функция реализует проверку соседних клеток на доступность 
         {
             for (int i = 0; i < dx.Length; i++)
             {
@@ -407,7 +409,7 @@ namespace Assets.Scripts.UnitBrains.Pathfinding
             return false;
         }
 
-        private Node GetBestNode(List<Node> nodes)
+        private Node GetBestNode(List<Node> nodes)//функция реализует сравнение нод из открытого списка и выдает самую лучшую по стоимости и длине пути
         {
             Node best = nodes[0];
             for (int i = 1; i < nodes.Count; i++)
@@ -421,7 +423,7 @@ namespace Assets.Scripts.UnitBrains.Pathfinding
             return best;
         }
 
-        private void ReconstructPath(Node endNode)
+        private void ReconstructPath(Node endNode)// восстановление пути
         {
             List<Vector2Int> pathList = new();
             Node current = endNode;
@@ -436,7 +438,7 @@ namespace Assets.Scripts.UnitBrains.Pathfinding
             path = pathList.ToArray();
         }
 
-        private bool IsValid(Vector2Int pos)
+        private bool IsValid(Vector2Int pos)// проверка валидности точки
         {
             if (pos.x < 0 || pos.x >= runtimeModel.RoMap.Width ||
                 pos.y < 0 || pos.y >= runtimeModel.RoMap.Height)

@@ -9,7 +9,7 @@ namespace UnitBrains.Player
     {
         protected float DistanceToOwnBase(Vector2Int fromPos) =>
             Vector2Int.Distance(fromPos, runtimeModel.RoMap.Bases[RuntimeModel.PlayerId]);
-
+        
         protected void SortByDistanceToOwnBase(List<Vector2Int> list)
         {
             list.Sort(CompareByDistanceToOwnBase);
