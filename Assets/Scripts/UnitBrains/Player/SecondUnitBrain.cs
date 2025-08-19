@@ -63,38 +63,37 @@ namespace UnitBrains.Player
         protected override List<Vector2Int> SelectTargets()
         {
             _selectTarget = null;
+
             var result = new List<Vector2Int>();
             var allTargets = GetAllTargets().ToList();
 
-            List<Vector2Int> selectedCandidates = new List<Vector2Int>();
+            Vector2Int? enemyBaseTarget = null;
 
             if (allTargets.Any())
             {
-                selectedCandidates = new List<Vector2Int>(allTargets);
+                List<Vector2Int> selectedCandidates = new List<Vector2Int>(allTargets);
+
                 SortByDistanceToOwnBase(selectedCandidates);
 
                 if (selectedCandidates.Count > MaxTargets)
                 {
                     selectedCandidates = selectedCandidates.GetRange(0, MaxTargets);
                 }
+
+                int targetIndex = UnitNumber % selectedCandidates.Count;
+                _selectTarget = selectedCandidates[targetIndex];
             }
+
             else
             {
                 var enemyBaseId = IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId;
-                selectedCandidates.Add(runtimeModel.RoMap.Bases[enemyBaseId]);
+                _selectTarget = runtimeModel.RoMap.Bases[enemyBaseId];
+                enemyBaseTarget = _selectTarget;
             }
 
-            if (selectedCandidates.Any())
+            if (_selectTarget.HasValue && IsTargetInRange(_selectTarget.Value))
             {
-                int targetIndex = UnitNumber % selectedCandidates.Count;
-                Vector2Int chosenTarget = selectedCandidates[targetIndex];
-
-                _selectTarget = chosenTarget;
-
-                if (IsTargetInRange(chosenTarget))
-                {
-                    result.Add(chosenTarget);
-                }
+                result.Add(_selectTarget.Value);
             }
 
             if (_activePath != null && _selectTarget.HasValue && _activePath.EndPoint != _selectTarget.Value)
