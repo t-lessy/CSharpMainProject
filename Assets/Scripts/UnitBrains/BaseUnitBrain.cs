@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Assets.Scripts.UnitBrains.Player;
 using Model;
 using Model.Runtime.Projectiles;
 using Model.Runtime.ReadOnly;
@@ -73,6 +74,10 @@ namespace UnitBrains
                 var proj = result[i];
                 proj.AddStartShift(_projectileShifts[i % _projectileShifts.Length]);
             }
+
+            var buffSystem = ServiceLocator.Get<BuffSystem>();
+            var speedBuff = new Buff(5f, moveMod: 1.5f); 
+            buffSystem.AddBuff(unit, speedBuff);
 
             return result;
         }

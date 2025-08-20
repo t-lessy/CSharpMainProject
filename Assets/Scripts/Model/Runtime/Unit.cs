@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Assets.Scripts.UnitBrains.Player;
 using Model.Config;
 using Model.Runtime.Projectiles;
 using Model.Runtime.ReadOnly;
@@ -34,11 +35,17 @@ namespace Model.Runtime
         private BaseUnitBrain _brain;
         private UnitCoordinator _coordinator;
         public BaseUnitBrain Brain => _brain;
+        private BuffSystem _buffSystem;
 
+        
         private float _nextBrainUpdateTime = 0f;
         private float _nextMoveTime = 0f;
         private float _nextAttackTime = 0f;
-        
+
+        public float EffectiveMoveDelay => Config.MoveDelay / _buffSystem.GetMoveSpeedModifier(this);
+        public float EffectiveAttackDelay => Config.AttackDelay / _buffSystem.GetAttackSpeedModifier(this);
+
+
         public Unit(UnitConfig config, Vector2Int startPos, UnitCoordinator coordinator)
         {
             _coordinator = coordinator;
@@ -49,6 +56,7 @@ namespace Model.Runtime
             _brain.SetUnit(this);
             _brain.SetCoordinator(coordinator);
             _runtimeModel = ServiceLocator.Get<IReadOnlyRuntimeModel>();
+            _buffSystem = ServiceLocator.Get<BuffSystem>();
         }
 
         public void Update(float deltaTime, float time)
@@ -61,17 +69,27 @@ namespace Model.Runtime
                 _nextBrainUpdateTime = time + Config.BrainUpdateInterval;
                 _brain.Update(deltaTime, time);
             }
-            
+
             if (_nextMoveTime < time)
             {
-                _nextMoveTime = time + Config.MoveDelay;
                 Move();
+                _nextMoveTime = time + EffectiveMoveDelay;
             }
-            
+
             if (_nextAttackTime < time && Attack())
             {
-                _nextAttackTime = time + Config.AttackDelay;
+                _nextAttackTime = time + EffectiveAttackDelay;
             }
+            //if (_nextMoveTime < time)
+            //{
+            //    _nextMoveTime = time + Config.MoveDelay;
+            //    Move();
+            //}
+
+            //if (_nextAttackTime < time && Attack())
+            //{
+            //    _nextAttackTime = time + Config.AttackDelay;
+            //}
         }
 
         private bool Attack()
