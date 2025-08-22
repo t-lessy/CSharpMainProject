@@ -17,15 +17,6 @@ namespace UnitBrains.Player
         private bool _overheated;
         private List<Vector2Int> _targetsToMove = new();
 
-        private static int _unitCounter = 0;
-        private readonly int _maxTargetUnit = 3;
-        private readonly int _unitId;
-
-        public SecondUnitBrain()
-        {
-            _unitId = _unitCounter++;
-        }
-
         protected override void GenerateProjectiles(Vector2Int forTarget, List<BaseProjectile> intoList)
         {
             if (GetTemperature() >= OverheatTemperature)
@@ -47,17 +38,15 @@ namespace UnitBrains.Player
             var playerBase = runtimeModel.RoMap.Bases[RuntimeModel.PlayerId];
             var enemyBase = runtimeModel.RoMap.Bases[RuntimeModel.BotPlayerId];
 
-            var enemyUnits = allTargets.Where(t => t != playerBase).ToList();
+            var enemyUnits = allTargets
+                .Where(t => t != playerBase && t == enemyBase || t != playerBase && t != null)
+                .ToList();
+            
             bool hasEnemyUnits = enemyUnits.Any();
 
             if (hasEnemyUnits)
             {
-                enemyUnits.Sort((a, b) =>
-                    DistanceTo(a, unit.Pos).CompareTo(DistanceTo(b, unit.Pos)));
-
-                var nearestEnemies = enemyUnits.Take(_maxTargetUnit).ToList();
-                var targetIndex = _unitId % nearestEnemies.Count;
-                var selectedEnemy = nearestEnemies[targetIndex];
+                var selectedEnemy = enemyUnits.First();
 
                 if (IsTargetInRange(selectedEnemy))
                 {
@@ -84,11 +73,6 @@ namespace UnitBrains.Player
             }
 
             return result;
-        }
-
-        private int DistanceTo(Vector2Int a, Vector2Int b)
-        {
-            return Math.Abs(a.x - b.x) + Math.Abs(a.y - b.y);
         }
 
         public override void Update(float deltaTime, float time)
