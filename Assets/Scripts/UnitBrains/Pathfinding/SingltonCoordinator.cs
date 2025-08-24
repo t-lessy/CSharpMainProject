@@ -16,10 +16,10 @@ namespace Assets.Scripts.UnitBrains.Pathfinding
         private static SingltonCoordinator _instance;
         //получаем  сведения всей текущей сессии
         private IReadOnlyRuntimeModel _runtimeModel;
-        private IReadOnlyUnit unitPos;
+        
         private IReadOnlyMap _roMap;
         // Получаем нашу базу (PlayerId)
-        private Vector2Int OurBase => _roMap.Bases.[RuntimeModel.PlayerId];
+        private Vector2Int OurBase => _roMap.Bases[RuntimeModel.PlayerId];
 
         // Получаем вражескую базу (BotPlayerId)
         private Vector2Int EnemyBase => _roMap.Bases[RuntimeModel.BotPlayerId];
@@ -30,7 +30,11 @@ namespace Assets.Scripts.UnitBrains.Pathfinding
         {
             Console.WriteLine("Создан экземпляр SingltonCoordinator");
             _runtimeModel = ServiceLocator.Get<IReadOnlyRuntimeModel>();
-            _timeUtil = ServiceLocator.Get<TimeUtil>();
+
+            _roMap = _runtimeModel.RoMap; // Теперь _roMap инициализирован!
+
+            // Регистрируем метод обновления в игровом цикле
+            ServiceLocator.Get<TimeUtil>().AddUpdateAction(Update);
         }
 
         // Публичный метод для получения экземпляра
@@ -80,24 +84,15 @@ namespace Assets.Scripts.UnitBrains.Pathfinding
             return distToOurBase < distToEnemyBase;
         }
         // Обычный метод класса
-        public IReadOnlyUnit Coordination(IReadOnlyUnit unitPos)
+        public IReadOnlyUnit GetRecomendationTarget()
         {
             var enemiesOnOurHalf = GetEnemiesOnOurHalf();
             var allEnemies = GetEnemyUnits().ToList();
-            var attackRangeSqr = unitPos.Config.AttackRange * unitPos.Config.AttackRange;
+            //var attackRangeSqr = unitPos.Config.AttackRange * unitPos.Config.AttackRange;
             if (enemiesOnOurHalf.Count > 0)
             {
-                foreach (var enemy in enemiesOnOurHalf)
-                {
-                    //Vector2Int vectorEnemy=new Vector2Int(enemy.Pos.x, enemy.Pos.y);
-
-                    //если какой либо противник из  списка противников вне радиуса атаки возвращаем null
-                    if(Vector2Int.Distance(enemy.Pos, unitPos.Pos)> attackRangeSqr)
-                    {
-                        return null;
-                    }
-                }
-                // Если есть враги на нашей половине и находятся в радиусе атаки - атакуем ближайшего к базе
+              
+                // Если есть враги на нашей половине - атакуем ближайшего к базе
                 return FindEnemyClosestToBase(enemiesOnOurHalf);
             }
             else if (allEnemies.Count > 0)
@@ -108,12 +103,27 @@ namespace Assets.Scripts.UnitBrains.Pathfinding
 
             return null; // Если врагов нет вообще
         }
-
-        public void SubscribeToNotifications()
+        public Vector2Int GetRecommendedPosition()
         {
-            // Подписываемся на событие _updateAction
-            _timeUtil.AddUpdateAction(Coordination(unitPos,0.5f));
-            Console.WriteLine("SingltonCoordinator подписан на _updateAction");
+            var enemiesOnOurHalf = GetEnemiesOnOurHalf();
+            var allEnemies = GetEnemyUnits().ToList();
+
+            if (enemiesOnOurHalf.Count > 0)
+            {
+                // Если есть враги на нашей половине - становимся перед базой
+                return OurBase;
+            }
+           
+
+            // Если врагов нет - возвращаем позицию базы противника
+            return EnemyBase;
+        }
+
+        public void Update(float deltaTime)
+        {
+            //// Подписываемся на событие _updateAction
+            GetRecomendationTarget();
+            GetRecommendedPosition();
         }
     }
 }
