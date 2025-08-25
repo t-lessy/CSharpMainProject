@@ -12,13 +12,10 @@ public class EnterPoint : MonoBehaviour
     [SerializeField] private Canvas _targetCanvas;
     private float _timeScale = 5;
     
-    //женялох
+    //привет
     
     /*/
-     * нет  он так не думает
-     * да он лох
-     * та за шо
-     * нюхай бебру
+    пока
     /*/
     void Start()
     {
