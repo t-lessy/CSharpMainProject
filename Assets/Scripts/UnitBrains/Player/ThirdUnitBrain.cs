@@ -29,7 +29,7 @@ namespace UnitBrains.Player
             }
         }
 
-        protected override void GenerateProjectiles(Vector2Int forTarget, List<BaseProjectile> intoList)
+        /*protected override void GenerateProjectiles(Vector2Int forTarget, List<BaseProjectile> intoList)
         {
             Vector2 direction = ((Vector2)(forTarget - unit.Pos)).normalized;
 
@@ -45,7 +45,7 @@ namespace UnitBrains.Player
 
             // Перезарядка после очереди
             _nextBurstTime = Time.time + BurstCooldown;
-        }
+        }*/
 
 
         private void StartNewBurst(Vector2Int target)
@@ -56,7 +56,7 @@ namespace UnitBrains.Player
             _nextBurstTime = Time.time + BurstCooldown + (BurstSize * ShotInterval);
         }
 
-        private void FireShot(List<BaseProjectile> intoList)
+        /*private void FireShot(List<BaseProjectile> intoList)
         {
             // Создаем снаряд со смещением для эффекта очереди
             Vector2 direction = ((Vector2)(_currentTarget - unit.Pos)).normalized;
@@ -68,7 +68,7 @@ namespace UnitBrains.Player
 
             _shotsRemaining--;
             _nextShotTime = Time.time + ShotInterval;
-        }
+        }*/
 
         protected override List<Vector2Int> SelectTargets()
         {
