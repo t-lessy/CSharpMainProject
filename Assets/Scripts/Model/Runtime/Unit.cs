@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Assets.Scripts.UnitBrains.Pathfinding;
 using Model.Config;
 using Model.Runtime.Projectiles;
 using Model.Runtime.ReadOnly;
@@ -27,12 +28,12 @@ namespace Model.Runtime
         private readonly List<BaseProjectile> _pendingProjectiles = new();
         private IReadOnlyRuntimeModel _runtimeModel;
         private BaseUnitBrain _brain;
-
+        private Coordinator _coordunator;
         private float _nextBrainUpdateTime = 0f;
         private float _nextMoveTime = 0f;
         private float _nextAttackTime = 0f;
         
-        public Unit(UnitConfig config, Vector2Int startPos)
+        public Unit(UnitConfig config, Vector2Int startPos,Coordinator coordinator)
         {
             Group.Clear();
             Config = config;
@@ -40,6 +41,10 @@ namespace Model.Runtime
             Health = config.MaxHealth;
             _brain = UnitBrainProvider.GetBrain(config);
             _brain.SetUnit(this);
+            
+            _coordunator = coordinator;
+            
+            //coordinator= ServiceLocator.Get<Coordinator>();
             _runtimeModel = ServiceLocator.Get<IReadOnlyRuntimeModel>();
             if (config.IsPlayerUnit )// если юнит игрока
             {

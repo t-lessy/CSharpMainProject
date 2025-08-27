@@ -1,4 +1,5 @@
-﻿using Model;
+﻿using Assets.Scripts.UnitBrains.Pathfinding;
+using Model;
 using Model.Config;
 using UnityEngine;
 using Utilities;
@@ -11,7 +12,7 @@ namespace Controller
         private readonly PersistedModel _persisted;
         private readonly RuntimeModel _runtimeModel;
         private readonly LevelController _levelController;
-        
+        private Coordinator coordinator { get; }
         private RootView _rootView;
 
         public RootController(Settings settings, Canvas targetCanvas)
@@ -31,7 +32,7 @@ namespace Controller
             var vfxView = SpawnVFXView();
             ServiceLocator.Register(vfxView);
             
-            _levelController = new(_runtimeModel, this);
+            _levelController = new(_runtimeModel, this,coordinator);
             
             _rootView.ShowStartMenu();
         }

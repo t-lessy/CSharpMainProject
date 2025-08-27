@@ -10,43 +10,44 @@ using Utilities;
 
 namespace Assets.Scripts.UnitBrains.Pathfinding
 {
-    public class SingltonCoordinator
+    public class Coordinator
     {
-        // Приватное статическое поле для хранения единственного экземпляра
-        private static SingltonCoordinator _instance;
+        //// Приватное статическое поле для хранения единственного экземпляра
+        //private  Coordinator _instance;
         //получаем  сведения всей текущей сессии
         private IReadOnlyRuntimeModel _runtimeModel;
         
-        private IReadOnlyMap _roMap;
+        //private IReadOnlyMap _roMap;
         // Получаем нашу базу (PlayerId)
-        private Vector2Int OurBase => _roMap.Bases[RuntimeModel.PlayerId];
+        private Vector2Int OurBase => _runtimeModel.RoMap.Bases[RuntimeModel.PlayerId];
 
         // Получаем вражескую базу (BotPlayerId)
-        private Vector2Int EnemyBase => _roMap.Bases[RuntimeModel.BotPlayerId];
+        private Vector2Int EnemyBase => _runtimeModel.RoMap.Bases[RuntimeModel.BotPlayerId];
 
         private TimeUtil _timeUtil;
         // Приватный конструктор - нельзя создать извне
-        private SingltonCoordinator() 
+        public Coordinator(IReadOnlyRuntimeModel runtimeModel) 
         {
             Console.WriteLine("Создан экземпляр SingltonCoordinator");
-            _runtimeModel = ServiceLocator.Get<IReadOnlyRuntimeModel>();
+            _runtimeModel = runtimeModel;
 
-            _roMap = _runtimeModel.RoMap; // Теперь _roMap инициализирован!
+            //_runtimeModel = ServiceLocator.Get<IReadOnlyRuntimeModel>();
+            
 
             // Регистрируем метод обновления в игровом цикле
             ServiceLocator.Get<TimeUtil>().AddUpdateAction(Update);
         }
 
-        // Публичный метод для получения экземпляра
-        public static SingltonCoordinator GetInstance()
-        {
-            // Если экземпляр еще не создан - создаем
-            if (_instance == null)
-            {
-                _instance = new SingltonCoordinator();
-            }
-            return _instance;
-        }
+        //// Публичный метод для получения экземпляра
+        //public  Coordinator GetInstance()
+        //{
+        //    // Если экземпляр еще не создан - создаем
+        //    if (_instance == null)
+        //    {
+        //        _instance = new Coordinator();
+        //    }
+        //    return _instance;
+        //}
         // Получаем всех вражеских юнитов
         private IEnumerable<IReadOnlyUnit> GetEnemyUnits()
         {
@@ -113,10 +114,12 @@ namespace Assets.Scripts.UnitBrains.Pathfinding
                 // Если есть враги на нашей половине - становимся перед базой
                 return OurBase;
             }
-           
+            else
+            {
 
-            // Если врагов нет - возвращаем позицию базы противника
-            return EnemyBase;
+                // Если врагов нет - возвращаем позицию базы противника
+                return EnemyBase;
+            }
         }
 
         public void Update(float deltaTime)

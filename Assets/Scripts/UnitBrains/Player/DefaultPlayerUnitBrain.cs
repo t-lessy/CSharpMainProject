@@ -33,9 +33,9 @@ namespace UnitBrains.Player
             Vector2Int enemyBase = runtimeModel.RoMap.Bases[enemyID];
 
             // 2. Получаем рекомендуемую цель 
-            var recommendationTarget = SingltonCoordinator.GetInstance()?.GetRecomendationTarget();
+            var recommendationTarget = coordinator.GetRecomendationTarget();
 
-            var recommendationPosition = SingltonCoordinator.GetInstance()?.GetRecommendedPosition();
+            var recommendationPosition = coordinator.GetRecommendedPosition();
 
             // Если цели нет, идем к вражеской базе
             if (recommendationTarget == null)
