@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Assets.Scripts.UnitBrains;
 using Model;
 using Model.Runtime.Projectiles;
@@ -14,31 +15,30 @@ namespace UnitBrains.Player
         private bool _ignoreRecommendation = false;
         private float _lastDecisionTime;
         private const float DecisionInterval = 2f;
+        private Vector2Int _currentTarget;
 
         public override Vector2Int GetNextStep()
         {
             if (Time.time - _lastDecisionTime >= DecisionInterval)
             {
                 _ignoreRecommendation = Random.value < IgnoreRecommendationChance;
+                Vector2Int newTarget = _ignoreRecommendation
+                    ? Coordinator.GetRecommendedPoint()
+                    : Coordinator.GetRecommendedTarget();
+
+                if (_path == null || newTarget != _currentTarget)
+                {
+                    _currentTarget = newTarget;
+                    _path = new NewUnitPath(runtimeModel, unit.Pos, _currentTarget);
+                }
+
                 _lastDecisionTime = Time.time;
             }
 
-            Vector2Int targetPoint;
-
-            if (_ignoreRecommendation)
-            {
-                targetPoint = UnitCoordinator.Instance.GetRecommendedPoint();
-            }
-            else
-            {
-                targetPoint = UnitCoordinator.Instance.GetRecommendedTarget();
-            }
-
-            if (unit.Pos == targetPoint)
+            if (unit.Pos == _currentTarget)
                 return unit.Pos;
 
-            _path = new NewUnitPath(runtimeModel, unit.Pos, targetPoint);
-            return _path.GetNextStepFrom(unit.Pos);
+            return _path?.GetNextStepFrom(unit.Pos) ?? unit.Pos;
         }
 
         public override BaseUnitPath ActivePath => _path;

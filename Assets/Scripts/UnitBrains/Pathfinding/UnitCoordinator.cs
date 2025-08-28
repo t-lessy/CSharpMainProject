@@ -12,30 +12,36 @@ using Utilities;
 namespace Assets.Scripts.UnitBrains
 {
     public sealed class UnitCoordinator
-    {
-        private static UnitCoordinator _instance;
+    {        
         private IReadOnlyRuntimeModel _runtimeModel;
         private TimeUtil _timeUtil;
+        private readonly bool _isPlayerCoordinator;
 
         private Vector2Int _recommendedTarget;
         private Vector2Int _recommendedPoint;
         private float _lastUpdateTime;
         private const float UpdateInterval = 0.5f;
         private bool _disposed;
+        private bool _isInitialized;
 
-        public static UnitCoordinator Instance => _instance ??= new UnitCoordinator();
-
-        private UnitCoordinator()
+        public UnitCoordinator(bool isPlayerCoordinator)
         {
+            _isPlayerCoordinator = isPlayerCoordinator;
             _runtimeModel = ServiceLocator.Get<IReadOnlyRuntimeModel>();
             _timeUtil = ServiceLocator.Get<TimeUtil>();
             _timeUtil.AddFixedUpdateAction(Update);
-            RecalculateRecommendations();
+
+            _recommendedTarget = Vector2Int.zero;
+            _recommendedPoint = Vector2Int.zero;
         }
-        
+                
         private void Update(float deltaTime)
         {
-            if (Time.time - _lastUpdateTime >= UpdateInterval)
+            if (_runtimeModel.RoMap != null && _runtimeModel.RoMap.Bases != null)
+            {
+                _isInitialized = true;
+            }
+            if (_isInitialized && Time.time - _lastUpdateTime >= UpdateInterval)
             {
                 RecalculateRecommendations();
                 _lastUpdateTime = Time.time;
@@ -44,46 +50,61 @@ namespace Assets.Scripts.UnitBrains
 
         private void RecalculateRecommendations()
         {
-            var playerBase = _runtimeModel.RoMap.Bases[RuntimeModel.PlayerId];
-            var botBase = _runtimeModel.RoMap.Bases[RuntimeModel.BotPlayerId];
-
-            var directionToEnemyBase = (UnityEngine.Vector2)(botBase - playerBase);
-            directionToEnemyBase.Normalize();
-
-            var enemyUnits = _runtimeModel.RoBotUnits.ToList();
-            var enemiesOnPlayerHalf = enemyUnits
-                .Where(u => IsOnPlayerHalf(u.Pos, playerBase, botBase))
-                .ToList();
-
-            if (enemiesOnPlayerHalf.Count > 0)
+            if (!_isInitialized || _runtimeModel.RoMap == null)
+                return;
+            try
             {
-                _recommendedTarget = enemiesOnPlayerHalf
-                    .OrderBy(u => Vector2Int.Distance(u.Pos, playerBase))
-                    .First().Pos;
+                var playerId = _isPlayerCoordinator ? RuntimeModel.PlayerId : RuntimeModel.BotPlayerId;
+                var enemyId = _isPlayerCoordinator ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId;
 
-                _recommendedPoint = playerBase + Vector2Int.RoundToInt(directionToEnemyBase * 2);
+                var playerBase = _runtimeModel.RoMap.Bases[playerId];
+                var enemyBase = _runtimeModel.RoMap.Bases[enemyId];
+
+                var directionToEnemyBase = (UnityEngine.Vector2)(enemyBase - playerBase);
+                directionToEnemyBase.Normalize();
+
+                var enemyUnits = (_isPlayerCoordinator ? _runtimeModel.RoBotUnits : _runtimeModel.RoPlayerUnits).ToList();
+
+                var enemiesOnPlayerHalf = enemyUnits
+                    .Where(u => IsOnPlayerHalf(u.Pos, playerBase, enemyBase))
+                    .ToList();
+
+                if (enemiesOnPlayerHalf.Count > 0)
+                {
+                    _recommendedTarget = enemiesOnPlayerHalf
+                        .OrderBy(u => Vector2Int.Distance(u.Pos, playerBase))
+                        .First().Pos;
+
+                    _recommendedPoint = playerBase + Vector2Int.RoundToInt(directionToEnemyBase * 2);
+                }
+                else
+                {
+                    _recommendedTarget = enemyUnits.Count > 0
+                        ? enemyUnits.OrderBy(u => u.Health).First().Pos
+                        : enemyBase;
+
+                    var closestEnemy = enemyUnits.Count > 0
+                        ? enemyUnits.OrderBy(u => Vector2Int.Distance(u.Pos, playerBase)).First()
+                        : null;
+
+                    var enemyPos = closestEnemy?.Pos ?? enemyBase;
+                    var directionToPlayerBase = (UnityEngine.Vector2)(playerBase - enemyPos);
+                    directionToPlayerBase.Normalize();
+                    _recommendedPoint = enemyPos + Vector2Int.RoundToInt(directionToPlayerBase * 2);
+                }
             }
-            else
+            catch (Exception ex)
             {
-                _recommendedTarget = enemyUnits.Count > 0
-                    ? enemyUnits.OrderBy(u => u.Health).First().Pos
-                    : botBase;
-
-                var closestEnemy = enemyUnits.Count > 0
-                    ? enemyUnits.OrderBy(u => Vector2Int.Distance(u.Pos, playerBase)).First()
-                    : null;
-
-                var enemyPos = closestEnemy?.Pos ?? botBase;
-                var directionToPlayerBase = (UnityEngine.Vector2)(playerBase - enemyPos);
-                directionToPlayerBase.Normalize();
-                _recommendedPoint = enemyPos + Vector2Int.RoundToInt(directionToPlayerBase * 2);
+                Debug.LogWarning($"Failed to calculate recommendation for {(_isPlayerCoordinator ? "player" : "bot")}: {ex.Message}");
+                _recommendedTarget = Vector2Int.zero;
+                _recommendedPoint = Vector2Int.zero;
             }
         }
 
-        private bool IsOnPlayerHalf(Vector2Int pos, Vector2Int playerBase, Vector2Int BotBase)
+        private bool IsOnPlayerHalf(Vector2Int pos, Vector2Int playerBase, Vector2Int enemyBase)
         {
-            return (pos.x < BotBase.x && playerBase.x < BotBase.x) ||
-                (pos.x > BotBase.x && playerBase.x > BotBase.x);
+            return (pos.x < enemyBase.x && playerBase.x < enemyBase.x) ||
+                (pos.x > enemyBase.x && playerBase.x > enemyBase.x);
         }
 
         public Vector2Int GetRecommendedTarget() => _recommendedTarget;
@@ -95,7 +116,5 @@ namespace Assets.Scripts.UnitBrains
             _timeUtil?.RemoveFixedUpdateAction(Update);
             _disposed = true;
         }
-
-        ~UnitCoordinator() => Dispose();
     }
 }

@@ -18,6 +18,7 @@ namespace UnitBrains.Pathfinding
         public void HighlightPath(BaseUnitPath path)
         {
             Path = path;
+
             while (allHighlights.Count > 0)
             {
                 DestroyHighlight(0);
@@ -45,6 +46,14 @@ namespace UnitBrains.Pathfinding
                 }
 
                 yield return new WaitForSeconds(0.1f);
+            }
+
+            yield return new WaitForSeconds(1f);
+
+            while (allHighlights.Count > 0)
+            {
+                DestroyHighlight(0);
+                yield return new WaitForSeconds(0.05f);
             }
         }
 
