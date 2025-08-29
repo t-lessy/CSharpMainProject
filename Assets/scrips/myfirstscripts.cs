@@ -1,19 +1,29 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using UnityEngine;
+using Debug = UnityEngine.Debug;
 
 public class NewBehaviourScript : MonoBehaviour
 {
     // Start is called before the first frame update
     void Start()
     {
-        int i = 3;
-        int j = 2;
-        int k = i - j;
-        
-        Debug.Log(10 / k );
+        int i = 7;
+        int f = 3;
 
-        Debug.Log("hi!pidori");
+        bool isEqual = i == f;
+        bool isNotEqual = i != f;
+        bool isLessThan = i < f;
+        bool isGreaterThan = i > f;
+        bool isLessThanOrEqual = i <= f;
+        bool isGreaterThanOrEqual = i >= f;
+
+        Debug.Log(isEqual);
+        Debug.Log(isNotEqual);
+        Debug.Log(isLessThan);
+        Debug.Log(isGreaterThan);
+
     }
 
 }
