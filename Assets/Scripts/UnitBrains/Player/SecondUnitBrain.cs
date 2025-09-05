@@ -7,101 +7,58 @@ namespace UnitBrains.Player
     public class SecondUnitBrain : DefaultPlayerUnitBrain
     {
         public override string TargetUnitName => "Cobra Commando";
-
         private const float OverheatTemperature = 3f;
         private const float OverheatCooldown = 2f;
         private float _temperature = 0f;
         private float _cooldownTime = 0f;
         private bool _overheated;
-        private List<Vector2Int> unreachableTargets = new List<Vector2Int>();
 
         protected override void GenerateProjectiles(Vector2Int forTarget, List<BaseProjectile> intoList)
         {
-            int currentTemp = GetTemperature();
-            if (currentTemp >= (int)OverheatTemperature)
+            int currentTemperature = GetTemperature();
+            if (currentTemperature >= OverheatTemperature)
             {
                 return;
             }
 
-            IncreaseTemperature();
-
-            for (int i = 0; i < currentTemp; i++)
+            for (int i = 0; i < currentTemperature; i++)
             {
                 var projectile = CreateProjectile(forTarget);
                 AddProjectileToList(projectile, intoList);
             }
+
+            IncreaseTemperature();
         }
 
         public override Vector2Int GetNextStep()
         {
-            Vector2Int currentPosition = GetCurrentPosition();
-
-            if (targets == null || targets.Count == 0)
-            {
-                var enemyBaseId = IsPlayerUnitBrain ? RuntimeModel.RoMap.Bases.PlayerId : RuntimeModel.RoMap.Bases.BotId;
-                var enemyBasePosition = RuntimeModel.RoMap.Bases.GetBasePositionById(enemyBaseId);
-                return CalcNextStepTowards(currentPosition, enemyBasePosition);
-            }
-
-            Vector2Int targetPos = targets[0];
-
-            if (IsInAttackRange(currentPosition, targetPos))
-            {
-                return currentPosition;
-            }
-            else
-            {
-                return CalcNextStepTowards(currentPosition, targetPos);
-            }
+            return base.GetNextStep();
         }
 
         protected override List<Vector2Int> SelectTargets()
         {
-            var allTargets = GetAllTargets();
+            List<Vector2Int> result = GetReachableTargets();
 
-            if (allTargets == null || allTargets.Count == 0)
+            if (result.Count == 0)
+                return result;
+
+            Vector2Int closestTarget = result[0];
+            float minDistance = DistanceToOwnBase(closestTarget);
+
+            for (int i = 1; i < result.Count; i++)
             {
-                targets = new List<Vector2Int>();
-                var enemyBaseId = IsPlayerUnitBrain ? RuntimeModel.RoMap.Bases.PlayerId : RuntimeModel.RoMap.Bases.BotId;
-                var enemyBasePos = RuntimeModel.RoMap.Bases.GetBasePositionById(enemyBaseId);
-                targets.Add(enemyBasePos);
-                unreachableTargets.Clear();
-                return targets;
-            }
-
-            targets.Clear();
-            unreachableTargets.Clear();
-
-            Vector2Int ownBaseId = IsPlayerUnitBrain ? RuntimeModel.RoMap.Bases.PlayerId : RuntimeModel.RoMap.Bases.BotId;
-            float minDistanceToOwnBase = float.MaxValue;
-            Vector2Int mostDangerousTarget = default;
-
-            foreach (var target in allTargets)
-            {
-                float distanceToOwnBase = DistanceToOwnBase(target);
-
-                if (IsTargetInRange(target))
+                float distance = DistanceToOwnBase(result[i]);
+                if (distance < minDistance)
                 {
-                    targets.Add(target);
-                }
-                else
-                {
-                    if (distanceToOwnBase < minDistanceToOwnBase)
-                    {
-                        minDistanceToOwnBase = distanceToOwnBase;
-                        mostDangerousTarget = target;
-                    }
+                    minDistance = distance;
+                    closestTarget = result[i];
                 }
             }
 
+            result.Clear();
+            result.Add(closestTarget);
 
-            if (targets.Count == 0 && mostDangerousTarget != default)
-            {
-                unreachableTargets.Add(mostDangerousTarget);
-                targets.Add(mostDangerousTarget);
-            }
-
-            return targets;
+            return result;
         }
 
         public override void Update(float deltaTime, float time)
@@ -109,13 +66,12 @@ namespace UnitBrains.Player
             if (_overheated)
             {
                 _cooldownTime += Time.deltaTime;
-                float t = _cooldownTime / OverheatCooldown;
+                float t = _cooldownTime / (OverheatCooldown / 10);
                 _temperature = Mathf.Lerp(OverheatTemperature, 0, t);
                 if (t >= 1)
                 {
                     _cooldownTime = 0;
                     _overheated = false;
-                    _temperature = 0f;
                 }
             }
         }
@@ -123,36 +79,13 @@ namespace UnitBrains.Player
         private int GetTemperature()
         {
             if (_overheated) return (int)OverheatTemperature;
-            else return Mathf.CeilToInt(_temperature);
+            else return (int)_temperature;
         }
 
         private void IncreaseTemperature()
         {
             _temperature += 1f;
             if (_temperature >= OverheatTemperature) _overheated = true;
-        }
-
-        private Vector2Int GetCurrentPosition()
-        {
-            return new Vector2Int(0, 0);
-        }
-
-        private bool IsInAttackRange(Vector2Int from, Vector2Int to)
-        {
-            float attackRange = 1.5f;
-            return Vector2.Distance(from, to) <= attackRange;
-        }
-
-        private Vector2Int CalcNextStepTowards(Vector2Int from, Vector2Int to)
-        {
-            Vector2 direction = (to - from).normalized;
-            return from + new Vector2Int(Mathf.RoundToInt(direction.x), Mathf.RoundToInt(direction.y));
-        }
-
-        private bool IsTargetInRange(Vector2Int target)
-        {
-            Vector2Int currentPos = GetCurrentPosition();
-            return IsInAttackRange(currentPos, target);
         }
     }
 }
