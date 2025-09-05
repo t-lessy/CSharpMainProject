@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Runtime.InteropServices.WindowsRuntime;
 using Model.Runtime.Projectiles;
 using UnityEngine;
 
@@ -43,15 +44,32 @@ namespace UnitBrains.Player
 
         protected override List<Vector2Int> SelectTargets()
         {
-            ///////////////////////////////////////
-            // Homework 1.4 (1st block, 4rd module)
-            ///////////////////////////////////////
+
             List<Vector2Int> result = GetReachableTargets();
-            while (result.Count > 1)
+
+            if (result.Count == 0) 
             {
-                result.RemoveAt(result.Count - 1);
+                return result;
             }
+
+            float min = DistanceToOwnBase(result[0]);
+            Vector2Int vector = result[0];
+
+            for (int i = 1; i < result.Count; i++)
+            {
+                if (min < DistanceToOwnBase(result[i]))
+                {
+                    vector = result[i];
+                    min = DistanceToOwnBase(result[i]);
+                }
+            }
+
+            result.Clear();
+
+            result.Add(vector);
             return result;
+
+
             ///////////////////////////////////////
         }
 
