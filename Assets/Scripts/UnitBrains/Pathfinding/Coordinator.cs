@@ -38,16 +38,7 @@ namespace Assets.Scripts.UnitBrains.Pathfinding
             ServiceLocator.Get<TimeUtil>().AddUpdateAction(Update);
         }
 
-        //// Публичный метод для получения экземпляра
-        //public  Coordinator GetInstance()
-        //{
-        //    // Если экземпляр еще не создан - создаем
-        //    if (_instance == null)
-        //    {
-        //        _instance = new Coordinator();
-        //    }
-        //    return _instance;
-        //}
+       
         // Получаем всех вражеских юнитов
         private IEnumerable<IReadOnlyUnit> GetEnemyUnits()
         {

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Assets.Scripts.UnitBrains.Pathfinding;
+using Assets.Scripts.Utilities;
 using Model;
 using Model.Runtime.Projectiles;
 using Model.Runtime.ReadOnly;
@@ -13,12 +14,15 @@ namespace UnitBrains
 {
     public abstract class BaseUnitBrain
     {
+        
         public virtual string TargetUnitName => string.Empty;
         public virtual bool IsPlayerUnitBrain => true;
         public virtual BaseUnitPath ActivePath => _activePath;
         protected Coordinator coordinator => ServiceLocator.Get<Coordinator>();
         protected Unit unit { get; private set; }
+
         protected IReadOnlyRuntimeModel runtimeModel => ServiceLocator.Get<IReadOnlyRuntimeModel>();
+
         protected BaseUnitPath _activePath = null;
         
         private readonly Vector2[] _projectileShifts = new Vector2[]
@@ -77,6 +81,7 @@ namespace UnitBrains
 
         protected virtual List<Vector2Int> SelectTargets()
         {
+            
             var result = GetReachableTargets();
             while (result.Count > 1)
                 result.RemoveAt(result.Count - 1);
@@ -164,5 +169,6 @@ namespace UnitBrains
 
             return result;
         }
+        
     }
 }

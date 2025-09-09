@@ -1,4 +1,5 @@
 ﻿using Assets.Scripts.UnitBrains.Pathfinding;
+using Assets.Scripts.Utilities;
 using Model;
 using Model.Config;
 using UnityEngine;
@@ -12,6 +13,7 @@ namespace Controller
         private readonly PersistedModel _persisted;
         private readonly RuntimeModel _runtimeModel;
         private readonly LevelController _levelController;
+        private EffectSystem _effectSystem=new();
         private Coordinator coordinator { get; }
         private RootView _rootView;
 
@@ -19,7 +21,10 @@ namespace Controller
         {
             _persisted = PersistanceUtils.LoadSingleton(new PersistedModel());
             ServiceLocator.Register(TimeUtil.Create());
+
+            ServiceLocator.Register<EffectSystem>(_effectSystem);
             
+
             _runtimeModel = new();
             ServiceLocator.RegisterAs(_runtimeModel, typeof(IReadOnlyRuntimeModel));
             

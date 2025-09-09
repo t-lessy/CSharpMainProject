@@ -23,7 +23,11 @@ namespace Model.Config
         public int Cost => _cost;
         public int MaxHealth => _maxHealth;
         public float BrainUpdateInterval => _brainUpdateDelay;
-        public float MoveDelay => _moveDelay;
+        public float MoveDelay
+        {
+            get { return _moveDelay; }
+            set { _moveDelay = value; }
+        }
         public float AttackDelay => _attackDelay;
         public float AttackRange => _attackRange;
         public ProjectileType ProjectileType => _projectileType;

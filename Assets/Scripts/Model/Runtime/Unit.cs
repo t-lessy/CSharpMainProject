@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Assets.Scripts.UnitBrains.Pathfinding;
+using Assets.Scripts.Utilities;
 using Model.Config;
 using Model.Runtime.Projectiles;
 using Model.Runtime.ReadOnly;
@@ -13,7 +14,11 @@ namespace Model.Runtime
 {
     public class Unit : IReadOnlyUnit
     {
+        Effect speedBuff = new Effect("speed_boost", "Буст скорости", EffectType.Buff, 10f, 1.5f);
+        Effect attackSpeedBuff = new Effect("speed_boost", "Буст скорости атаки", EffectType.Buff, 10f, 1.5f);
+
         public static List<Unit> Group=new();
+        public static List<Unit> AlLUnitPlayer = new();
         public static int UnitCounter=0;// Счетчик юнитов
         public static int NumberUnit { get; set; }// Номер юнита
         public const int MaxUnitInGroup = 3;// Макс количество юнитов в группе
@@ -28,6 +33,8 @@ namespace Model.Runtime
         private readonly List<BaseProjectile> _pendingProjectiles = new();
         private IReadOnlyRuntimeModel _runtimeModel;
         private BaseUnitBrain _brain;
+       
+        private EffectSystem _effectSystem;
         private Coordinator _coordunator;
         private float _nextBrainUpdateTime = 0f;
         private float _nextMoveTime = 0f;
@@ -41,11 +48,17 @@ namespace Model.Runtime
             Health = config.MaxHealth;
             _brain = UnitBrainProvider.GetBrain(config);
             _brain.SetUnit(this);
-            
+
+            _effectSystem=ServiceLocator.Get<EffectSystem>();
             _coordunator = coordinator;
-            
+           
             //coordinator= ServiceLocator.Get<Coordinator>();
             _runtimeModel = ServiceLocator.Get<IReadOnlyRuntimeModel>();
+            if(config.IsPlayerUnit && config.Name!="Command Buffer")
+            {
+                AlLUnitPlayer.Add(this);// добавление в группу
+
+            }
             if (config.IsPlayerUnit )// если юнит игрока
             {
                 if (_runtimeModel != null)
@@ -54,15 +67,35 @@ namespace Model.Runtime
                 UnitCounter++;// Добавление к счету юнита +1
                 NumberUnit = UnitCounter;// Присвоение  юниту номера
                 Debug.Log($"Номер юнита {NumberUnit}");
+
+            }
+            if (config.Name == "Sky Serpent")
+            {
+                _effectSystem.AddEffect(this,speedBuff);
             }
            
+           
+        }
+        private bool CanMove(float time)
+        {
+            float moveDelay = Config.MoveDelay / _effectSystem.GetMoveSpeedModifier(this);
+            return _nextMoveTime < time;
         }
 
+        private bool CanAttack(float time)
+        {
+            float attackDelay = Config.AttackDelay / _effectSystem.GetAttackSpeedModifier(this);
+            return _nextAttackTime < time;
+        }
         public void Update(float deltaTime, float time)
         {
             if (IsDead)
                 return;
-            
+            // Движение и атака с учетом модификаторов
+            if (CanMove(time)) Move();
+
+            if (CanAttack(time)) Attack();
+
             if (_nextBrainUpdateTime < time)
             {
                 _nextBrainUpdateTime = time + Config.BrainUpdateInterval;
@@ -93,6 +126,7 @@ namespace Model.Runtime
 
         private void Move()
         {
+            
             var targetPos = _brain.GetNextStep();
             var delta = targetPos - Pos;
             if (delta.sqrMagnitude > 2)
@@ -119,5 +153,7 @@ namespace Model.Runtime
         {
             Health -= projectileDamage;
         }
+
+        
     }
 }
