@@ -7,10 +7,18 @@ using Debug = UnityEngine.Debug;
 public class NewBehaviourScript : MonoBehaviour
 {
     // Start is called before the first frame update
-    void Start()
+   void Start()
+    
+    
+      
     {
-   
+        int i = 0;
 
-    }
-
+        while (true)
+        {
+            i++;
+           
+            Debug.Log(i);
+        }
+   }
 }
