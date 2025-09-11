@@ -58,6 +58,7 @@ public class FourthUnitBrain : DefaultPlayerUnitBrain
         {
             foreach (var target in Unit.AlLUnitPlayer)
             {
+
                 GenerateBuffsForCommand(target);
             }
 
@@ -65,23 +66,7 @@ public class FourthUnitBrain : DefaultPlayerUnitBrain
 
             return unit.Pos;
         }
-        //if (!Marsh)
-        //{
-        //    // Баффаем только юнитов в радиусе действия
-        //    var unitsInRange = Unit.Group?
-        //        .Where(u => u != null)
-        //        .Where(u => Vector2Int.Distance(unit.Pos, u.Pos) <= u.Config.AttackRange)
-        //        .ToList();
-
-        //    if (unitsInRange != null && unitsInRange.Count > 0)
-        //    {
-        //        foreach (var target in unitsInRange)
-        //        {
-        //            GenerateBuffsForCommand(target);
-        //        }
-        //    }
-        //    return unit.Pos;
-        //}
+       
         else
         {
             //return base.GetNextStep();
@@ -91,49 +76,90 @@ public class FourthUnitBrain : DefaultPlayerUnitBrain
     }
     protected override List<Vector2Int> SelectTargets()
     {
-        
 
+
+        //allPlayerUnit = GetCommandTargets().ToList();
+        //foreach (var target in allPlayerUnit)
+        //{
+        //    if (IsTargetInRange(target))
+        //    {
+        //        result.Add(target);
+        //    }
+        //}
+
+        //while (result.Count > 1)
+        //{
+        //    result.RemoveAt(result.Count - 1);
+        //}
+        //return result;
+        var currentResult = new List<Vector2Int>(); 
         allPlayerUnit = GetCommandTargets().ToList();
+
         foreach (var target in allPlayerUnit)
         {
             if (IsTargetInRange(target))
             {
-                result.Add(target);
+                currentResult.Add(target);
             }
         }
-       
-        while (result.Count > 1)
-        {
-            result.RemoveAt(result.Count - 1);
-        }
-        return result;
 
+        // Оставляем только первую цель
+        while (currentResult.Count > 1)
+        {
+            currentResult.RemoveAt(currentResult.Count - 1);
+        }
+
+        return currentResult; // Возвращаем новый список
     }
+
+    
     public override void Update(float deltaTime, float time)
     {
+        result = SelectTargets(); // Пересчитываем цели
+
         if (result.Count > 0)
         {
             Marsh = false;
-            SwitchModTime += Time.deltaTime;
-            float t = SwitchModTime / (_switchModTime / 10);
-            if (t >= 1)
+            SwitchModTime += deltaTime;
+            if (SwitchModTime >= _switchModTime / 10)
             {
                 SwitchModTime = 0;
                 GetBuffMod();
-
             }
         }
         else
         {
             GetBuff = false;
-            SwitchModTime += Time.deltaTime;
-            float t = SwitchModTime / (_switchModTime / 10);
-            if (t >= 1)
+            SwitchModTime += deltaTime;
+            if (SwitchModTime >= _switchModTime / 10)
             {
                 SwitchModTime = 0;
                 MarshMod();
             }
         }
+        //if (result.Count > 0)
+        //{
+        //    Marsh = false;
+        //    SwitchModTime += Time.deltaTime;
+        //    float t = SwitchModTime / (_switchModTime / 10);
+        //    if (t >= 1)
+        //    {
+        //        SwitchModTime = 0;
+        //        GetBuffMod();
+
+        //    }
+        //}
+        //else
+        //{
+        //    GetBuff = false;
+        //    SwitchModTime += Time.deltaTime;
+        //    float t = SwitchModTime / (_switchModTime / 10);
+        //    if (t >= 1)
+        //    {
+        //        SwitchModTime = 0;
+        //        MarshMod();
+        //    }
+        //}
 
 
     }
