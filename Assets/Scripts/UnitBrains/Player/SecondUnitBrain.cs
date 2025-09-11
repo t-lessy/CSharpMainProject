@@ -116,21 +116,21 @@ namespace UnitBrains.Player
                 result.Add(vector);
             }
 
-            else
-            {
-                if (IsPlayerUnitBrain == true)
-                {
-                    int id = RuntimeModel.BotPlayerId;
-                    Vector2Int baseV = runtimeModel.RoMap.Bases[id];
-                    result.Add(baseV);
-                }
-                else
-                {
-                    int id = RuntimeModel.PlayerId;
-                    Vector2Int baseV = runtimeModel.RoMap.Bases[id];
-                    result.Add(baseV);
-                }
-            }
+            //else
+            //{
+            //    if (IsPlayerUnitBrain == true)
+            //    {
+            //        int id = RuntimeModel.BotPlayerId;
+            //        Vector2Int baseV = runtimeModel.RoMap.Bases[id];
+            //        result.Add(baseV);
+            //    }
+            //    else
+            //    {
+            //        int id = RuntimeModel.PlayerId;
+            //        Vector2Int baseV = runtimeModel.RoMap.Bases[id];
+            //        result.Add(baseV);
+            //    }
+            //}
 
 
 
