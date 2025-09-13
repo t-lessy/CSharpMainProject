@@ -21,6 +21,7 @@ namespace Model.Runtime
 
         public float AttackDelay;//
         public float MoveDelay;//
+        public bool IsBuffed = false;//
 
 
         private readonly List<BaseProjectile> _pendingProjectiles = new();

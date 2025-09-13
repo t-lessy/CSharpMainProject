@@ -18,6 +18,12 @@ public class EffectsForUnits
         _runtimeModel = runtimeModel;
     }
 
+    public void GiveBuffToUnit(Unit unit, int durationInMs, float moveDelayModifier, float attackDelayModifier)
+    {
+        SetUnitMoveDelay(unit, durationInMs, moveDelayModifier);
+        SetUnitAttackDelay(unit, durationInMs, attackDelayModifier);
+    }
+
     public void SetAllUnitsMoveDelay(int durationInMs, float moveDelayModifier)
     {
         foreach (Unit unit in _runtimeModel.AllUnits)
@@ -52,9 +58,12 @@ public class EffectsForUnits
         timer.AutoReset = false;
         timer.Enabled = true;
 
+        unit.IsBuffed = true;
+
         void OnTimedEvent(System.Object source, ElapsedEventArgs e)
         {
             unit.MoveDelay = unit.Config.MoveDelay;
+            unit.IsBuffed = false;
 
             timer.Stop();
             timer.Dispose();
@@ -68,18 +77,16 @@ public class EffectsForUnits
         timer.AutoReset = false;
         timer.Enabled = true;
 
+        unit.IsBuffed = true;
+
         void OnTimedEvent(System.Object source, ElapsedEventArgs e)
         {
             unit.AttackDelay = unit.Config.AttackDelay;
+            unit.IsBuffed = false;
 
             timer.Stop();
             timer.Dispose();
         }
     }
-    
-
-
-
-
 }
 
