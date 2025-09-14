@@ -1,6 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using Model;
 using Model.Runtime.Projectiles;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
+using Utilities;
 
 namespace UnitBrains.Player
 {
@@ -30,38 +33,64 @@ namespace UnitBrains.Player
 
         public override Vector2Int GetNextStep()
         {
-            return base.GetNextStep();
+            List<Vector2Int> targets = SelectTargets();
+            Vector2Int currentPosition = unit.Pos; //D1 Текущая позиция юнита из поля unit, подсмотрел из BaseUnitBrain
+
+            if (targets.Count == 0) return currentPosition;
+
+            Vector2Int target = targets[0];
+
+            if (IsTargetInRange(target)) return currentPosition; //D2 метод IsTargetInRange также подсмотрел в BaseUnitBrain
+
+            return currentPosition.CalcNextStepTowards(target); //E - сли цель вне зоны атаки - метод CalcNextStepTowards
         }
 
+        // Вспомогательный метод для расчёта расстояния (если нет доступного в проекте)
+        private float Distance(Vector2Int a, Vector2Int b)
+        {
+            return Vector2Int.Distance(a, b);
+        }
+
+
+        Vector2Int ClosestUnreachableTarget; //Шаг В.2 - создание новой переменной для хранения целей, к которым нужно идти, но которые вне зоны досягаемости.
         protected override List<Vector2Int> SelectTargets()
         {
-            List<Vector2Int> result = GetReachableTargets();
-            if (result.Count == 0)
-            {
-                return result; //Список возвращается если не будет целей
-            }
-            Vector2Int minTarget = result[0]; //Беру первое попавшееся значение из листа result за эталон
-            float minDistance = DistanceToOwnBase(minTarget); //Беру в качестве эталона расстояние до базы от первой же цели
+            List<Vector2Int> AllTargets = GetAllTargets().ToList(); //Шаг А. Замена достижиых целей на все цели. List<Vector2Int> result = GetReachableTargets();
 
-            foreach (Vector2Int target in result)//Цикл для каждой цели target из листа result:
+            if (AllTargets.Count == 0)
             {
-                float distance= DistanceToOwnBase(target);//Берётся значение каждой из цели до базы
-                if (distance < minDistance) //если расстояние distance до базы меньше эталонного
-                {
-                    minDistance=distance; //присваивается новое миниальное расстояние
-                    minTarget=target; //берется ближайшая цель на основе расстояния до базы
-                }
+                int enemyPlayerId = IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId; //С1 Получаем айди противника
+                Vector2Int enemyBasePosition = runtimeModel.RoMap.Bases[enemyPlayerId]; //С2 Получаем координаты базы противника
+                return new List<Vector2Int> { enemyBasePosition };
             }
-            result.Clear(); 
-            result.Add(minTarget); // Очищаем весь лист result и добавляем в него только ближайшую
-            return result; // Возврат итогового списка
 
-            //while (result.Count > 1)
-            //{
-            //    result.RemoveAt(result.Count - 1);
-            //}
-            //return result;
-            ///////////////////////////////////////
+            List<Vector2Int> ReachableTargets = GetReachableTargets(); // Шаг В.1 Создаем список всех достижимых целей для дальнеших проверок.
+            List<Vector2Int> result = new List<Vector2Int>();
+
+            Vector2Int minTarget = AllTargets[0];
+            float minDistance = DistanceToOwnBase(minTarget);
+
+            foreach (Vector2Int target in AllTargets)
+            {
+                float distance= DistanceToOwnBase(target);
+                    if (distance < minDistance)
+                    {
+                        minDistance = distance;
+                        minTarget = target;
+                    }
+            }
+
+            if (ReachableTargets.Contains(minTarget)) //Проверка на достижиомость цели
+            {
+                result.Add(minTarget); 
+            }
+
+            else
+            {
+                ClosestUnreachableTarget = minTarget; //В противном случае записываем в переменную как самую опасную цель
+            }
+
+            return result;
         }
 
         public override void Update(float deltaTime, float time)
