@@ -60,15 +60,6 @@ namespace Controller
             _runtimeModel.Bases[RuntimeModel.BotPlayerId] = new MainBase(_settings.MainBaseMaxHp);
 
             _gameplayView.Reinitialize();
-
-            _timeUtil.RunDelayed(1f, () =>
-            {
-                var testBuff = new BuffsSys.Buff(10f, 5f, 1f);
-                foreach (var unit in _runtimeModel.RoUnits)
-                {
-                    buffsSystem.AddBuff((Unit)unit, testBuff);
-                }
-            });
         }
 
         public void OnPlayersUnitChosen(UnitConfig unitConfig)
