@@ -27,8 +27,14 @@ namespace Model.Runtime
         private float _nextMoveTime = 0f;
         private float _nextAttackTime = 0f;
 
-        private BuffsSys _buffsSys => ServiceLocator.Get<BuffsSys>();
-        
+        private float baseMoveDelay;
+        private float baseAttackDelay;
+        private float baseAttackRange;
+        private bool canDoubleAttack = false;
+        private float currentMoveDelay;
+        private float currentAttackDelay;
+        private float currentAttackRange;
+
         public Unit(UnitConfig config, Vector2Int startPos, UnitCoordinatorService unitCoordinator)
         {
             Config = config;
@@ -36,6 +42,14 @@ namespace Model.Runtime
             Health = config.MaxHealth;
             _brain = UnitBrainProvider.GetBrain(config);
             _brain.SetUnit(this);
+
+            baseMoveDelay = config.MoveDelay;
+            baseAttackDelay = config.AttackDelay;
+            baseAttackRange = config.AttackRange;
+
+            currentMoveDelay = baseMoveDelay;
+            currentAttackDelay = baseAttackDelay;
+            currentAttackRange = baseAttackRange;
 
             if (unitCoordinator != null) _brain.SetCoordinator(unitCoordinator);
 
@@ -104,35 +118,38 @@ namespace Model.Runtime
             Health -= projectileDamage;
         }
 
-        private BuffsSys GetBuffsSys()
+        public void ModifyMoveDelay(float multiplier)
         {
-            if (ServiceLocator.Contains<BuffsSys>())
-                return ServiceLocator.Get<BuffsSys>();
-            return null;
+            currentMoveDelay = baseMoveDelay / multiplier;
+        }
+
+        public void ModifyAttackDelay(float multiplier)
+        {
+            currentAttackDelay = baseAttackDelay / multiplier;
+        }
+
+        public void ModifyAttackRange(float multiplier)
+        {
+            currentAttackRange = baseAttackRange * multiplier;
+        }
+
+        public void EnableDoubleAttack(bool enable)
+        {
+            canDoubleAttack = enable;
         }
 
         private float GetModifierMoveDelay()
         {
-            float baseDelay = Config.MoveDelay;
-            var buffsSys = GetBuffsSys();
-            if (buffsSys != null)
-            {
-                float modifier = buffsSys.GetSpeedModifier(this);
-                return baseDelay / modifier;
-            }
-            return baseDelay;
+            return currentMoveDelay;
         }
 
         private float GetModifierAttackDelay()
         {
-            float baseDelay = Config.AttackDelay;
-            var buffsSys = GetBuffsSys();
-            if (buffsSys != null)
-            {
-                float modifier = buffsSys.GetAttackModifier(this);
-                return baseDelay / modifier;
-            }
-            return baseDelay;
+            return currentAttackDelay;
         }
+
+        public float GetCurrentAttackRange() => currentAttackRange;
+
+        public bool CanDoubleAttack() => canDoubleAttack;
     }
 }

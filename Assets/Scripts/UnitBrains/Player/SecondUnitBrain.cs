@@ -41,10 +41,10 @@ namespace UnitBrains.Player
 
         public override Vector2Int GetNextStep()
         {
-            //if (_currentMovementTarget == null) return unit.Pos;
+            if (_currentMovementTarget == null) return unit.Pos;
 
-            //return unit.Pos.CalcNextStepTowards(_currentMovementTarget.Value);
-            return base.GetNextStep();
+            return unit.Pos.CalcNextStepTowards(_currentMovementTarget.Value);
+            //return base.GetNextStep();
         }
 
         private Vector2Int? _currentMovementTarget;

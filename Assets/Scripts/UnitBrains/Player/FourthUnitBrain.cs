@@ -1,5 +1,6 @@
 ﻿using Model;
 using Model.Config;
+using Model.Runtime;
 using Model.Runtime.Projectiles;
 using System;
 using System.Collections;
@@ -79,13 +80,26 @@ namespace UnitBrains.Player
 
             foreach (var ally in alliesInRange)
             {
-                if (ally.Config.IsPlayerUnit == unit.Config.IsPlayerUnit)
+                if (ally is Unit concreteAlly && ally.Config.IsPlayerUnit == unit.Config.IsPlayerUnit)
                 {
-                    bool hasBuffs = buffsSystem.Effects.ContainsKey((Model.Runtime.Unit)ally);
+                    bool hasBuffs = buffsSystem.ActiveBuffs.ContainsKey((Model.Runtime.Unit)ally);
                     if (!hasBuffs)
                     {
-                        var buff = new BuffsSys.Buff(8f, 10f, 10f);
-                        buffsSystem.AddBuff((Model.Runtime.Unit)ally, buff);
+                        if(concreteAlly.Config.name.Contains("Cobra Commando"))
+                        {
+                            var doubleAttackBuff = new DoubleAttackBuff(8f);
+                            buffsSystem.AddBuff(concreteAlly, doubleAttackBuff);
+                        }
+                        else if (concreteAlly.Config.Name.Contains("Ironclad Behemoth"))
+                        {
+                            var rangeBuff = new RangeBuff(8f, 1.5f);
+                            buffsSystem.AddBuff(concreteAlly, rangeBuff);
+                        }
+                        else
+                        {
+                            var speedBuff = new SpeedBuff(8f, 1.2f);
+                            buffsSystem.AddBuff(concreteAlly, speedBuff);
+                        }
 
                         var vfxView = ServiceLocator.Get<VFXView>();
                         vfxView.PlayVFX(ally.Pos, VFXView.VFXType.BuffApplied);

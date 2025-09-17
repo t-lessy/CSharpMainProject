@@ -1,89 +1,119 @@
 ﻿using Model.Runtime;
+using Model.Runtime.ReadOnly;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TMPro;
 using UnityEngine;
 using Utilities;
 
 namespace UnitBrains
 {
+    public interface IBuff<T> where T : IReadOnlyUnit
+    {
+        float Duration { get; }
+        bool IsExpired { get; }
+        bool CanApplyTo(T unit);
+        void ApplyEffect(T unit);
+        void RemoveEffect(T unit);
+        void Update(float deltaTime);
+        
+    }
+
+    public abstract class Buff<T> : IBuff<T> where T : IReadOnlyUnit
+    {
+        public float Duration { get; protected set; }
+        protected float elapsedTime;
+
+        protected Buff(float duration)
+        {
+            Duration = duration;
+            elapsedTime = 0f;
+        }
+
+        public abstract void ApplyEffect(T unit);
+
+        public abstract bool CanApplyTo(T unit);
+
+        public abstract void RemoveEffect(T unit);
+
+        public virtual void Update(float deltaTime)
+        {
+            elapsedTime += deltaTime;
+        }
+
+        public bool IsExpired => elapsedTime >= Duration;
+    }
+
     public class BuffsSys : MonoBehaviour
     {
-
-        public Dictionary<Unit, List<Buff>> Effects { get; private set; }  = new Dictionary<Unit, List<Buff>>();
+        public Dictionary<IReadOnlyUnit, List<IBuff<IReadOnlyUnit>>> ActiveBuffs = new Dictionary<IReadOnlyUnit, List<IBuff<IReadOnlyUnit>>>();
 
         private void Awake()
         {
             ServiceLocator.RegisterAs(this, typeof(BuffsSys));
         }
 
-        public void AddBuff(Unit unit, Buff buff)
+        private void Update()
         {
-            if (!Effects.ContainsKey(unit)) Effects[unit] = new List<Buff>();
+            List<IReadOnlyUnit> unitsToRemove = new List<IReadOnlyUnit>();
 
-            Effects[unit].Add(buff);
-            StartCoroutine(ReducedDuration(unit, buff));
-        }
+            var unitKeys = new List<IReadOnlyUnit>(ActiveBuffs.Keys);
 
-        private IEnumerator ReducedDuration(Unit unit, Buff buff)
-        {
-            float elapsedTime = 0f;
-
-            while (elapsedTime < buff.Duration)
+            foreach (var unit in unitKeys)
             {
-                elapsedTime += Time.deltaTime;
-                yield return null;
-            }
+                if (!ActiveBuffs.TryGetValue(unit, out var buffs) || buffs == null)
+                    continue;
 
-            if (Effects.ContainsKey(unit))
-            {
-                Effects[unit].Remove(buff);
-                if (Effects[unit].Count == 0)
+                for (int t = buffs.Count - 1; t >= 0; t--)
                 {
-                    Effects.Remove(unit);
+                    var buff = buffs[t];
+                    if (buff == null) 
+                        continue;
+
+                    buff.Update(Time.deltaTime);
+
+                    if (buff.IsExpired)
+                    {
+                        if (buff is IBuff<IReadOnlyUnit> genericBuff) 
+                            genericBuff.RemoveEffect(unit);
+                        buffs.RemoveAt(t);
+                    }
                 }
+
+                if (buffs.Count == 0)
+                    unitsToRemove.Add(unit);
             }
+
+            foreach (var unit  in unitsToRemove)
+                ActiveBuffs.Remove(unit);
         }
 
-        public float GetSpeedModifier(Unit unit)
+        public void AddBuff<T>(T unit, IBuff<T> buff) where T : IReadOnlyUnit
         {
-            if (!Effects.ContainsKey(unit) || Effects[unit].Count == 0) return 1f;
+            if (!buff.CanApplyTo(unit))
+                return;
 
-            float modifier = 1f;
-            foreach (Buff buff in Effects[unit])
-            {
-                modifier *= buff.ModifierSpeed;
-            }
-            return modifier;
+            if (!ActiveBuffs.ContainsKey(unit))
+                ActiveBuffs[unit] = new List<IBuff<IReadOnlyUnit>>();
+
+            buff.ApplyEffect(unit);
+            ActiveBuffs[unit].Add(buff as IBuff<IReadOnlyUnit>);
         }
 
-        public float GetAttackModifier(Unit unit)
+        public bool HasBuffs(IReadOnlyUnit unit)
         {
-            if (!Effects.ContainsKey(unit) || Effects[unit].Count == 0) return 1f;
-
-            float modifier = 1f;
-            foreach (Buff buff in Effects[unit])
-            {
-                modifier *= buff.ModifierAttack;
-            }
-            return modifier;
+            return ActiveBuffs.ContainsKey(unit) && ActiveBuffs[unit].Count > 0;
         }
 
-        public class Buff
+        public IEnumerable<IBuff<IReadOnlyUnit>> GetBuffs(IReadOnlyUnit unit)
         {
-            public float Duration { get; set; }
-            public float ModifierSpeed { get; set; }
-            public float ModifierAttack { get; set; }
-
-            public Buff(float duration, float modifierSpeed, float modifierAttack)
-            {
-                Duration = duration;
-                ModifierSpeed = modifierSpeed;
-                ModifierAttack = modifierAttack;
-            }
+            if (ActiveBuffs.TryGetValue(unit, out var buffs))
+                return buffs;
+            return new List<IBuff<IReadOnlyUnit>>();
         }
     }
 }
