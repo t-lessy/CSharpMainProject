@@ -1,14 +1,9 @@
-﻿using log4net.Util;
-using Model;
-using System.Collections;
+﻿using Model;
+using Model.Runtime;
 using System.Collections.Generic;
-using System.Linq;
 using UnitBrains.Player;
 using UnityEngine;
-using UnityEngine.UIElements;
-using Utilities;
-using Model.Runtime;
-
+using static UnityEngine.UI.CanvasScaler;
 
 public class ThirdUnitBrain : DefaultPlayerUnitBrain
 {
@@ -17,70 +12,47 @@ public class ThirdUnitBrain : DefaultPlayerUnitBrain
     private enum State { Moving, Attacking, Transition }
     private State currentState = State.Moving;
     private float transitionTime;
-    private const float TransitionDuration = 1f;
-    private const int MaxOfTargets = 3;
+    private const float TransitionDuration = 0.1f;
 
-    private List<Vector2Int> _unreachableTargets = new List<Vector2Int>();
-    private int _unitNumber;
-
-    private void Update()
+    public override void Update(float deltaTime, float time)
     {
         if (currentState == State.Transition)
         {
-            transitionTime += Time.deltaTime;
-
-
-            if (transitionTime >= TransitionDuration)// Завершаем переход на основе наличия целей
+            transitionTime += deltaTime;
+            if (transitionTime >= TransitionDuration)
             {
-                var targets = SelectTargets();
-                currentState = targets.Count > 0 ? State.Attacking : State.Moving;
+                currentState = HasTargets() ? State.Attacking : State.Moving;
+                transitionTime = 0f;
             }
             return;
         }
 
+        bool hasTargets = HasTargets();
 
-        var currentTargets = SelectTargets();
-
-        if (currentState == State.Moving && currentTargets.Count > 0)
+        if (currentState == State.Moving && hasTargets)
         {
-            StartTransition();
+            currentState = State.Transition;
+            transitionTime = 0f;
         }
-        else if (currentState == State.Attacking && currentTargets.Count == 0)
+        else if (currentState == State.Attacking && !hasTargets)
         {
-            StartTransition();
-        }
-
-        if (currentState == State.Moving)
-        {
-            Move();
-        }
-        else if (currentState == State.Attacking)
-        {
-            Attack();
+            currentState = State.Transition;
+            transitionTime = 0f;
         }
     }
 
-    private void StartTransition()
+    public override Vector2Int GetNextStep()
     {
-        currentState = State.Transition;
-        transitionTime = 0f;
+        return currentState == State.Moving ? base.GetNextStep() : unit.Pos;
     }
 
-    private void Move()
+    protected override List<Vector2Int> SelectTargets()
     {
-        Vector2Int nextStep = GetNextStep();
-        Debug.Log($"Движение к: {nextStep}");
+        return currentState == State.Attacking ? base.SelectTargets() : new List<Vector2Int>();
     }
 
-    private void Attack()
+    private bool HasTargets()
     {
-        var targets = SelectTargets();
-        if (targets.Count > 0)
-        {
-            // Атакуем первую цель из списка
-            Vector2Int target = targets[0];
-
-        }
+        return base.SelectTargets().Count > 0;
     }
-    
 }
