@@ -1,4 +1,5 @@
-﻿using Model;
+﻿using Assets.Scripts.Model.Runtime;
+using Model;
 using Model.Config;
 using UnityEngine;
 using Utilities;
@@ -21,7 +22,10 @@ namespace Controller
             
             _runtimeModel = new();
             ServiceLocator.RegisterAs(_runtimeModel, typeof(IReadOnlyRuntimeModel));
-            
+
+            var buffsController = new BuffsController();
+            ServiceLocator.Register(buffsController);
+
             SpawnRootVisual(targetCanvas);
             ServiceLocator.Register(_rootView);
             

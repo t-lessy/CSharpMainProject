@@ -67,6 +67,7 @@
     <Compile Include="Assets\Scripts\UnitBrains\Player\ThirdUnitBrain.cs" />
     <Compile Include="Assets\Scripts\Controller\LevelController.cs" />
     <Compile Include="Assets\Scripts\Model\Runtime\ReadOnly\IReadOnlyProjectile.cs" />
+    <Compile Include="Assets\Scripts\UnitBrains\Player\FourthUnitBrain.cs" />
     <Compile Include="Assets\Scripts\View\UnitView.cs" />
     <Compile Include="Assets\Scripts\UnitBrains\Enemy\DefaultEnemyUnitBrain.cs" />
     <Compile Include="Assets\Scripts\Model\Runtime\ReadOnly\IReadOnlyUnit.cs" />
@@ -97,6 +98,7 @@
     <Compile Include="Assets\Scripts\Model\Runtime\ReadOnly\IReadOnlyMap.cs" />
     <Compile Include="Assets\Scripts\Model\Runtime\Projectiles\HorizontalLineProjectile.cs" />
     <Compile Include="Assets\Scripts\Model\Runtime\Projectiles\ProjectileType.cs" />
+    <Compile Include="Assets\Scripts\Model\Runtime\Buff.cs" />
     <Compile Include="Assets\Scripts\UnitBrains\UnitBrainProvider.cs" />
     <Compile Include="Assets\Scripts\Model\Runtime\Map.cs" />
     <Compile Include="Assets\Scripts\UnitBrains\Pathfinding\DebugPathOutput.cs" />
@@ -108,6 +110,7 @@
     <Compile Include="Assets\Scripts\Controller\SimulationController.cs" />
     <Compile Include="Assets\Scripts\Utilities\PersistanceUtils.cs" />
     <Compile Include="Assets\Scripts\View\RootView.cs" />
+    <Compile Include="Assets\Scripts\Model\Runtime\BuffsController.cs" />
     <Compile Include="Assets\Scripts\UnitBrains\Pathfinding\BaseUnitPath.cs" />
     <Compile Include="Assets\Scripts\UnitBrains\Player\SecondUnitBrain.cs" />
   </ItemGroup>

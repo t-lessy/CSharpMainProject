@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Assets.Scripts.Model.Runtime;
 using Assets.Scripts.UnitBrains;
 using Model.Config;
 using Model.Runtime.Projectiles;
@@ -38,6 +39,17 @@ namespace Model.Runtime
             _runtimeModel = ServiceLocator.Get<IReadOnlyRuntimeModel>();
         }
 
+        private float GetMoveSpeedModifier()
+        {
+            var buffsController = ServiceLocator.Get<BuffsController>();
+            return buffsController.GetMoveSpeedModifier(this);
+        }
+
+        private float GetAttackSpeedModifier()
+        {
+            var buffsController = ServiceLocator.Get<BuffsController>();
+            return buffsController.GetAttackSpeedModifier(this);
+        }
         public void SetCoordinator(UnitCoordinator coordinator)
         {
             _brain.Coordinator = coordinator;
@@ -56,12 +68,14 @@ namespace Model.Runtime
             
             if (_nextMoveTime < time)
             {
+                var moveDelay = Config.MoveDelay / GetMoveSpeedModifier();
                 _nextMoveTime = time + Config.MoveDelay;
                 Move();
             }
             
             if (_nextAttackTime < time && Attack())
             {
+                var attackDelay = Config.AttackDelay / GetAttackSpeedModifier();
                 _nextAttackTime = time + Config.AttackDelay;
             }
         }

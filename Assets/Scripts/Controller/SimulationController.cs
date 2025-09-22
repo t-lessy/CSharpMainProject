@@ -1,7 +1,8 @@
-﻿
-using System;
+﻿using System;
 using System.Linq;
+using Assets.Scripts.Model.Runtime;
 using Model;
+using Model.Runtime;
 using UnityEngine;
 using Utilities;
 
@@ -11,6 +12,7 @@ namespace Controller
     {
         private readonly RuntimeModel _runtimeModel;
         private readonly Action<bool> _onLevelFinished;
+        private BuffsController _buffsController;
 
         public SimulationController(RuntimeModel runtimeModel, Action<bool> onLevelFinished)
         {
@@ -18,6 +20,7 @@ namespace Controller
             _onLevelFinished = onLevelFinished;
             
             var timeUtil = ServiceLocator.Get<TimeUtil>();
+            _buffsController = ServiceLocator.Get<BuffsController>();
             
             timeUtil.AddFixedUpdateAction(Update);
         }
@@ -26,6 +29,8 @@ namespace Controller
         {
             if (_runtimeModel.Stage != RuntimeModel.GameStage.Simulation)
                 return;
+
+            _buffsController.Update(deltaTime);
 
             foreach (var unitList in _runtimeModel.PlayersUnits)
                 foreach (var unit in unitList)
@@ -45,6 +50,11 @@ namespace Controller
                 if (hitUnit != null)
                 {
                     hitUnit.TakeDamage(projectile.Damage);
+
+                    _buffsController.AddBuff(hitUnit, new MoveSlowDebuff(3f, 0.7f));
+
+                    _buffsController.AddBuff(hitUnit, new AttackSpeedBuff(4f, 1.25f));
+
                     if (hitUnit.Health <= 0)
                     {
                         _runtimeModel.RemoveUnit(hitUnit);

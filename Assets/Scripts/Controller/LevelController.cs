@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using Assets.Scripts.Model.Runtime;
 using Assets.Scripts.UnitBrains;
 using Model;
 using Model.Config;
@@ -22,6 +23,7 @@ namespace Controller
 
         private UnitCoordinator _playerCoordinator;
         private UnitCoordinator _botCoordinator;
+        private BuffsController _buffsController;
 
         public LevelController(RuntimeModel runtimeModel, RootController rootController)
         {
@@ -34,6 +36,7 @@ namespace Controller
             _gameplayView = ServiceLocator.Get<Gameplay3dView>();
             _settings = ServiceLocator.Get<Settings>();
             _timeUtil = ServiceLocator.Get<TimeUtil>();
+            _buffsController = ServiceLocator.Get<BuffsController>();
         }
 
         public void StartLevel(int level)
@@ -41,6 +44,8 @@ namespace Controller
             ServiceLocator.RegisterAs(this, typeof(IPlayerUnitChoosingListener));
             
             _rootView.HideLevelFinished();
+
+            _buffsController.ClearAllBuffs();
 
             _playerCoordinator = new UnitCoordinator(true);
             _botCoordinator = new UnitCoordinator(false);
@@ -119,6 +124,8 @@ namespace Controller
             _botCoordinator?.Dispose();
             _playerCoordinator = null;
             _botCoordinator = null;
+
+            _buffsController.ClearAllBuffs();
 
             _rootView.ShowLevelFinished(playerWon);
             _timeUtil.RunDelayed(5f, () => _rootController.OnLevelFinished(playerWon));
