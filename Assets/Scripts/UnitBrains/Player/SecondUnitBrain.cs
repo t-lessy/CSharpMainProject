@@ -39,10 +39,18 @@ namespace UnitBrains.Player
             // Homework 1.4 (1st block, 4rd module)
             ///////////////////////////////////////
             List<Vector2Int> result = GetReachableTargets();
+            
             while (result.Count > 1)
             {
-                result.RemoveAt(result.Count - 1);
+                var target = result[0];
+                foreach (var target2 in result)
+                {
+                    if (DistanceToOwnBase(target2) > DistanceToOwnBase(target)) target = target2;
+                }
+                result.Clear();
+                result.Add(target);
             }
+            
             return result;
             ///////////////////////////////////////
         }
