@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
+using Model;
 using Model.Runtime.Projectiles;
 using UnityEngine;
 
@@ -39,20 +41,42 @@ namespace UnitBrains.Player
             ///////////////////////////////////////
             // Homework 1.4 (1st block, 4rd module)
             ///////////////////////////////////////
-            List<Vector2Int> result = GetReachableTargets();
 
-            if (result.Count == 0) return result;
-            var minDistanse = result[0];
-            for (int i = 1; i < result.Count; i++)
+            List<Vector2Int> targetsInRange = new();
+            List<Vector2Int> targetsOutRange = new();
+
+            List<Vector2Int> allTargets = GetAllTargets().ToList();
+            allTargets.OrderBy(DistanceToOwnBase);
+
+            var enemyBase = runtimeModel.RoMap.Bases[IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId];
+
+            targetsInRange.Clear();
+            targetsOutRange.Clear();
+
+            if (allTargets.Any())
             {
-                if (DistanceToOwnBase(result[i]) < DistanceToOwnBase(minDistanse))
+                foreach (var target in allTargets)
                 {
-                    minDistanse = result[i];
-                    
+                    if (IsTargetInRange(target))
+                    {
+                        targetsInRange.Add(target);
+                    }
+                    else
+                    {
+                        targetsOutRange.Add(target);
+                    }
                 }
             }
-            result.Clear();
-            result.Add(minDistanse);
+            else
+            {
+                allTargets.Add(enemyBase);
+            }
+
+            List<Vector2Int> result = GetReachableTargets();
+            float minDistanse = float.MaxValue;
+            Vector2Int criticalTarget = Vector2Int.zero;
+            if(minDistanse != float.MaxValue)
+                result.Add(criticalTarget);
             return result;
             ///////////////////////////////////////
         }
