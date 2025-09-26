@@ -19,6 +19,7 @@ namespace UnitBrains
         public virtual bool IsPlayerUnitBrain => true;
         public virtual BaseUnitPath ActivePath => _activePath;
         protected Coordinator coordinator => ServiceLocator.Get<Coordinator>();
+        protected EffectSystem EffectSystem => ServiceLocator.Get<EffectSystem>();
         protected Unit unit { get; private set; }
 
         protected IReadOnlyRuntimeModel runtimeModel => ServiceLocator.Get<IReadOnlyRuntimeModel>();

@@ -40,7 +40,7 @@ namespace UnitBrains.Player
             // Если цели нет, идем к вражеской базе
             if (recommendationTarget == null)
             {
-                Debug.Log("Нет рекомендуемой цели, иду к вражеской базе");
+                //Debug.Log("Нет рекомендуемой цели, иду к вражеской базе");
                 _activePath = new AStar(runtimeModel, unit.Pos, enemyBase);
                 return _activePath.GetNextStepFrom(unit.Pos);
             }
@@ -48,7 +48,7 @@ namespace UnitBrains.Player
             // 3. Проверяем что у цели есть позиция
             if (recommendationTarget.Pos == null)
             {
-                Debug.Log("У цели нет позиции, иду к вражеской базе");
+                //Debug.Log("У цели нет позиции, иду к вражеской базе");
                 _activePath = new AStar(runtimeModel, unit.Pos, enemyBase);
                 return _activePath.GetNextStepFrom(unit.Pos);
             }
@@ -65,20 +65,20 @@ namespace UnitBrains.Player
 
                 if (reachableTargets.Count != 0) // Если есть достижимые цели
                 {
-                    Debug.Log("Есть достижимые цели, но цель далеко - иду к рекомендуемой цели");
+                    //Debug.Log("Есть достижимые цели, но цель далеко - иду к рекомендуемой цели");
                     _activePath = new AStar(runtimeModel, unit.Pos, recommendationTarget.Pos);
                     return _activePath.GetNextStepFrom(unit.Pos);
                 }
                 else // Если нет достижимых целей
                 {
-                    Debug.Log("Нет достижимых целей, иду к вражеской базе");
+                    //Debug.Log("Нет достижимых целей, иду к вражеской базе");
                     _activePath = new AStar(runtimeModel, unit.Pos, enemyBase);
                     return _activePath.GetNextStepFrom(unit.Pos);
                 }
             }
             else // Если цель в пределах 2х радиусов атаки
             {
-                Debug.Log("Цель близко, атакую или приближаюсь");
+                //Debug.Log("Цель близко, атакую или приближаюсь");
                 _activePath = new AStar(runtimeModel, unit.Pos, recommendationTarget.Pos);
                 return _activePath.GetNextStepFrom(unit.Pos);
             }

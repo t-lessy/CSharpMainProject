@@ -28,9 +28,19 @@ namespace Model.Config
             get { return _moveDelay; }
             set { _moveDelay = value; }
         }
-        public float AttackDelay => _attackDelay;
+        public float AttackDelay
+        {
+            get { return _attackDelay; }
+            set { _attackDelay = value; }
+        }
+            
         public float AttackRange => _attackRange;
         public ProjectileType ProjectileType => _projectileType;
-        public int Damage => _damage;
+        public int Damage
+        {
+            get { return _damage; }
+            set { _damage = value; }
+        }
+
     }
 }

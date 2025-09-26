@@ -18,17 +18,12 @@ namespace Assets.Scripts.Utilities
 {
     public class EffectSystem : MonoBehaviour
     {
-        private Dictionary<Unit, List<Effect>> unitEffects = new Dictionary<Unit, List<Effect>>();
+        private Dictionary<Unit, List<IEffect>> unitEffects = new Dictionary<Unit, List<IEffect>>();
         private Coroutine updateCoroutine;
-
-       
 
         private void Awake()
         {
-            // Регистрируем систему в ServiceLocator
             ServiceLocator.Register<EffectSystem>(this);
-
-            // Запускаем корутину для обновления эффектов
             updateCoroutine = StartCoroutine(UpdateEffectsCoroutine());
         }
 
@@ -36,94 +31,51 @@ namespace Assets.Scripts.Utilities
         {
             if (updateCoroutine != null)
                 StopCoroutine(updateCoroutine);
-
             ServiceLocator.Unregister<EffectSystem>();
         }
+        public bool TryAddEffect<T>(Effect<T> effect, T unit) where T : Unit
+        {
+            if (effect == null)
+            {
+                Debug.Log("effect пуст");
+                return false;
+            }
+            else if (unit == null)
+            {
+                Debug.Log("unit пуст");
+            }
+            if (!effect.CanApplyTo(unit))
+            {
+                Debug.LogWarning($"Эффект {effect.GetType().Name} нельзя применить к юниту {unit.Config.name}");
+                return false;
+            }
 
+            AddEffect(effect, unit);
+            return true;
+        }
         // Добавление эффекта юниту
-        public void AddEffect(Unit unit, Effect effect)
+        public void AddEffect<T>(Effect<T> effect, T unit) where T : Unit
         {
             if (!unitEffects.ContainsKey(unit))
             {
-                unitEffects[unit] = new List<Effect>();
+                unitEffects[unit] = new List<IEffect>();
             }
 
-            // Проверяем, есть ли уже такой эффект
-            var existingEffect = unitEffects[unit].Find(e => e.EffectId == effect.EffectId);
-            if (existingEffect != null)
-            {
-                // Обновляем длительность существующего эффекта
-                existingEffect.Duration = effect.Duration;
-            }
-            else
-            {
-                // Добавляем новый эффект
-                unitEffects[unit].Add(effect);
-            }
+            effect.Apply(unit);
+            unitEffects[unit].Add(effect);
 
-            Debug.Log($"Добавлен эффект {effect.DisplayName} юниту {unit.Config.name}");
+            Debug.Log($"Добавлен эффект {effect.GetType().Name} юниту {unit.Config.name}");
         }
 
         // Удаление эффекта
-        public void RemoveEffect(Unit unit, string effectId)
+        public void RemoveEffect<T>(Effect<T> effect, T unit) where T : Unit
         {
-            if (unitEffects.ContainsKey(unit))
+            if (unitEffects.ContainsKey(unit) && unitEffects[unit].Contains(effect))
             {
-                var effect = unitEffects[unit].Find(e => e.EffectId == effectId);
-                if (effect != null)
-                {
-                    unitEffects[unit].Remove(effect);
-                    Debug.Log($"Удален эффект {effectId} у юнита {unit.Config.name}");
-                }
+                effect.Remove(unit);
+                unitEffects[unit].Remove(effect);
+                Debug.Log($"Удален эффект {effect.GetType().Name} у юнита {unit.Config.name}");
             }
-        }
-
-        // Получение модификатора скорости передвижения
-        public float GetMoveSpeedModifier(Unit unit)
-        {
-            float modifier = 1f;
-
-            if (unitEffects.ContainsKey(unit))
-            {
-                foreach (var effect in unitEffects[unit])
-                {
-                    modifier *= effect.MoveSpeedModifier;
-                }
-            }
-
-            return modifier;
-        }
-
-        // Получение модификатора скорости атаки
-        public float GetAttackSpeedModifier(Unit unit)
-        {
-            float modifier = 1f;
-
-            if (unitEffects.ContainsKey(unit))
-            {
-                foreach (var effect in unitEffects[unit])
-                {
-                    modifier *= effect.AttackSpeedModifier;
-                }
-            }
-
-            return modifier;
-        }
-
-        // Получение модификатора урона
-        public float GetDamageModifier(Unit unit)
-        {
-            float modifier = 1f;
-
-            if (unitEffects.ContainsKey(unit))
-            {
-                foreach (var effect in unitEffects[unit])
-                {
-                    modifier *= effect.DamageModifier;
-                }
-            }
-
-            return modifier;
         }
 
         // Корутина для обновления эффектов
@@ -131,8 +83,7 @@ namespace Assets.Scripts.Utilities
         {
             while (true)
             {
-                yield return new WaitForSeconds(0.1f); // Обновляем каждые 0.1 секунды
-
+                yield return new WaitForSeconds(0.1f);
                 UpdateEffects(0.1f);
             }
         }
@@ -147,68 +98,71 @@ namespace Assets.Scripts.Utilities
                 var unit = unitEntry.Key;
                 var effects = unitEntry.Value;
 
-                // Обновляем длительность эффектов
                 for (int i = effects.Count - 1; i >= 0; i--)
                 {
-                    effects[i].UpdateDuration(deltaTime);
+                    var effect = effects[i];
+                    effect.UpdateDuration(deltaTime);
 
-                    if (effects[i].IsExpired)
+                    if (effect.IsExpired)
                     {
-                        Debug.Log($"Эффект {effects[i].DisplayName} истек у юнита {unit.Config.name}");
-                        effects.RemoveAt(i);
+                        // Нужно вызвать Remove с правильным типом
+                        RemoveEffectByType(effect, unit);
+                        Debug.Log($"Эффект {effect.GetType().Name} истек у юнита {unit.Config.name}");
                     }
                 }
 
-                // Если у юнита не осталось эффектов, помечаем для удаления
                 if (effects.Count == 0)
                 {
                     unitsToRemove.Add(unit);
                 }
             }
 
-            // Удаляем юнитов без эффектов
             foreach (var unit in unitsToRemove)
             {
                 unitEffects.Remove(unit);
             }
         }
 
-        // Получение всех активных эффектов юнита (для UI)
-        public List<Effect> GetUnitEffects(Unit unit)
+        // Вспомогательный метод для удаления эффекта по типу
+        private void RemoveEffectByType(IEffect effect, Unit unit)
+        {
+            // Используем рефлексию для правильного вызова RemoveEffect
+            var method = typeof(EffectSystem).GetMethod("RemoveEffect");
+            var genericMethod = method.MakeGenericMethod(unit.GetType());
+            genericMethod.Invoke(this, new object[] { effect, unit });
+        }
+
+        // Получение всех активных эффектов юнита
+        public List<IEffect> GetUnitEffects(Unit unit)
         {
             if (unitEffects.ContainsKey(unit))
             {
-                return new List<Effect>(unitEffects[unit]);
+                return new List<IEffect>(unitEffects[unit]);
             }
-            return new List<Effect>();
+            return new List<IEffect>();
         }
-
-
     }
-    [System.Serializable]
-    public class Effect
+
+    // Интерфейс для работы с эффектами без знания конкретного типа
+    public interface IEffect
     {
-        public string EffectId;
-        public string DisplayName;
-        public EffectType Type;
-        public float Duration;
-        public float MoveSpeedModifier = 1f;
-        public float AttackSpeedModifier = 1f;
-        public float DamageModifier = 1f;
+        bool IsExpired { get; }
+        float Duration { get; set; }
+        void UpdateDuration(float deltaTime);
+    }
 
+    [System.Serializable]
+    public abstract class Effect<T> : IEffect where T : Unit
+    {
         public bool IsExpired => Duration <= 0;
+        public float Duration { get; set; }
 
-        public Effect(string id, string name, EffectType type, float duration,
-                     float moveMod = 1f, float attackMod = 1f, float damageMod = 1f)
+        public virtual bool CanApplyTo(Unit unit)
         {
-            EffectId = id;
-            DisplayName = name;
-            Type = type;
-            Duration = duration;
-            MoveSpeedModifier = moveMod;
-            AttackSpeedModifier = attackMod;
-            DamageModifier = damageMod;
+            return unit is T;
         }
+        public abstract void Apply(T unit);
+        public abstract void Remove(T unit);
 
         public void UpdateDuration(float deltaTime)
         {
@@ -217,9 +171,78 @@ namespace Assets.Scripts.Utilities
         }
     }
 
-    public enum EffectType
+    // Конкретные эффекты
+    public class DamageBuff : Effect<Unit>
     {
-        Buff,
-        Debuff
+        public int DamageModifier = 2;
+
+        public DamageBuff()
+        {
+            Duration = 10f;
+        }
+        public override bool CanApplyTo(Unit unit)
+        {
+            // Например, нельзя применять к уже мертвым юнитам
+            return base.CanApplyTo(unit) &&
+                unit.Health > 0;
+        }
+        public override void Apply(Unit unit)
+        {
+            unit.Config.Damage *= DamageModifier;
+        }
+
+        public override void Remove(Unit unit)
+        {
+            unit.Config.Damage /= DamageModifier;
+        }
+    }
+
+    public class SpeedBuff : Effect<Unit>
+    {
+        public float SpeedModifier = 1.5f;
+
+        public SpeedBuff()
+        {
+            Duration = 10f;
+        }
+        public override bool CanApplyTo(Unit unit)
+        {
+            // Например, нельзя применять к уже мертвым юнитам
+            return base.CanApplyTo(unit) &&
+                unit.Health > 0;
+        }
+        public override void Apply(Unit unit)
+        {
+            unit.Config.MoveDelay *= SpeedModifier;
+        }
+
+        public override void Remove(Unit unit)
+        {
+            unit.Config.MoveDelay /= SpeedModifier;
+        }
+    }
+    public class AttackSpeedBuff : Effect<Unit>
+    {
+        public float attackDelayModifier = 1.5f;
+
+        public AttackSpeedBuff()
+        {
+            Duration = 10f;
+        }
+        public override bool CanApplyTo(Unit unit)
+        {
+            // Например, нельзя применять к уже мертвым юнитам
+            return base.CanApplyTo(unit) &&
+                unit.Health > 0;
+        }
+        public override void Apply(Unit unit)
+        {
+            unit.Config.AttackDelay *= attackDelayModifier;
+        }
+
+        public override void Remove(Unit unit)
+        {
+            unit.Config.AttackDelay /= attackDelayModifier;
+        }
     }
 }

@@ -58,13 +58,13 @@ namespace UnitBrains.Player
             Vector2Int Nextposition = Vector2Int.right + Vector2Int.up;
             if (result.Count != 0) //Если список достижимых целей не пуст стоим на месте
             {
-                 Debug.Log("Цель в радиусе атаки");
+                 //Debug.Log("Цель в радиусе атаки");
                  return unit.Pos;
             }
             else if (result.Count == 0 && unreachableTarget.Count != 0) //Если список достижимых целей пуст,а недостижымых не пуст,то идем к недостижимым 
             {
                  _activePath = new AStar(runtimeModel, unit.Pos, unreachableTarget[0]);
-                 Debug.Log("Целей в радиусе атаки нет,иду к ближайшей");
+                 //Debug.Log("Целей в радиусе атаки нет,иду к ближайшей");
                  return _activePath.GetNextStepFrom(unit.Pos);
                  //return position.CalcNextStepTowards(unreachableTarget[0]);
             }

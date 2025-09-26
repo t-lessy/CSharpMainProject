@@ -14,8 +14,7 @@ namespace Model.Runtime
 {
     public class Unit : IReadOnlyUnit
     {
-        Effect speedBuff = new Effect("speed_boost", "Буст скорости", EffectType.Buff, 10f, 1.5f);
-        Effect attackSpeedBuff = new Effect("speed_boost", "Буст скорости атаки", EffectType.Buff, 10f, 1.5f);
+       
 
         public static List<Unit> Group=new();
         public static List<Unit> AlLUnitPlayer = new();
@@ -34,7 +33,7 @@ namespace Model.Runtime
         private IReadOnlyRuntimeModel _runtimeModel;
         private BaseUnitBrain _brain;
        
-        private EffectSystem _effectSystem;
+        
         private Coordinator _coordunator;
         private float _nextBrainUpdateTime = 0f;
         private float _nextMoveTime = 0f;
@@ -49,12 +48,12 @@ namespace Model.Runtime
             _brain = UnitBrainProvider.GetBrain(config);
             _brain.SetUnit(this);
 
-            _effectSystem=ServiceLocator.Get<EffectSystem>();
+           
             _coordunator = coordinator;
            
             //coordinator= ServiceLocator.Get<Coordinator>();
             _runtimeModel = ServiceLocator.Get<IReadOnlyRuntimeModel>();
-            if(config.IsPlayerUnit && config.Name!="Command Buffer")
+            if (config.IsPlayerUnit && config.Name != "Command Buffer")
             {
                 AlLUnitPlayer.Add(this);// добавление в группу
 
@@ -66,35 +65,19 @@ namespace Model.Runtime
                 
                 UnitCounter++;// Добавление к счету юнита +1
                 NumberUnit = UnitCounter;// Присвоение  юниту номера
-                Debug.Log($"Номер юнита {NumberUnit}");
+                //Debug.Log($"Номер юнита {NumberUnit}");
 
             }
-            if (config.Name == "Sky Serpent")
-            {
-                _effectSystem.AddEffect(this,speedBuff);
-            }
+            
            
            
         }
-        private bool CanMove(float time)
-        {
-            float moveDelay = Config.MoveDelay / _effectSystem.GetMoveSpeedModifier(this);
-            return _nextMoveTime < time;
-        }
-
-        private bool CanAttack(float time)
-        {
-            float attackDelay = Config.AttackDelay / _effectSystem.GetAttackSpeedModifier(this);
-            return _nextAttackTime < time;
-        }
+        
         public void Update(float deltaTime, float time)
         {
             if (IsDead)
                 return;
-            // Движение и атака с учетом модификаторов
-            if (CanMove(time)) Move();
-
-            if (CanAttack(time)) Attack();
+            
 
             if (_nextBrainUpdateTime < time)
             {

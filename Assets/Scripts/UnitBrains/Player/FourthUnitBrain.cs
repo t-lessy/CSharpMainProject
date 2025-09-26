@@ -25,8 +25,10 @@ public class FourthUnitBrain : DefaultPlayerUnitBrain
     private float _switchModTime = 1f;
     VFXView _vfxView = ServiceLocator.Get<VFXView>();
     
-    Effect speedBuff = new Effect("speed_boost", "Буст скорости", EffectType.Buff, 10f, 1.5f);
-    Effect attackSpeedBuff = new Effect("speed_boost", "Буст скорости атаки", EffectType.Buff, 10f, 1.5f);
+    DamageBuff _damageBuff = new DamageBuff();
+    AttackSpeedBuff _attackSpeedBuff = new AttackSpeedBuff();
+    SpeedBuff _speedBuff = new SpeedBuff();
+
     private EffectSystem _effectSystem = ServiceLocator.Get<EffectSystem>();
 
 
@@ -36,12 +38,19 @@ public class FourthUnitBrain : DefaultPlayerUnitBrain
     private void GenerateBuffsForCommand(Unit forTarget)
     {
 
-        if (GetBuff && forTarget.Config.Name!= "Command Buffer")
+        if (GetBuff && forTarget.Config.Name != "Command Buffer")
         {
-            _effectSystem.AddEffect(forTarget, speedBuff);
-            _effectSystem.AddEffect(forTarget, attackSpeedBuff);
+            var _damageBuff = new DamageBuff();
+            var _attackSpeedBuff = new AttackSpeedBuff();
+            var _speedBuff = new SpeedBuff();
+
+            _effectSystem.TryAddEffect(_speedBuff, forTarget);
+            _effectSystem.TryAddEffect(_attackSpeedBuff, forTarget);
+            _effectSystem.TryAddEffect(_damageBuff, forTarget);
+
             _vfxView.PlayVFX(forTarget.Pos, VFXView.VFXType.BuffApplied);
         }
+
 
     }
     private IEnumerable<Vector2Int> GetCommandTargets()
