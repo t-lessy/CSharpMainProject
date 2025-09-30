@@ -12,7 +12,7 @@ using Utilities;
 
 namespace Model.Runtime
 {
-    public class Unit : IReadOnlyUnit
+    public class Unit : IReadOnlyUnit, IUnitModifiable
     {
         public UnitConfig Config { get; }
         public Vector2Int Pos { get; private set; }
@@ -28,28 +28,39 @@ namespace Model.Runtime
         private float _nextBrainUpdateTime = 0f;
         private float _nextMoveTime = 0f;
         private float _nextAttackTime = 0f;
-                
+
+        private float _moveSpeedModifier = 1f;
+        private float _attackSpeedModifier = 1f;
+        private float _attackRangeModifier = 1f;
+        private bool _doubleShotEnabled = false;
+
+        public float CurrentMoveSpeedModifier => _moveSpeedModifier;
+        public float CurrentAttackSpeedModifier => _attackSpeedModifier;
+        public float CurrentAttackRangeModifier => _attackRangeModifier;
+        public bool IsDoubleShotEnabled => _doubleShotEnabled;
+
+        public float AttackRange => Config.AttackRange / CurrentAttackRangeModifier;
+
+        public float MoveDelay => Config.MoveDelay / CurrentMoveSpeedModifier;
+
+        public float AttackDelay => Config.AttackDelay / CurrentAttackSpeedModifier;
+
         public Unit(UnitConfig config, Vector2Int startPos)
         {
             Config = config;
             Pos = startPos;
             Health = config.MaxHealth;
+            _runtimeModel = ServiceLocator.Get<IReadOnlyRuntimeModel>();
             _brain = UnitBrainProvider.GetBrain(config);
             _brain.SetUnit(this);
-            _runtimeModel = ServiceLocator.Get<IReadOnlyRuntimeModel>();
         }
 
-        private float GetMoveSpeedModifier()
-        {
-            var buffsController = ServiceLocator.Get<BuffsController>();
-            return buffsController.GetMoveSpeedModifier(this);
-        }
-
-        private float GetAttackSpeedModifier()
-        {
-            var buffsController = ServiceLocator.Get<BuffsController>();
-            return buffsController.GetAttackSpeedModifier(this);
-        }
+        public void ModifyMoveSpeed(float modifier) => _moveSpeedModifier *= modifier;
+        public void ModifyAttackSpeed(float modifier) => _attackSpeedModifier *= modifier;
+        public void ModifyAttackRange(float modifier) => _attackRangeModifier *= modifier;
+        public void EnableDoubleShot() => _doubleShotEnabled = true;
+        public void DisableDoubleShot() => _doubleShotEnabled = false;
+        
         public void SetCoordinator(UnitCoordinator coordinator)
         {
             _brain.Coordinator = coordinator;
@@ -68,15 +79,15 @@ namespace Model.Runtime
             
             if (_nextMoveTime < time)
             {
-                var moveDelay = Config.MoveDelay / GetMoveSpeedModifier();
-                _nextMoveTime = time + Config.MoveDelay;
+                var moveDelay = Config.MoveDelay / _moveSpeedModifier;
+                _nextMoveTime = time + moveDelay;
                 Move();
             }
             
             if (_nextAttackTime < time && Attack())
             {
-                var attackDelay = Config.AttackDelay / GetAttackSpeedModifier();
-                _nextAttackTime = time + Config.AttackDelay;
+                var attackDelay = Config.AttackDelay / _attackSpeedModifier;
+                _nextAttackTime = time + attackDelay;
             }
         }
 

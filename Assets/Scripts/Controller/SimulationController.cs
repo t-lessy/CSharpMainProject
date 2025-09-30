@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Assets.Scripts.Model.Runtime;
 using Model;
 using Model.Runtime;
+using UnitBrains;
+using UnitBrains.Player;
 using UnityEngine;
 using Utilities;
 
@@ -20,8 +23,12 @@ namespace Controller
             _onLevelFinished = onLevelFinished;
             
             var timeUtil = ServiceLocator.Get<TimeUtil>();
-            _buffsController = ServiceLocator.Get<BuffsController>();
-            
+
+            ServiceLocator.Register<IReadOnlyRuntimeModel>(runtimeModel);
+            ServiceLocator.Register<IBaseAttackDetector>(new BaseAttackDetector(runtimeModel));
+            _buffsController = new BuffsController();
+            ServiceLocator.Register<BuffsController>(_buffsController);
+
             timeUtil.AddFixedUpdateAction(Update);
         }
         
@@ -33,11 +40,20 @@ namespace Controller
             _buffsController.Update(deltaTime);
 
             foreach (var unitList in _runtimeModel.PlayersUnits)
-                foreach (var unit in unitList)
+                foreach (var unit in unitList.ToList())
                 {
                     unit.Update(deltaTime, Time.time);
+
+                    ProcessAttackTargets(unit);
+
                     _runtimeModel.Projectiles.AddRange(unit.PendingProjectiles);
                     unit.ClearPendingProjectiles();
+
+                    if (unit.Health <= 0)
+                    {
+                        _buffsController.RemoveBuffs(unit);
+                        _runtimeModel.RemoveUnit(unit);
+                    }
                 }
 
             foreach (var projectile in _runtimeModel.Projectiles)
@@ -51,12 +67,13 @@ namespace Controller
                 {
                     hitUnit.TakeDamage(projectile.Damage);
 
-                    _buffsController.AddBuff(hitUnit, new MoveSlowDebuff(3f, 0.7f));
+                    _buffsController.AddBuff(hitUnit, new MoveSlowDebuff<Unit>(3f, 0.7f));
 
-                    _buffsController.AddBuff(hitUnit, new AttackSpeedBuff(4f, 1.25f));
+                    _buffsController.AddBuff(hitUnit, new AttackSpeedBuff<Unit>(4f, 1.25f));
 
                     if (hitUnit.Health <= 0)
                     {
+                        _buffsController.RemoveBuffs(hitUnit);
                         _runtimeModel.RemoveUnit(hitUnit);
                     }
                 }
@@ -79,9 +96,22 @@ namespace Controller
             _runtimeModel.Projectiles.RemoveAll(p => p.HadHit);
         }
 
+        private void ProcessAttackTargets(Unit unit)
+        {
+            var targets = unit.GetAttackTargets();
+            if (targets == null || targets.Count == 0)
+                return;
+
+            foreach (var target in targets)
+            {
+                _buffsController.CheckAndApplyAttackBaseBuffs(unit, target);
+            }
+        }
+
         private void GameOver()
         {
             var isPlayerAlive = _runtimeModel.Bases[RuntimeModel.PlayerId].Health > 0;
+            _buffsController.Dispose();
             _onLevelFinished?.Invoke(isPlayerAlive);
         }
     }

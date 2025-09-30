@@ -5,6 +5,8 @@ using System.Linq;
 using UnityEngine;
 using Utilities;
 using View;
+using Model.Runtime;
+using Controller;
 
 namespace UnitBrains.Player
 {
@@ -67,17 +69,21 @@ namespace UnitBrains.Player
 
         private IReadOnlyUnit FindAllyToBuff()
         {
-            var allies = GetUnitsInRadius(this.unit.Config.AttackRange, false);
+            var allies = GetUnitsInRadius(this.unit.AttackRange, false);
 
             return allies.FirstOrDefault(ally =>
-            !_buffsController.HasBuff<BuffsController.BuffCarBuff>(ally as Model.Runtime.Unit));
+            {
+                if (ally is Unit runtimeUnit)
+                    return !_buffsController.HasBuff<BuffCarBuff>(runtimeUnit);
+                return false;
+            });
         }
 
         private void ApplyBuff(IReadOnlyUnit targetUnit)
         {
             if (targetUnit is Model.Runtime.Unit unitToBuff)
             {
-                var buff = new BuffsController.BuffCarBuff(10f, 1.5f);
+                var buff = new BuffCarBuff(10f, 1.5f);
                 _buffsController.AddBuff(unitToBuff, buff);
             }
         }

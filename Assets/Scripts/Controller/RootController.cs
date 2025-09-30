@@ -18,10 +18,16 @@ namespace Controller
         public RootController(Settings settings, Canvas targetCanvas)
         {
             _persisted = PersistanceUtils.LoadSingleton(new PersistedModel());
-            ServiceLocator.Register(TimeUtil.Create());
+
+            var timeUtil = TimeUtil.Create();
+            ServiceLocator.Register(timeUtil);
             
-            _runtimeModel = new();
+            _runtimeModel = new RuntimeModel();
+            ServiceLocator.Register(_runtimeModel);
             ServiceLocator.RegisterAs(_runtimeModel, typeof(IReadOnlyRuntimeModel));
+
+            var baseAttackDetector = new BaseAttackDetector(_runtimeModel);
+            ServiceLocator.RegisterAs(baseAttackDetector, typeof(IBaseAttackDetector));
 
             var buffsController = new BuffsController();
             ServiceLocator.Register(buffsController);
