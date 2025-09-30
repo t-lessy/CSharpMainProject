@@ -32,7 +32,7 @@ namespace Controller
             var vfxView = SpawnVFXView();
             ServiceLocator.Register(vfxView);
 
-            var effectsForUnits = new EffectsForUnits(_runtimeModel);            //
+            var effectsForUnits = new EffectsForUnits();            //(_runtimeModel)
             ServiceLocator.Register(effectsForUnits);              //
 
             _levelController = new(_runtimeModel, this);

@@ -19,9 +19,11 @@ namespace Model.Runtime
         public BaseUnitPath ActivePath => _brain?.ActivePath;
         public IReadOnlyList<BaseProjectile> PendingProjectiles => _pendingProjectiles;
 
-        public float AttackDelay;//
-        public float MoveDelay;//
-        public bool IsBuffed = false;//
+        public float AttackDelay { get; private set; }
+        public float MoveDelay { get; private set; }
+        public float AttackRange { get; private set; }
+        public bool IsBuffed { get; private set; } = false;
+        public bool DoubleAttack { get; private set; } = false;
 
 
         private readonly List<BaseProjectile> _pendingProjectiles = new();
@@ -45,12 +47,11 @@ namespace Model.Runtime
             _brain.SetUnit(this);
             _runtimeModel = ServiceLocator.Get<IReadOnlyRuntimeModel>();
 
+
             AttackDelay = config.AttackDelay;//
             MoveDelay = config.MoveDelay; //
+            AttackRange = config.AttackRange; //
 
-            //_effects = ServiceLocator.Get<EffectsForUnits>(); //
-            //_effects.SetUnitAttackDelay(this, 6000, 0.25f); //
-            //_effects.SetUnitMoveDelay(this, 5000, 4); //
 
         }
 
@@ -58,19 +59,19 @@ namespace Model.Runtime
         {
             if (IsDead)
                 return;
-            
+
             if (_nextBrainUpdateTime < time)
             {
                 _nextBrainUpdateTime = time + Config.BrainUpdateInterval;
                 _brain.Update(deltaTime, time);
             }
-            
+
             if (_nextMoveTime < time)
             {
                 _nextMoveTime = time + MoveDelay;  // изначально Config.MoveDelay
                 Move();
             }
-            
+
             if (_nextAttackTime < time && Attack())
             {
                 _nextAttackTime = time + AttackDelay;   // изначально Config.AttackDelay
@@ -82,7 +83,7 @@ namespace Model.Runtime
             var projectiles = _brain.GetProjectiles();
             if (projectiles == null || projectiles.Count == 0)
                 return false;
-            
+
             _pendingProjectiles.AddRange(projectiles);
             return true;
         }
@@ -102,7 +103,7 @@ namespace Model.Runtime
             {
                 return;
             }
-            
+
             Pos = targetPos;
         }
 
@@ -115,5 +116,50 @@ namespace Model.Runtime
         {
             Health -= projectileDamage;
         }
+
+        //
+        //
+        //
+
+        public void ChangeAttackDelay(float attackDelay)
+        {
+            AttackDelay = attackDelay;
+        }
+
+
+        public void ChangeMoveDelay(float moveDelay)
+        {
+            MoveDelay = moveDelay;
+        }
+
+        public void ChangeAttackRange(float attackRange)
+        {
+            AttackRange = attackRange;
+        }
+
+        public void ChangeDoubleAttackStatus(bool status)
+        {
+            DoubleAttack = status;
+        }
+
+        public void ChangeIsBuffedStatus(bool status)
+        {
+            IsBuffed = status;
+        }
+
+        public string GiveUnitName()
+        {
+            return _brain.TargetUnitName;
+        }
+
+        //public enum UnitType
+        //{ 
+        // First,
+        // Second,
+        // Third,
+        // Fouth,
+        // Other
+        //}
+
     }
 }

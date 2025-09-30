@@ -116,7 +116,7 @@ namespace UnitBrains
 
         protected bool HasTargetsInRange()  
         {
-            var attackRangeSqr = unit.Config.AttackRange * unit.Config.AttackRange;
+            var attackRangeSqr = unit.AttackRange * unit.AttackRange; //Ранее unit.Config.AttackRange, как и все остальные
             foreach (var possibleTarget in GetAllTargets())
             {
                 var diff = possibleTarget - unit.Pos;
@@ -143,7 +143,7 @@ namespace UnitBrains
 
         protected bool IsTargetInRange(Vector2Int targetPos)
         {
-            var attackRangeSqr = unit.Config.AttackRange * unit.Config.AttackRange;
+            var attackRangeSqr = unit.AttackRange * unit.AttackRange; //Тут от юнита взять
             var diff = targetPos - unit.Pos;
             return diff.sqrMagnitude <= attackRangeSqr;
         }
@@ -151,7 +151,7 @@ namespace UnitBrains
         protected List<Vector2Int> GetReachableTargets()
         {
             var result = new List<Vector2Int>();
-            var attackRangeSqr = unit.Config.AttackRange * unit.Config.AttackRange;
+            var attackRangeSqr = unit.AttackRange * unit.AttackRange; //ТУт тоже
             foreach (var possibleTarget in GetAllTargets())
             {
                 if (!IsTargetInRange(possibleTarget))
@@ -177,7 +177,7 @@ namespace UnitBrains
         protected List<Vector2Int> GetAlliedReachableTargets()
         {
             var result = new List<Vector2Int>();
-            var attackRangeSqr = unit.Config.AttackRange * unit.Config.AttackRange;
+            var attackRangeSqr = unit.AttackRange * unit.AttackRange; //Тут тоже
             foreach (var possibleTarget in GetAllAlliedTargets())
             {
                 if (!IsTargetInRange(possibleTarget))
@@ -196,7 +196,7 @@ namespace UnitBrains
         }
         protected bool HasAlliedTargetsInRange()  //точно надо
         {
-            var attackRangeSqr = unit.Config.AttackRange * unit.Config.AttackRange;
+            var attackRangeSqr = unit.AttackRange * unit.AttackRange; //И тут
             foreach (var possibleTarget in GetAllAlliedTargets())
             {
                 var diff = possibleTarget - unit.Pos;

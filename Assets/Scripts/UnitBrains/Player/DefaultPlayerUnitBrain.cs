@@ -13,6 +13,8 @@ namespace UnitBrains.Player
         protected float DistanceToOwnBase(Vector2Int fromPos) =>
             Vector2Int.Distance(fromPos, runtimeModel.RoMap.Bases[RuntimeModel.PlayerId]);
 
+
+
         protected void SortByDistanceToOwnBase(List<Vector2Int> list)
         {
             list.Sort(CompareByDistanceToOwnBase);
@@ -31,7 +33,7 @@ namespace UnitBrains.Player
 
             bool HasTargetsInDoubleRange()
             {
-            var attackDoubleRangeSqr = (unit.Config.AttackRange * unit.Config.AttackRange) * 2;
+            var attackDoubleRangeSqr = (unit.AttackRange * unit.AttackRange) * 2; //Вероятно и тут переписать
             foreach (var possibleTarget in GetAllTargets())
                {
                 var diff = possibleTarget - unit.Pos;

@@ -23,7 +23,6 @@ public class FourthUnitBrain : DefaultPlayerUnitBrain
     private VFXView _vfxView = ServiceLocator.Get<VFXView>();
     private List<Vector2Int> WithoutTargets = new List<Vector2Int>();
 
-
     public override Vector2Int GetNextStep()
     {
         if (!_timerIsStarted)
@@ -46,10 +45,13 @@ public class FourthUnitBrain : DefaultPlayerUnitBrain
             {
                 if (IsTargetInRange(target.Pos) && !target.IsBuffed && target != unit)
                 {
-                    SetTimer(500);
-                    _vfxView.PlayVFX(unit.Pos, VFXView.VFXType.BuffApplied);
-                    _effectsForUnits.GiveBuffToUnit(target, 2000, 0.1f, 0.1f);
-                    return;
+                    if (_effectsForUnits.TryApplyEffectToUnit(target, 10000))
+                    {
+                        SetTimer(500);
+                        _vfxView.PlayVFX(unit.Pos, VFXView.VFXType.BuffApplied);
+                        return;
+                    }
+                    continue;
                 }
             }
         }
