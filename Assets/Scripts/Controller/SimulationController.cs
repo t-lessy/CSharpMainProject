@@ -21,7 +21,7 @@ namespace Controller
         {
             _runtimeModel = runtimeModel;
             _onLevelFinished = onLevelFinished;
-            
+
             var timeUtil = ServiceLocator.Get<TimeUtil>();
 
             ServiceLocator.Register<IReadOnlyRuntimeModel>(runtimeModel);
@@ -31,7 +31,7 @@ namespace Controller
 
             timeUtil.AddFixedUpdateAction(Update);
         }
-        
+
         private void Update(float deltaTime)
         {
             if (_runtimeModel.Stage != RuntimeModel.GameStage.Simulation)
@@ -61,7 +61,7 @@ namespace Controller
                 projectile.Update(deltaTime, Time.time);
                 if (!projectile.HadHit)
                     continue;
-                
+
                 var hitUnit = _runtimeModel.AllUnits.FirstOrDefault(u => u.Pos == projectile.HitTile);
                 if (hitUnit != null)
                 {
@@ -77,13 +77,13 @@ namespace Controller
                         _runtimeModel.RemoveUnit(hitUnit);
                     }
                 }
-                
-                for (int i=0; i<_runtimeModel.Bases.Count; i++)
+
+                for (int i = 0; i < _runtimeModel.Bases.Count; i++)
                 {
                     var pos = _runtimeModel.Map.Bases[i];
                     if (pos != projectile.HitTile)
                         continue;
-                    
+
                     var playerBase = _runtimeModel.Bases[i];
                     playerBase.TakeDamage(projectile.Damage);
                     if (playerBase.Health <= 0)
@@ -92,7 +92,7 @@ namespace Controller
                     }
                 }
             }
-                
+
             _runtimeModel.Projectiles.RemoveAll(p => p.HadHit);
         }
 
@@ -111,7 +111,7 @@ namespace Controller
         private void GameOver()
         {
             var isPlayerAlive = _runtimeModel.Bases[RuntimeModel.PlayerId].Health > 0;
-            _buffsController.Dispose();
+            _buffsController.ClearAllBuffs();
             _onLevelFinished?.Invoke(isPlayerAlive);
         }
     }

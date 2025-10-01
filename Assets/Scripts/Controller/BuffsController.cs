@@ -31,6 +31,8 @@ namespace Controller
         private TimeUtil _timeUtil;
         private bool _disposed = false;
 
+        public bool IsDisposed => _disposed;
+
         public BuffsController()
         {
             if (!ServiceLocator.Contains<TimeUtil>())
@@ -43,21 +45,32 @@ namespace Controller
 
         public void AddBuff(Unit unit, IBuff buff)
         {
-            if (_disposed) throw new ObjectDisposedException(nameof(BuffsController));
+            if (_disposed)
+            {
+                Debug.LogWarning($"[buffsController] Attempted to use disposed controller. Buff : {buff.GetType().Name}");
+                return;
+            }
 
-            if (unit.IsDead || !buff.CanApply(unit))
+            if (unit.IsDead)
                 return;
 
             var existingBuffInstance = _activeBuffs.FirstOrDefault(b => b.Buff.GetType() == buff.GetType() && b.Unit == unit);
-            
+
             if (existingBuffInstance != null)
             {
                 existingBuffInstance.Buff.Duration = Mathf.Max(existingBuffInstance.Buff.Duration, buff.Duration);
+                Debug.Log($"[Buffs] Extended duration of {buff.GetType().Name} on {unit}");
             }
             else
             {
+                if (!buff.CanApply(unit))
+                {
+                    Debug.LogWarning($"[Buffs] Cannot apply {buff.GetType().Name} to {unit}");
+                    return;
+                }
                 buff.Apply(unit);
                 _activeBuffs.Add(new BuffInstance(buff, unit));
+                Debug.Log($"[Buffs] Applied {buff.GetType().Name} to {unit}");
             }
         }
 
@@ -115,7 +128,7 @@ namespace Controller
 
         public bool HasBuff<T>(Unit unit) where T : IBuff
         {
-            return ! _disposed && _activeBuffs.Any(b => b.Unit == unit && b.Buff is T);
+            return !_disposed && _activeBuffs.Any(b => b.Unit == unit && b.Buff is T);
         }
 
         public void CheckAndApplyAttackBaseBuffs(Unit unit, Vector2Int target)

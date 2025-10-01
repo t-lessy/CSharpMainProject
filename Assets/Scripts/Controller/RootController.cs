@@ -12,7 +12,8 @@ namespace Controller
         private readonly PersistedModel _persisted;
         private readonly RuntimeModel _runtimeModel;
         private readonly LevelController _levelController;
-        
+        private BuffsController _buffsController;
+
         private RootView _rootView;
 
         public RootController(Settings settings, Canvas targetCanvas)
@@ -49,6 +50,9 @@ namespace Controller
         public void RestartGame()
         {
             _runtimeModel.Level = _persisted.Level;
+            _buffsController?.Dispose();
+            _buffsController = new BuffsController();
+            ServiceLocator.Register(_buffsController);
             _levelController.StartLevel(_persisted.Level);
         }
 
