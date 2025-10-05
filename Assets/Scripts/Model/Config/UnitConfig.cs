@@ -16,7 +16,10 @@ namespace Model.Config
         [SerializeField] private float _attackRange = 3.5f;
         [SerializeField] private ProjectileType _projectileType = ProjectileType.ArchToTile;
         [SerializeField] private int _damage = 15;
-        
+
+        [SerializeField] private bool _enabledBuff = false;
+       
+
         public bool IsPlayerUnit => _isPlayerUnit;
         public string Name => _name;
         public Sprite Icon => _icon;
@@ -34,13 +37,22 @@ namespace Model.Config
             set { _attackDelay = value; }
         }
             
-        public float AttackRange => _attackRange;
+        public float AttackRange
+        {
+            get { return _attackRange; }
+            set { _attackRange = value; }
+        }
+            
         public ProjectileType ProjectileType => _projectileType;
         public int Damage
         {
             get { return _damage; }
             set { _damage = value; }
         }
-
+        public bool EnebledBuff
+        {
+            get { return _enabledBuff; }
+            set { _enabledBuff = value; }
+        }
     }
 }

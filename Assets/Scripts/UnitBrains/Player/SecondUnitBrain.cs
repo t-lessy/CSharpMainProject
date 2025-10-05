@@ -25,31 +25,29 @@ namespace UnitBrains.Player
         protected override void GenerateProjectiles(Vector2Int forTarget, List<BaseProjectile> intoList)
         {
             float overheatTemperature = OverheatTemperature;
-            ///////////////////////////////////////
-            // Homework 1.3 (1st block, 3rd module)
-            ///////////////////////////////////////
-            ///
+            
+
             if (GetTemperature() < overheatTemperature)
             {
-                for (int i = 0; i < _temperature + 1; i++)
+                int shotsCount = unit.Config.EnebledBuff ? 2 : 1;
+
+                for (int shot = 0; shot < shotsCount; shot++)
                 {
-                    var projectile = CreateProjectile(forTarget);
-                    AddProjectileToList(projectile, intoList);
+                    for (int i = 0; i < _temperature + 1; i++)
+                    {
+                        var projectile = CreateProjectile(forTarget);
+                        AddProjectileToList(projectile, intoList);
+                    }
+                    
                 }
                 IncreaseTemperature();
             }
         }
-            ///////////////////////////////////////
-            ///
         public override Vector2Int GetNextStep()
         {
             int enemyID = IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId;
             Vector2Int enemyBase = runtimeModel.RoMap.Bases[enemyID];
-            //var target = runtimeModel.RoMap.Bases[
-            //    IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId];
-
-            //_activePath = new AStar(runtimeModel, unit.Pos, target);
-            //return _activePath.GetNextStepFrom(unit.Pos);
+           
             List<Vector2Int> allTargets = SelectTargets();
             List<Vector2Int> result = SelectTargets();
             var UnitGroups= SelectTargets();
@@ -66,7 +64,7 @@ namespace UnitBrains.Player
                  _activePath = new AStar(runtimeModel, unit.Pos, unreachableTarget[0]);
                  //Debug.Log("Целей в радиусе атаки нет,иду к ближайшей");
                  return _activePath.GetNextStepFrom(unit.Pos);
-                 //return position.CalcNextStepTowards(unreachableTarget[0]);
+                
             }
             _activePath = new AStar(runtimeModel, unit.Pos, enemyBase);
             return position.CalcNextStepTowards(runtimeModel.RoMap.Bases[IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId]);

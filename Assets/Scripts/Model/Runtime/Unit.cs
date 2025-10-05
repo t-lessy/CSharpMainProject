@@ -38,7 +38,10 @@ namespace Model.Runtime
         private float _nextBrainUpdateTime = 0f;
         private float _nextMoveTime = 0f;
         private float _nextAttackTime = 0f;
-        
+
+        public float CurrentAttackRange { get; set; }
+        public float OriginalAttackRange { get; set; }
+        public bool HasBuff { get; set; }
         public Unit(UnitConfig config, Vector2Int startPos,Coordinator coordinator)
         {
             Group.Clear();
@@ -48,7 +51,10 @@ namespace Model.Runtime
             _brain = UnitBrainProvider.GetBrain(config);
             _brain.SetUnit(this);
 
-           
+            this.CurrentAttackRange = this.Config.AttackRange;
+            this.OriginalAttackRange = this.Config.AttackRange;
+            this.HasBuff = false;
+
             _coordunator = coordinator;
            
             //coordinator= ServiceLocator.Get<Coordinator>();

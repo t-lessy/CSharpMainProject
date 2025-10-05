@@ -14,6 +14,7 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using Utilities;
 using View;
+using static UnityEngine.GraphicsBuffer;
 
 public class FourthUnitBrain : DefaultPlayerUnitBrain
 {
@@ -23,36 +24,84 @@ public class FourthUnitBrain : DefaultPlayerUnitBrain
     private bool SwitchMod;
     private float SwitchModTime = 0f;
     private float _switchModTime = 1f;
+
     VFXView _vfxView = ServiceLocator.Get<VFXView>();
     
-    DamageBuff _damageBuff = new DamageBuff();
-    AttackSpeedBuff _attackSpeedBuff = new AttackSpeedBuff();
-    SpeedBuff _speedBuff = new SpeedBuff();
+    
+
+    DoubleShot _doubleShot = new DoubleShot();
+    AttackRangeBuff _attackRangeBuff = new AttackRangeBuff();
 
     private EffectSystem _effectSystem = ServiceLocator.Get<EffectSystem>();
 
-
+    //RuntimeModel _runtimeModel= ServiceLocator.Get<RuntimeModel>();
 
     List<Vector2Int> allPlayerUnit = new List<Vector2Int>();
     List<Vector2Int> result = new List<Vector2Int>();
+
+    // Метод для удаления всех баффов с союзных юнитов
+    private void RemoveAllBuffsFromAllies()
+    {
+        foreach (var target in Unit.AlLUnitPlayer)
+        {
+            if (target.Config.Name != "Command Buffer")
+            {
+                RemoveSpecificBuffsFromUnit(target);
+            }
+        }
+    }
+
+    // Метод для удаления конкретных баффов с юнита
+    private void RemoveSpecificBuffsFromUnit(Unit target)
+    {
+        var effects = _effectSystem.GetUnitEffects(target);
+
+        // Удаляем AttackRangeBuff
+        var rangeBuffs = effects.Where(e => e is AttackRangeBuff).Cast<AttackRangeBuff>().ToList();
+        foreach (var rangeBuff in rangeBuffs)
+        {
+            _effectSystem.RemoveEffect(rangeBuff, target);
+        }
+
+        // Удаляем DoubleShot
+        var doubleShots = effects.Where(e => e is DoubleShot).Cast<DoubleShot>().ToList();
+        foreach (var doubleShot in doubleShots)
+        {
+            _effectSystem.RemoveEffect(doubleShot, target);
+        }
+
+        
+    }
     private void GenerateBuffsForCommand(Unit forTarget)
     {
 
         if (GetBuff && forTarget.Config.Name != "Command Buffer")
         {
-            var _damageBuff = new DamageBuff();
-            var _attackSpeedBuff = new AttackSpeedBuff();
-            var _speedBuff = new SpeedBuff();
+            // Проверяем, нет ли уже такого баффа
+            var effects = _effectSystem.GetUnitEffects(forTarget);
+            bool hasRangeBuff = effects.Any(e => e is AttackRangeBuff);
+            bool hasDoubleShot = effects.Any(e => e is DoubleShot);
 
-            _effectSystem.TryAddEffect(_speedBuff, forTarget);
-            _effectSystem.TryAddEffect(_attackSpeedBuff, forTarget);
-            _effectSystem.TryAddEffect(_damageBuff, forTarget);
+            if (!hasRangeBuff)
+            {
+                var rangeBuff = new AttackRangeBuff();
+                _effectSystem.TryAddEffect(rangeBuff, forTarget);
+            }
+
+            if (!hasDoubleShot)
+            {
+                var doubleShot = new DoubleShot();
+                _effectSystem.TryAddEffect(doubleShot, forTarget);
+            }
+            
 
             _vfxView.PlayVFX(forTarget.Pos, VFXView.VFXType.BuffApplied);
         }
+        
 
 
     }
+
     private IEnumerable<Vector2Int> GetCommandTargets()
     {
         return runtimeModel.RoUnits
@@ -62,15 +111,20 @@ public class FourthUnitBrain : DefaultPlayerUnitBrain
     }
     public override Vector2Int GetNextStep()
     {
+        if (runtimeModel.Stage == RuntimeModel.GameStage.Finished)
+        {
+            RemoveAllBuffsFromAllies();
+        }
 
         if (!Marsh)
         {
+            
             foreach (var target in Unit.AlLUnitPlayer)
             {
-
+               
                 GenerateBuffsForCommand(target);
             }
-
+            
 
 
             return unit.Pos;
@@ -87,20 +141,6 @@ public class FourthUnitBrain : DefaultPlayerUnitBrain
     {
 
 
-        //allPlayerUnit = GetCommandTargets().ToList();
-        //foreach (var target in allPlayerUnit)
-        //{
-        //    if (IsTargetInRange(target))
-        //    {
-        //        result.Add(target);
-        //    }
-        //}
-
-        //while (result.Count > 1)
-        //{
-        //    result.RemoveAt(result.Count - 1);
-        //}
-        //return result;
         var currentResult = new List<Vector2Int>(); 
         allPlayerUnit = GetCommandTargets().ToList();
 

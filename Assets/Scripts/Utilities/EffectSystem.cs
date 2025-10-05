@@ -18,6 +18,7 @@ namespace Assets.Scripts.Utilities
 {
     public class EffectSystem : MonoBehaviour
     {
+        private bool EnebledBuff = false;
         private Dictionary<Unit, List<IEffect>> unitEffects = new Dictionary<Unit, List<IEffect>>();
         private Coroutine updateCoroutine;
 
@@ -46,7 +47,7 @@ namespace Assets.Scripts.Utilities
             }
             if (!effect.CanApplyTo(unit))
             {
-                Debug.LogWarning($"Эффект {effect.GetType().Name} нельзя применить к юниту {unit.Config.name}");
+                //Debug.LogWarning($"Эффект {effect.GetType().Name} нельзя применить к юниту {unit.Config.name}");
                 return false;
             }
 
@@ -89,6 +90,7 @@ namespace Assets.Scripts.Utilities
         }
 
         // Обновление длительности эффектов
+
         private void UpdateEffects(float deltaTime)
         {
             var unitsToRemove = new List<Unit>();
@@ -105,8 +107,12 @@ namespace Assets.Scripts.Utilities
 
                     if (effect.IsExpired)
                     {
-                        // Нужно вызвать Remove с правильным типом
-                        RemoveEffectByType(effect, unit);
+                        // Приводим к Effect<Unit> и вызываем Remove
+                        if (effect is Effect<Unit> genericEffect)
+                        {
+                            genericEffect.Remove(unit);
+                        }
+                        effects.RemoveAt(i);
                         Debug.Log($"Эффект {effect.GetType().Name} истек у юнита {unit.Config.name}");
                     }
                 }
@@ -140,6 +146,15 @@ namespace Assets.Scripts.Utilities
                 return new List<IEffect>(unitEffects[unit]);
             }
             return new List<IEffect>();
+        }
+        //проверка на наложенность баффа
+        public bool HasEffect<T>(Unit unit) where T : IEffect
+        {
+            if (unitEffects.ContainsKey(unit))
+            {
+                return unitEffects[unit].Any(effect => effect is T);
+            }
+            return false;
         }
     }
 
@@ -178,7 +193,7 @@ namespace Assets.Scripts.Utilities
 
         public DamageBuff()
         {
-            Duration = 10f;
+            Duration = 3f;
         }
         public override bool CanApplyTo(Unit unit)
         {
@@ -203,7 +218,7 @@ namespace Assets.Scripts.Utilities
 
         public SpeedBuff()
         {
-            Duration = 10f;
+            Duration = 3f;
         }
         public override bool CanApplyTo(Unit unit)
         {
@@ -227,7 +242,7 @@ namespace Assets.Scripts.Utilities
 
         public AttackSpeedBuff()
         {
-            Duration = 10f;
+            Duration = 3f;
         }
         public override bool CanApplyTo(Unit unit)
         {
@@ -243,6 +258,61 @@ namespace Assets.Scripts.Utilities
         public override void Remove(Unit unit)
         {
             unit.Config.AttackDelay /= attackDelayModifier;
+        }
+    }
+    public class DoubleShot : Effect<Unit>
+    {
+        public DoubleShot()
+        {
+            Duration = 10f;
+        }
+
+        public override bool CanApplyTo(Unit unit)
+        {
+            // Проверяем МОЖНО ли применить бафф
+            return base.CanApplyTo(unit) &&
+                unit.Health > 0 &&
+                unit.Config.Name == "Cobra Commando"; 
+        }
+
+        public override void Apply(Unit unit)
+        {
+            unit.Config.EnebledBuff = true; 
+        }
+
+        public override void Remove(Unit unit)
+        {
+            unit.Config.EnebledBuff = false; 
+        }
+    }
+    public class AttackRangeBuff : Effect<Unit>
+    {
+        public float attackRangeModifier = 1.5f;
+
+        public AttackRangeBuff()
+        {
+            Duration = 3f;
+        }
+
+        public override bool CanApplyTo(Unit unit)
+        {
+            return base.CanApplyTo(unit) &&
+                unit.Health > 0 &&
+                unit.Config.Name == "Ironclad Behemoth";
+        }
+
+        public override void Apply(Unit unit)
+        {
+            unit.HasBuff = true;
+            unit.CurrentAttackRange = unit.OriginalAttackRange * attackRangeModifier;
+            Debug.Log($"Применен buff: {unit.OriginalAttackRange} -> {unit.CurrentAttackRange}");
+        }
+
+        public override void Remove(Unit unit)
+        {
+            unit.HasBuff = false;
+            unit.CurrentAttackRange = unit.OriginalAttackRange;
+            Debug.Log($"Снят buff: {unit.CurrentAttackRange}");
         }
     }
 }

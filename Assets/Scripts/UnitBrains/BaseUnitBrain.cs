@@ -54,6 +54,17 @@ namespace UnitBrains
             List<BaseProjectile> result = new ();
             foreach (var target in SelectTargets())
             {
+                //if (unit.Config.EnebledBuff == true)
+                //{
+                //    for (var i = 0; i < 2; i++)
+                //    {
+                //        GenerateProjectiles(target, result);
+                //    }
+                //}
+                //else
+                //{
+                //    GenerateProjectiles(target, result);
+                //}
                 GenerateProjectiles(target, result);
             }
 
