@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Model.Runtime.Projectiles;
 using UnityEngine;
 
@@ -49,10 +50,17 @@ namespace UnitBrains.Player
             // Homework 1.4 (1st block, 4rd module)
             ///////////////////////////////////////
             List<Vector2Int> result = GetReachableTargets();
-            while (result.Count > 1)
+            
+            if (result.Count > 0)
             {
-                result.RemoveAt(result.Count - 1);
+                result = new List<Vector2Int>
+                {
+                    result
+                        .OrderBy(DistanceToOwnBase)
+                        .First()
+                };
             }
+
             return result;
             ///////////////////////////////////////
         }
