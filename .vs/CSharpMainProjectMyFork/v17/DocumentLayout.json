@@ -40,9 +40,10 @@
               "RelativeDocumentMoniker": "Assets\\Scripts\\UnitBrains\\BaseUnitBrain.cs",
               "ToolTip": "D:\\Alex\\Git.Fork\\CSharpMainProjectmyFork\\Assets\\Scripts\\UnitBrains\\BaseUnitBrain.cs",
               "RelativeToolTip": "Assets\\Scripts\\UnitBrains\\BaseUnitBrain.cs",
-              "ViewState": "AgIAAHoAAAAAAAAAAAAmwJAAAAAXAAAAAAAAAA==",
+              "ViewState": "AgIAAHUAAAAAAAAAAIA2wIgAAAAqAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-01-31T08:14:33.711Z"
+              "WhenOpened": "2025-01-31T08:14:33.711Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -76,7 +77,7 @@
               "RelativeDocumentMoniker": "Assets\\Scripts\\UnitBrains\\Player\\SecondUnitBrain.cs",
               "ToolTip": "D:\\Alex\\Git.Fork\\CSharpMainProjectmyFork\\Assets\\Scripts\\UnitBrains\\Player\\SecondUnitBrain.cs",
               "RelativeToolTip": "Assets\\Scripts\\UnitBrains\\Player\\SecondUnitBrain.cs",
-              "ViewState": "AgIAADUAAAAAAAAAAAAgwEMAAAAxAAAAAAAAAA==",
+              "ViewState": "AgIAACQAAAAAAAAAAAAvwDIAAABPAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-11-14T11:09:09.195Z",
               "EditorCaption": ""
