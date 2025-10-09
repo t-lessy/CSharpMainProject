@@ -50,7 +50,7 @@ namespace UnitBrains.Player
         {
             if (_targets.Count > 0) // Направляю юнита к противнику вне радиуса
             {
-                return unit.Pos.CalcNextStepTowards(_targets[_unitNumber % _targets.Count]);
+                return unit.Pos.CalcNextStepTowards(_targets[0]); // Направляется к первой цели в списке (если противников нет - направляется к базе)
             }
 
             return unit.Pos;
@@ -69,20 +69,24 @@ namespace UnitBrains.Player
             {
                 var target = runtimeModel.RoMap.Bases[IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId];
                 result.Add(target);
+                _targets.Add(target);
                 return result;
             }
             
             SortByDistanceToOwnBase(allTargets); // Сортировка юнитов по дальности от нашей базы
 
-            for (int i = 0; i < Mathf.Min(_unitMaxNumber, allTargets.Count); i++) // Прохожу по списку целей. Беру первые 3 юнита или меньше
+            int myTargetIndex = _unitNumber % _unitMaxNumber; // Определяю номер моей цели
+            if (myTargetIndex < allTargets.Count) // Если номер моей цели меньше общего числа целей
             {
-                if (IsTargetInRange(allTargets[i]))
+                Vector2Int myPersonalTarget = allTargets[myTargetIndex]; // Объявляю переменную юнита из списка всех целей
+
+                if (IsTargetInRange(myPersonalTarget)) // Атакуем цель, если она в радиусе
                 {
-                    result.Add(allTargets[i]); // Добавляем сюда, если цель в радиусе
+                    result.Add(myPersonalTarget);
                 }
                 else
                 {
-                    _targets.Add(allTargets[i]); // Добавляем сюда, если цель не в радиусе
+                    _targets.Add(myPersonalTarget); // Добавляю в список для движения к цели вне радиуса
                 }
             }
             return result;
