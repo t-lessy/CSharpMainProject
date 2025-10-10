@@ -1,7 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using Model;
 using Model.Runtime.Projectiles;
 using UnityEngine;
+using UnityEngine.UIElements;
+using Utilities;
 
 namespace UnitBrains.Player
 {
@@ -13,7 +17,11 @@ namespace UnitBrains.Player
         private float _temperature = 0f;
         private float _cooldownTime = 0f;
         private bool _overheated;
-        
+
+        List<Vector2Int> possibleTargets = new List<Vector2Int>();
+        List<Vector2Int> result = new List<Vector2Int>();
+        List<Vector2Int> unReachableTargets = new List<Vector2Int>();
+
         protected override void GenerateProjectiles(Vector2Int forTarget, List<BaseProjectile> intoList)
         {
             float overheatTemperature = OverheatTemperature;
@@ -40,7 +48,22 @@ namespace UnitBrains.Player
 
         public override Vector2Int GetNextStep()
         {
-            return base.GetNextStep();
+            Vector2Int position = new Vector2Int();
+            Vector2Int targetPosition = new Vector2Int();
+
+
+            if (result.Count > 0) {
+
+                position = unit.Pos;
+            }
+            else if (unReachableTargets.Count() > 0) {
+
+                    targetPosition = unReachableTargets [0];
+                    position = unit.Pos.CalcNextStepTowards(targetPosition); ;
+            }
+        
+            return position;
+
         }
 
         protected override List<Vector2Int> SelectTargets()
@@ -48,28 +71,32 @@ namespace UnitBrains.Player
             ///////////////////////////////////////
             // Homework 1.4 (1st block, 4rd module)
             ///////////////////////////////////////
-            List<Vector2Int> result = GetReachableTargets();
+            List<Vector2Int> possibleTargets = GetAllTargets().ToList();
 
             float closestDistance = float.MaxValue;
             Vector2Int active_target = new Vector2Int();
+            
+            unReachableTargets.Clear();
+            result.Clear();
 
-
-            foreach (Vector2Int target in result) {
-
+            foreach (Vector2Int target in possibleTargets) {
 
                 float distance = DistanceToOwnBase(target);
-                if (distance < closestDistance) closestDistance = distance;
-                active_target = target;
 
-             }
+                if (distance < closestDistance) {
 
+                    closestDistance = distance;
+                    active_target = target;
+                    unReachableTargets.Add(active_target);
 
-            if (active_target != Vector2Int.zero) {
-
-                result.Clear();
-                result.Add(active_target);
+                    if (GetReachableTargets().Contains(active_target)) {
+                        result.Add(active_target);
+                    } 
+                    
+                }
 
             }
+
 
             return result;
             
