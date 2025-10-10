@@ -17,23 +17,23 @@ namespace UnitBrains.Pathfinding
 
         public void HighlightPath(BaseUnitPath path)
         {
-            if (Path is not null)
-            {
-                return;
-            }
-            Path = path;
-            while (allHighlights.Count > 0)
-            {
-                DestroyHighlight(0);
-            }
+            //if (Path is not null)
+            //{
+            //    return;
+            //}
+            //Path = path;
+            //while (allHighlights.Count > 0)
+            //{
+            //    DestroyHighlight(0);
+            //}
 
-            if (highlightCoroutine != null)
-            {
-                StopCoroutine(highlightCoroutine);
-            }
-            var _path = path.GetPath().ToList();
-            if (_path.Count > 0)
-                highlightCoroutine = StartCoroutine(HighlightCoroutine(path));
+            //if (highlightCoroutine != null)
+            //{
+            //    StopCoroutine(highlightCoroutine);
+            //}
+            //var _path = path.GetPath().ToList();
+            //if (_path.Count > 0)
+            //    highlightCoroutine = StartCoroutine(HighlightCoroutine(path));
         }
 
         private IEnumerator HighlightCoroutine(BaseUnitPath path)
