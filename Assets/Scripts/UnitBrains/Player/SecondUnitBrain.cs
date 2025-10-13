@@ -43,7 +43,7 @@ namespace UnitBrains.Player
 
         protected override List<Vector2Int> SelectTargets()
         {
-            ///////////////////////////////////////
+            
             List<Vector2Int> result = GetReachableTargets();
 
             
@@ -71,7 +71,6 @@ namespace UnitBrains.Player
 
 
 
-            ///////////////////////////////////////
         }
 
         public override void Update(float deltaTime, float time)
