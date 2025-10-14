@@ -16,11 +16,22 @@ namespace UnitBrains.Player
         private float _temperature = 0f;
         private float _cooldownTime = 0f;
         private bool _overheated;
-        
+        private static int s_unitCounter = 0;
+        private int _unitNumber;
+        private const int MAX_SMART_TARGETS = 3;
+                
         //private readonly System.Collections.Generic.List<Vector2Int> _pendingTargets = new System.Collections.Generic.List<Vector2Int>();
         private readonly List<Vector2Int> _pendingTargets = new List<Vector2Int>(); 
         private Vector2Int? _currentObjective;
+
+        public SecondUnitBrain() { _unitNumber = s_unitCounter++; }
         
+        private void SortByDistanceToOwnBase(List<Vector2Int> list)
+        {
+            var myBase = runtimeModel.RoMap.Bases[IsPlayerUnitBrain ? RuntimeModel.PlayerId : RuntimeModel.BotPlayerId];
+            list.Sort((a, b) => ((a - myBase).sqrMagnitude).CompareTo((b - myBase).sqrMagnitude));
+        }
+
         protected override void GenerateProjectiles(Vector2Int forTarget, List<BaseProjectile> intoList)
         {
             float overheatTemperature = OverheatTemperature;
@@ -54,17 +65,21 @@ namespace UnitBrains.Player
             ///////////////////////////////////////
             // Homework 1.4 (1st block, 4rd module)
             ///////////////////////////////////////
-            var all = GetAllTargets(); // враги + база противника
-            var enemyBase = runtimeModel.RoMap.Bases[IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId];
-            var enemiesOnly = all.Where(t => t != enemyBase);
-            var myBase = runtimeModel.RoMap.Bases[IsPlayerUnitBrain ? RuntimeModel.PlayerId : RuntimeModel.BotPlayerId];
-            var target = (enemiesOnly.Any() ? enemiesOnly : new[] { enemyBase })
-                .OrderBy(t => (t - myBase).sqrMagnitude)
-                .First();
-            _currentObjective = target;
             _pendingTargets.Clear();
+            var goals = new List<Vector2Int>();
+            foreach (var t in GetAllTargets()) goals.Add(t);
+            if (goals.Count == 0)
+            {
+                var enemyBase = runtimeModel.RoMap.Bases[IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId];
+                goals.Add(enemyBase);
+            }
+            SortByDistanceToOwnBase(goals);
+            int idx = _unitNumber % MAX_SMART_TARGETS;
+            if (idx >= goals.Count) idx = 0;
+            var chosen = goals[idx];
+            _currentObjective = chosen;
             var result = new List<Vector2Int>();
-            if (IsTargetInRange(target)) result.Add(target); else _pendingTargets.Add(target);
+            if (IsTargetInRange(chosen)) result.Add(chosen); else _pendingTargets.Add(chosen);
             return result;
             ///////////////////////////////////////
         }
