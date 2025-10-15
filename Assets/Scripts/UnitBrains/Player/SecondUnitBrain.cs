@@ -31,6 +31,8 @@ namespace UnitBrains.Player
             ///////////////////////////////////////
             ///
 
+            Debug.Log($"Current temperature at start: {_temperature}");
+
             float currentTemperature = GetTemperature();
 
             if (currentTemperature >= overheatTemperature) {
@@ -69,7 +71,8 @@ namespace UnitBrains.Player
                 targetPosition = runtimeModel.RoMap.Bases[IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId];
                 position = unit.Pos.CalcNextStepTowards(targetPosition);
             }
-            
+
+            Debug.Log(position);
             return position;
         }
 
@@ -84,7 +87,6 @@ namespace UnitBrains.Player
             unReachableTargets.Clear();
             result.Clear();
 
-
             if (possibleTargets.Any()) {
 
                 foreach (Vector2Int target in possibleTargets) {
@@ -97,8 +99,10 @@ namespace UnitBrains.Player
                         active_target = target;
 
                     }
-
+                    //Если ближайшая цель в зоне доступа, добавляем в result, если нет - идем к ней
                     if (GetReachableTargets().Contains(active_target)) {
+
+                        result.Clear();
                         result.Add(active_target);
                     } 
                     
