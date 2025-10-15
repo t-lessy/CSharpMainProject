@@ -67,7 +67,7 @@ namespace Assets.Scripts.UnitBrains.Pathfinding
                     Vector2Int currentPosition = currentNode.Position;
                     Vector2Int newPosition = new Vector2Int(currentPosition.x + dx[i], currentPosition.y + dy[i]);
 
-                    if (IsValid(newPosition, startNode.Position) && !openList.Select(node => node.Position).Contains(newPosition))
+                    if (IsValid(newPosition) && !openList.Select(node => node.Position).Contains(newPosition))
                     {
                         Node neighbor = new Node(newPosition);
 
@@ -85,7 +85,7 @@ namespace Assets.Scripts.UnitBrains.Pathfinding
             path = new Vector2Int[0];
         }
 
-        private bool IsValid(Vector2Int position, Vector2Int startPosition)
+        private bool IsValid(Vector2Int position)
         {
             if (this.endPoint == position)
                 return true;
