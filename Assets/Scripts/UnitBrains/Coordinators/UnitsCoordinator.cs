@@ -10,11 +10,27 @@ namespace UnitBrains.Coordinators
     {
         public static UnitsCoordinator Instance { get; } = new UnitsCoordinator();
 
-        public Vector2Int? RecommendedTarget { get; private set; }
-        public Vector2Int RecommendedPosition { get; private set; }
+        private Vector2Int? PlayerUnitRecommendedTarget { get; set; }
+        private Vector2Int? EnemyUnitRecomendedTarget { get; set; }
+        private Vector2Int PlayerUnitRecommendedPosition { get; set; }
+        private Vector2Int EnemyUnitRecomendedPosition { get; set; }
 
         private readonly IReadOnlyRuntimeModel _runtimeModel;
         private readonly TimeUtil _timeUtil;
+
+        public Vector2Int? GetRecomendedTarget(bool isEnemyUnit)
+        {
+            return (isEnemyUnit)
+                ? this.EnemyUnitRecomendedTarget
+                : this.PlayerUnitRecommendedTarget;
+        }
+
+        public Vector2Int GetRecomendedPosition(bool isEnemyUnit)
+        {
+            return (isEnemyUnit)
+                ? this.EnemyUnitRecomendedPosition
+                : this.PlayerUnitRecommendedPosition;
+        }
 
         private UnitsCoordinator()
         {
@@ -28,24 +44,43 @@ namespace UnitBrains.Coordinators
             var ourBase = _runtimeModel.RoMap.Bases[RuntimeModel.PlayerId];
             var enemies = _runtimeModel.RoBotUnits;
             var enemyBase = _runtimeModel.RoMap.Bases[RuntimeModel.BotPlayerId];
+            var warriors = _runtimeModel.RoPlayerUnits;
 
             var enemiesOnOurHalf = enemies.Where(e => IsOnOurHalf(e.Pos)).ToList();
+            var wariorsOnEnemyHalf = warriors.Where(e => !IsOnOurHalf(e.Pos)).ToList();
 
             if (enemiesOnOurHalf.Any())
             {
-                RecommendedTarget = enemiesOnOurHalf.OrderBy(e => Vector2Int.Distance(e.Pos, ourBase)).First().Pos;
-                RecommendedPosition = ourBase + new Vector2Int(0, 5);
+                PlayerUnitRecommendedTarget = enemiesOnOurHalf.OrderBy(e => Vector2Int.Distance(e.Pos, ourBase)).First().Pos;
+                PlayerUnitRecommendedPosition = ourBase + new Vector2Int(0, 5);
             }
             else if (enemies.Any())
             {
-                RecommendedTarget = enemies.OrderBy(e => e.Health).First().Pos;
+                PlayerUnitRecommendedTarget = enemies.OrderBy(e => e.Health).First().Pos;
                 var closestEnemy = enemies.OrderBy(e => Vector2Int.Distance(e.Pos, ourBase)).First();
-                RecommendedPosition = Vector2Int.RoundToInt(Vector2.MoveTowards(closestEnemy.Pos, ourBase, closestEnemy.Config.AttackRange - 1));
+                PlayerUnitRecommendedPosition = Vector2Int.RoundToInt(Vector2.MoveTowards(closestEnemy.Pos, ourBase, closestEnemy.Config.AttackRange - 1));
             }
             else
             {
-                RecommendedTarget = enemyBase;
-                RecommendedPosition = Vector2Int.RoundToInt(Vector2.MoveTowards(enemyBase, ourBase, 3f));
+                PlayerUnitRecommendedTarget = enemyBase;
+                PlayerUnitRecommendedPosition = Vector2Int.RoundToInt(Vector2.MoveTowards(enemyBase, ourBase, 3f));
+            }
+
+            if (wariorsOnEnemyHalf.Any())
+            {
+                EnemyUnitRecomendedTarget = wariorsOnEnemyHalf.OrderBy(w => Vector2Int.Distance(w.Pos, enemyBase)).First().Pos;
+                EnemyUnitRecomendedPosition = enemyBase + new Vector2Int(0, -5);
+            }
+            else if (warriors.Any())
+            {
+                EnemyUnitRecomendedTarget = warriors.OrderBy(w => w.Health).First().Pos;
+                var closestWarrior = warriors.OrderBy(w => Vector2.Distance(w.Pos, enemyBase)).First();
+                EnemyUnitRecomendedPosition = Vector2Int.RoundToInt(Vector2.MoveTowards(closestWarrior.Pos, enemyBase, closestWarrior.Config.AttackRange - 1));
+            }
+            else
+            {
+                EnemyUnitRecomendedTarget = ourBase;
+                EnemyUnitRecomendedPosition = Vector2Int.RoundToInt(Vector2.MoveTowards(ourBase, enemyBase, 3f));
             }
         }
 

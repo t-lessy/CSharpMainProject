@@ -12,22 +12,6 @@ namespace UnitBrains.Player
         private BaseUnitPath _activePath;
         public override BaseUnitPath ActivePath => _activePath;
 
-        public override Vector2Int GetNextStep()
-        {
-            var coordinator = UnitsCoordinator.Instance;
-            var recommendedTargetPos = coordinator.RecommendedTarget;
-
-            if (recommendedTargetPos.HasValue &&
-                Vector2Int.Distance(unit.Pos, recommendedTargetPos.Value) <= 2 * unit.Config.AttackRange)
-            {
-                _activePath = new AStarUnitPath(runtimeModel, unit.Pos, recommendedTargetPos.Value);
-                return _activePath.GetNextStepFrom(unit.Pos);
-            }
-
-            _activePath = new AStarUnitPath(runtimeModel, unit.Pos, coordinator.RecommendedPosition);
-            return _activePath.GetNextStepFrom(unit.Pos);
-        }
-
         protected float DistanceToOwnBase(Vector2Int fromPos) =>
             Vector2Int.Distance(fromPos, runtimeModel.RoMap.Bases[RuntimeModel.PlayerId]);
 

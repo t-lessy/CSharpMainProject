@@ -67,7 +67,7 @@ namespace Assets.Scripts.UnitBrains.Pathfinding
                     Vector2Int currentPosition = currentNode.Position;
                     Vector2Int newPosition = new Vector2Int(currentPosition.x + dx[i], currentPosition.y + dy[i]);
 
-                    if (IsValid(newPosition) && !openList.Select(node => node.Position).Contains(newPosition))
+                    if (IsValid(newPosition, startNode.Position) && !openList.Select(node => node.Position).Contains(newPosition))
                     {
                         Node neighbor = new Node(newPosition);
 
@@ -81,27 +81,31 @@ namespace Assets.Scripts.UnitBrains.Pathfinding
                         openList.Add(neighbor);
                     }
                 }
-                path = new Vector2Int[0];
             }
+            path = new Vector2Int[0];
         }
 
-        private bool IsValid(Vector2Int position)
+        private bool IsValid(Vector2Int position, Vector2Int startPosition)
         {
             if (this.endPoint == position)
                 return true;
-            var playerUnits = runtimeModel.RoPlayerUnits;
-            var botUnits = runtimeModel.RoBotUnits;
-            //foreach (var unit in playerUnits)
-            //{
-            //    if (unit.Pos == position)
-            //        return true;
-            //}
-            foreach (var unit in botUnits)
+
+            if (!this.runtimeModel.IsTileWalkable(position))
+                return false;
+
+            foreach (var unit in runtimeModel.RoPlayerUnits)
             {
                 if (unit.Pos == position)
-                    return true;
+                    return false;
             }
-            return this.runtimeModel.IsTileWalkable(position);
+
+            foreach (var unit in runtimeModel.RoBotUnits)
+            {
+                if (unit.Pos == position)
+                    return false;
+            }
+
+            return true;
         }
 
         private class Node
