@@ -80,6 +80,17 @@ namespace Controller
                 );
             
             var unit = new Unit(config, pos, unitsCoordinator);
+
+            // =================================================================
+            if (config.Name == "Sky Serpent") 
+            {
+                var buffSystem = ServiceLocator.Get<BuffDebuffSystem>();
+
+                var hasteBuff = new MoveBuffDebuff(500f, 4f); 
+                buffSystem.ApplyBuff(unit, hasteBuff);
+            }
+            // =================================================================
+
             _runtimeModel.Money[forPlayer] -= config.Cost;
             _runtimeModel.PlayersUnits[forPlayer].Add(unit);
         }
