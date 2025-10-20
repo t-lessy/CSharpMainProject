@@ -40,7 +40,7 @@ namespace UnitBrains
                 return unit.Pos;
             }
 
-            var coordinator = UnitsCoordinator.Instance;
+            var coordinator = unit.UnitsCoordinator;
             var recommendedTargetPos = coordinator.GetRecomendedTarget(!this.IsPlayerUnitBrain);
 
             if (recommendedTargetPos.HasValue &&
