@@ -24,6 +24,7 @@ namespace Model.Runtime
         private readonly List<BaseProjectile> _pendingProjectiles = new();
         private IReadOnlyRuntimeModel _runtimeModel;
         private BaseUnitBrain _brain;
+        private BuffDebuffSystem _buffDebuffSystem;
 
         private float _nextBrainUpdateTime = 0f;
         private float _nextMoveTime = 0f;
@@ -38,6 +39,7 @@ namespace Model.Runtime
             _brain = UnitBrainProvider.GetBrain(config);
             _brain.SetUnit(this);
             _runtimeModel = ServiceLocator.Get<IReadOnlyRuntimeModel>();
+            _buffDebuffSystem = ServiceLocator.Get<BuffDebuffSystem>();
         }
 
         public void Update(float deltaTime, float time)
@@ -53,13 +55,15 @@ namespace Model.Runtime
             
             if (_nextMoveTime < time)
             {
-                _nextMoveTime = time + Config.MoveDelay;
+                var modifiedMoveDelay = _buffDebuffSystem.GetModifiedMoveSpeedDelay(this);
+                _nextMoveTime = time + modifiedMoveDelay;
                 Move();
             }
             
             if (_nextAttackTime < time && Attack())
             {
-                _nextAttackTime = time + Config.AttackDelay;
+                var modifiedAttackDelay = _buffDebuffSystem.GetModifiedAttackSpeedDelay(this);
+                _nextAttackTime = time + modifiedAttackDelay;
             }
         }
 
