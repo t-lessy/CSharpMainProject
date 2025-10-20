@@ -17,21 +17,16 @@ namespace UnitBrains.Player
         {
             float overheatTemperature = OverheatTemperature;
 
-
             if (_temperature >= overheatTemperature)           //проверка на перегрев
                 return;
-
-            IncreaseTemperature();                            //повышение температуры
-
             _temperature = GetTemperature();                 //узнаем температуру
 
             for (int i = 0; i < _temperature; i++)          //цикл для создания снарядов равной температуре
-
             {
                 var projectile = CreateProjectile(forTarget);
                 AddProjectileToList(projectile, intoList);
             }
-;
+            IncreaseTemperature();                            //повышение температуры
 
         }
 
