@@ -17,22 +17,21 @@ namespace UnitBrains.Player
         protected override void GenerateProjectiles(Vector2Int forTarget, List<BaseProjectile> intoList)
         {
             float overheatTemperature = OverheatTemperature;
-            if (GetTemperature() < overheatTemperature) {
+            if (GetTemperature() < overheatTemperature)
+            {
                 IncreaseTemperature();
             }
-            else { return; }
+            else
+            {
+                return;
+            }
 
-            for ( int i = 0; i < GetTemperature(); i++)
+            for (int i = 0; i < GetTemperature(); i++)
             {
                 var projectile = CreateProjectile(forTarget);
                 AddProjectileToList(projectile, intoList);
             }
-
-               
-            }
-           
-          
-        
+        }
 
         public override Vector2Int GetNextStep()
         {
@@ -56,9 +55,9 @@ namespace UnitBrains.Player
         public override void Update(float deltaTime, float time)
         {
             if (_overheated)
-            {              
+            {
                 _cooldownTime += Time.deltaTime;
-                float t = _cooldownTime / (OverheatCooldown/10);
+                float t = _cooldownTime / (OverheatCooldown / 10);
                 _temperature = Mathf.Lerp(OverheatTemperature, 0, t);
                 if (t >= 1)
                 {
@@ -70,7 +69,7 @@ namespace UnitBrains.Player
 
         private int GetTemperature()
         {
-            if(_overheated) return (int) OverheatTemperature;
+            if (_overheated) return (int)OverheatTemperature;
             else return (int)_temperature;
         }
 
