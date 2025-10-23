@@ -20,59 +20,35 @@ namespace UnitBrains.Player
             // Homework 1.3 (1st block, 3rd module)
             ///////////////////////////////////////\
             //мог лучше
-            if (GetTemperature() == 0)
+            switch (GetTemperature())
             {
-                if (GetTemperature() < overheatTemperature)
-                {
-                    Debug.Log(GetTemperature());
-                    var projectile = CreateProjectile(forTarget);
-                    AddProjectileToList(projectile, intoList);
-                    IncreaseTemperature();
-                }
-            }
-            else if (GetTemperature() == 1)
-            {
-                if (GetTemperature() < overheatTemperature)
-                {
-                    Debug.Log(GetTemperature());
-                    var projectile = CreateProjectile(forTarget);
-                    AddProjectileToList(projectile, intoList);
-                    IncreaseTemperature();
-                }
-                if (GetTemperature() < overheatTemperature)
-                {
-                    Debug.Log(GetTemperature());
-                    var projectile = CreateProjectile(forTarget);
-                    AddProjectileToList(projectile, intoList);
-                    IncreaseTemperature();
-                }
-            }
-            else if (GetTemperature() == 2)
-            {
-                if (GetTemperature() < overheatTemperature)
-                {
-                    Debug.Log(GetTemperature());
-                    var projectile = CreateProjectile(forTarget);
-                    AddProjectileToList(projectile, intoList);
-                    IncreaseTemperature();
-                }
-                if (GetTemperature() < overheatTemperature)
-                {
-                    Debug.Log(GetTemperature());
-                    var projectile = CreateProjectile(forTarget);
-                    AddProjectileToList(projectile, intoList);
-                    IncreaseTemperature();
-                }
-                if (GetTemperature() < overheatTemperature)
-                {
-                    Debug.Log(GetTemperature());
-                    var projectile = CreateProjectile(forTarget);
-                    AddProjectileToList(projectile, intoList);
-                    IncreaseTemperature();
-                }
+                case 0:
+                    ProjectileSpawner(1, forTarget, intoList, overheatTemperature);
+                    break;
+                case 1:
+                    ProjectileSpawner(2, forTarget, intoList, overheatTemperature);
+                    break;
+                case 2:
+                    ProjectileSpawner(3, forTarget, intoList, overheatTemperature);
+                    break;
             }
 
             ///////////////////////////////////////
+        }
+
+        private void ProjectileSpawner(int projectileCount, Vector2Int forTarget, List<BaseProjectile> intoList, float overheatTemperature)
+        {
+            for (int i = 0; i < projectileCount; i++)
+            {
+                if (GetTemperature() < overheatTemperature)
+                {
+                    Debug.Log(GetTemperature());
+                    var projectile = CreateProjectile(forTarget);
+                    AddProjectileToList(projectile, intoList);
+                    IncreaseTemperature();
+                }
+
+            }
         }
 
         public override Vector2Int GetNextStep()
