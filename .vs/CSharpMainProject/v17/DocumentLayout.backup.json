@@ -3,8 +3,8 @@
   "WorkspaceRootPath": "F:\\fork\\CSharpMainProject\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{30E4A36B-DBC1-3EB5-7C27-41F2EDC2C301}|Root.csproj|F:\\fork\\CSharpMainProject\\assets\\scripts\\enterpoint.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{30E4A36B-DBC1-3EB5-7C27-41F2EDC2C301}|Root.csproj|solutionrelative:assets\\scripts\\enterpoint.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{30E4A36B-DBC1-3EB5-7C27-41F2EDC2C301}|Root.csproj|f:\\fork\\csharpmainproject\\assets\\scripts\\unitbrains\\player\\secondunitbrain.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{30E4A36B-DBC1-3EB5-7C27-41F2EDC2C301}|Root.csproj|solutionrelative:assets\\scripts\\unitbrains\\player\\secondunitbrain.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -19,14 +19,14 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "EnterPoint.cs",
-              "DocumentMoniker": "F:\\fork\\CSharpMainProject\\Assets\\Scripts\\EnterPoint.cs",
-              "RelativeDocumentMoniker": "Assets\\Scripts\\EnterPoint.cs",
-              "ToolTip": "F:\\fork\\CSharpMainProject\\Assets\\Scripts\\EnterPoint.cs",
-              "RelativeToolTip": "Assets\\Scripts\\EnterPoint.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAAgAAAAAAAAAA==",
+              "Title": "SecondUnitBrain.cs",
+              "DocumentMoniker": "F:\\fork\\CSharpMainProject\\Assets\\Scripts\\UnitBrains\\Player\\SecondUnitBrain.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\UnitBrains\\Player\\SecondUnitBrain.cs",
+              "ToolTip": "F:\\fork\\CSharpMainProject\\Assets\\Scripts\\UnitBrains\\Player\\SecondUnitBrain.cs",
+              "RelativeToolTip": "Assets\\Scripts\\UnitBrains\\Player\\SecondUnitBrain.cs",
+              "ViewState": "AgIAAAUAAAAAAAAAAAAAABQAAAA+AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-10-22T14:05:33.999Z",
+              "WhenOpened": "2025-10-28T15:02:41.643Z",
               "EditorCaption": ""
             }
           ]
