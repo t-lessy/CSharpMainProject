@@ -1,17 +1,23 @@
-﻿using Model;
+﻿using Assets.Scripts.UnitBrains;
+using Model;
+using Model.Runtime;
 using Model.Runtime.Projectiles;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using UnitBrains.Pathfinding;
 using UnityEngine;
 using UnityEngine.UIElements;
 using Utilities;
-using Model.Runtime;
 
 namespace UnitBrains.Player
 {
     public class SecondUnitBrain : DefaultPlayerUnitBrain
     {
+        private BaseUnitPath _activePath;
+        private float _lastPathTime = -100f;
+        private const float PathRecalcInterval = 0.5f;
+        private float _currentTime;
         public override string TargetUnitName => "Cobra Commando";
         private const float OverheatTemperature = 4f;
         private const float OverheatCooldown = 2f;
@@ -23,11 +29,13 @@ namespace UnitBrains.Player
         private static int unitCounter = 0;
 
         private List<Vector2Int> _unreachableTargets = new List<Vector2Int>();
+
         public SecondUnitBrain()
         {
             _unitNumber = unitCounter++;
            
         }
+   
 
         protected override void GenerateProjectiles(Vector2Int forTarget, List<BaseProjectile> intoList)
         {
@@ -58,13 +66,30 @@ namespace UnitBrains.Player
         }
         public override Vector2Int GetNextStep()
         {
-            if (_unreachableTargets.Count>0)
+            if (HasTargetsInRange())
+                return unit.Pos;
+
+            Vector2Int target;
+            if (_unreachableTargets.Count > 0)
             {
-                Vector2Int target = _unreachableTargets[0];
-                return unit.Pos.CalcNextStepTowards(target);
+                target = _unreachableTargets[0];
             }
-            return unit.Pos;
+            else
+            {
+                int enemyPlayerId = IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId;
+                target = runtimeModel.RoMap.Bases[enemyPlayerId];
+            }
+
+            if (_currentTime - _lastPathTime > PathRecalcInterval)
+            {
+                _activePath = new SmartMoveUnitBrain(runtimeModel, unit.Pos, target, unit.Pos);
+                _activePath.Calculate();
+                _lastPathTime = _currentTime;
+            }
+
+            return _activePath?.GetNextStepFrom(unit.Pos) ?? unit.Pos;
         }
+        public override BaseUnitPath ActivePath => _activePath;
         protected override List<Vector2Int> SelectTargets()
         {
             //////////////////////////////////////////////
@@ -98,10 +123,11 @@ namespace UnitBrains.Player
             }
             return result;
         }
-            ///////////////////////////////////////
-            //////////////////////////////////////
+        ///////////////////////////////////////
+        //////////////////////////////////////
         public override void Update(float deltaTime, float time)
         {
+            _currentTime = time;
             if (_overheated)
             {
                 _cooldownTime += Time.deltaTime;
@@ -113,8 +139,7 @@ namespace UnitBrains.Player
                     _overheated = false;
                 }
             }
-        }
-
+        }   
         private int GetTemperature()
         {
             if (_overheated) return (int)OverheatTemperature;
