@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using GluonGui.Dialog;
 using Model.Runtime.Projectiles;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
@@ -40,16 +41,30 @@ namespace UnitBrains.Player
 
         protected override List<Vector2Int> SelectTargets()
         {
-            ///////////////////////////////////////
-            // Homework 1.4 (1st block, 4rd module)
-            ///////////////////////////////////////
+
             List<Vector2Int> result = GetReachableTargets();
             while (result.Count > 1)
             {
                 result.RemoveAt(result.Count - 1);
             }
+            
+            if (result.Count == 0)
+            {
+                return result;
+            }
+            Vector2Int target = result[0];
+
+            foreach (Vector2Int targets in result)
+            {
+                if (DistanceToOwnBase(targets) < DistanceToOwnBase(target))
+                {
+                    target = targets;
+                }
+
+            }
+            result.Clear();
+            result.Add(target);
             return result;
-            ///////////////////////////////////////
         }
 
         public override void Update(float deltaTime, float time)
