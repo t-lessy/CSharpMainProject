@@ -1,8 +1,9 @@
-﻿using System.Collections.Generic;
-using GluonGui.Dialog;
+﻿using GluonGui.Dialog;
 using Model.Runtime.Projectiles;
+using System.Collections.Generic;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
+using static UnityEngine.GraphicsBuffer;
 
 namespace UnitBrains.Player
 {
@@ -43,24 +44,24 @@ namespace UnitBrains.Player
         {
 
             List<Vector2Int> result = GetReachableTargets();
-            while (result.Count > 1)
-            {
-                result.RemoveAt(result.Count - 1);
-            }
-            
+           
+          
             if (result.Count == 0)
             {
                 return result;
             }
+           
             Vector2Int target = result[0];
-
-            foreach (Vector2Int targets in result)
+            float minDistance = float.MaxValue;
+            
+            foreach (Vector2Int targets in result) 
             {
-                if (DistanceToOwnBase(targets) < DistanceToOwnBase(target))
+            float distance = DistanceToOwnBase(targets);
+                if (distance < minDistance)
                 {
+                    minDistance = distance;
                     target = targets;
                 }
-
             }
             result.Clear();
             result.Add(target);
