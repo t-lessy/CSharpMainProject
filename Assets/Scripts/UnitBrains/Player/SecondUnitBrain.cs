@@ -66,39 +66,26 @@ namespace UnitBrains.Player
             ///////////////////////////////////////
 
 
-            if (result.Count > 1)
+            if (result.Any())
             {
-                float minDistance = float.MaxValue;
-                Vector2Int closestEnemy = new Vector2Int();
+                List<Vector2Int> _dis = new List<Vector2Int>();
 
 
-                foreach (var enemy in result)
+                foreach (Vector2Int enemy in result)
                 {
-                    float distance = DistanceToOwnBase(enemy);
-                    if (distance < minDistance)
-                    {
-                        minDistance = distance;
-                        closestEnemy = enemy;
-                    }
+                    _dis.Add(enemy);
                 }
 
-                priorityEnemy.Add(closestEnemy);
+                SortByDistanceToOwnBase(_dis);
 
+                int cur_Number = _unitNumber % _smartMaxTargets;
+                Vector2Int current = _dis.Count >= _smartMaxTargets ? _dis[cur_Number % _dis.Count] : _dis[0];
 
-                if (GetReachableTargets().Contains(closestEnemy))
-                    result.Add(closestEnemy);
+                if (IsTargetInRange(current)) result.Add(current);
+                else EnemyToAttackList.Add(current);
+
             }
-            else
-            {
-                result.Clear();
-                Vector2Int baseCoordinates = runtimeModel.RoMap.Bases[IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId];
-                priorityEnemy.Add(baseCoordinates);
-                if (IsTargetInRange(baseCoordinates))
-                    result.Add(baseCoordinates);
-            }
-                return result;
-            
-
+            return result;
         }
 
         
