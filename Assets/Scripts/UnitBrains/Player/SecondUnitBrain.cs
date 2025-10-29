@@ -18,39 +18,25 @@ namespace UnitBrains.Player
             float overheatTemperature = OverheatTemperature;
             ///////////////////////////////////////
             // Homework 1.3 (1st block, 3rd module)
-            ///////////////////////////////////////\
-            //мог лучше
-            switch (GetTemperature())
-            {
-                case 0:
-                    ProjectileSpawner(1, forTarget, intoList, overheatTemperature);
-                    break;
-                case 1:
-                    ProjectileSpawner(2, forTarget, intoList, overheatTemperature);
-                    break;
-                case 2:
-                    ProjectileSpawner(3, forTarget, intoList, overheatTemperature);
-                    break;
-            }
-
             ///////////////////////////////////////
+
+
+            for (int i = 0; i <= GetTemperature(); i++)
+                ProjectileSpawner(forTarget, intoList, overheatTemperature);
         }
 
-        private void ProjectileSpawner(int projectileCount, Vector2Int forTarget, List<BaseProjectile> intoList, float overheatTemperature)
+        private void ProjectileSpawner(Vector2Int forTarget, List<BaseProjectile> intoList, float overheatTemperature)
         {
-            for (int i = 0; i < projectileCount; i++)
+            
+            if (GetTemperature() < overheatTemperature)
             {
-                if (GetTemperature() < overheatTemperature)
-                {
-                    Debug.Log(GetTemperature());
-                    var projectile = CreateProjectile(forTarget);
-                    AddProjectileToList(projectile, intoList);
-                    IncreaseTemperature();
-                }
-
+                Debug.Log(GetTemperature());
+                var projectile = CreateProjectile(forTarget);
+                AddProjectileToList(projectile, intoList);
+                IncreaseTemperature();
             }
         }
-
+///////////////////////////////////////////////////////////////////////////////
         public override Vector2Int GetNextStep()
         {
             return base.GetNextStep();
