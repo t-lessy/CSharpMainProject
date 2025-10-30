@@ -20,21 +20,17 @@ namespace UnitBrains.Player
             // Homework 1.3 (1st block, 3rd module)
             ///////////////////////////////////////
 
-
+            if (GetTemperature() >= overheatTemperature) return;
             for (int i = 0; i <= GetTemperature(); i++)
                 ProjectileSpawner(forTarget, intoList, overheatTemperature);
+            IncreaseTemperature();
         }
 
         private void ProjectileSpawner(Vector2Int forTarget, List<BaseProjectile> intoList, float overheatTemperature)
         {
-            
-            if (GetTemperature() < overheatTemperature)
-            {
-                Debug.Log(GetTemperature());
-                var projectile = CreateProjectile(forTarget);
-                AddProjectileToList(projectile, intoList);
-                IncreaseTemperature();
-            }
+            Debug.Log(GetTemperature());
+            var projectile = CreateProjectile(forTarget);
+            AddProjectileToList(projectile, intoList);
         }
 ///////////////////////////////////////////////////////////////////////////////
         public override Vector2Int GetNextStep()
