@@ -88,6 +88,7 @@ namespace UnitBrains.Player
             else
             {
                 ClosestUnreachableTarget = minTarget; //В противном случае записываем в переменную как самую опасную цель
+                result.Add(minTarget); // ← фикс: добавил недостижимую цель в результат
             }
 
             return result;
