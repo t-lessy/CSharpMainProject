@@ -65,6 +65,11 @@ namespace Utilities
             return unit.Config.AttackDelay / totalModifier;
         }
 
+        public bool HasBuffs(IReadOnlyUnit unit)
+        {
+            return _buffs.ContainsKey(unit) && _buffs[unit].Count > 0;
+        }
+
         private void Update(float deltaTime)
         {
             foreach (var unitBuffs in _buffs.Values)
