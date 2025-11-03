@@ -15,7 +15,7 @@ namespace UnitBrains.Player
         private float _temperature = 0f;
         private float _cooldownTime = 0f;
         private bool _overheated;
-        
+
         protected override void GenerateProjectiles(Vector2Int forTarget, List<BaseProjectile> intoList)
         {
             float overheatTemperature = OverheatTemperature;
@@ -35,16 +35,7 @@ namespace UnitBrains.Player
 
         public override Vector2Int GetNextStep()
         {
-            List<Vector2Int> targets = SelectTargets();
-            Vector2Int currentPosition = unit.Pos; //D1 Текущая позиция юнита из поля unit, подсмотрел из BaseUnitBrain
-
-            if (targets.Count == 0) return currentPosition;
-
-            Vector2Int target = targets[0];
-
-            if (IsTargetInRange(target)) return currentPosition; //D2 метод IsTargetInRange также подсмотрел в BaseUnitBrain
-
-            return currentPosition.CalcNextStepTowards(target); //E - сли цель вне зоны атаки - метод CalcNextStepTowards
+            return base.GetNextStep();
         }
 
         // Вспомогательный метод для расчёта расстояния (если нет доступного в проекте)
@@ -69,57 +60,39 @@ namespace UnitBrains.Player
             List<Vector2Int> ReachableTargets = GetReachableTargets(); // Шаг В.1 Создаем список всех достижимых целей для дальнеших проверок.
             List<Vector2Int> result = new List<Vector2Int>();
 
-            var sortedTargets = AllTargets.OrderBy(t => DistanceToOwnBase(t)).ToList(); // Сортировка целей по расстоянию до базы
-
-
-            foreach (var target in sortedTargets)
-            {
-                if (ReachableTargets.Contains(target))
-                {
-                    result.Add(target);
-                    break; // берем первую достижимую цель
-                }
-            }
-
-            // Если достижимых нет, добавляем ближайшую вообще
-            if (result.Count == 0)
-            {
-                ClosestUnreachableTarget = sortedTargets[0];
-                result.Add(ClosestUnreachableTarget);
-            }
-
-            return result;
-        }
-          /*  Vector2Int minTarget = AllTargets[0];
+            Vector2Int minTarget = AllTargets[0];
             float minDistance = DistanceToOwnBase(minTarget);
 
             foreach (Vector2Int target in AllTargets)
             {
-                float distance= DistanceToOwnBase(target);
-                    if (distance < minDistance)
-                    {
-                        minDistance = distance;
-                        minTarget = target;
-                    }
+                float distance = DistanceToOwnBase(target);
+                if (distance < minDistance)
+                {
+                    minDistance = distance;
+                    minTarget = target;
+                }
             }
 
             if (ReachableTargets.Contains(minTarget)) //Проверка на достижиомость цели
             {
-                result.Add(minTarget); 
+                result.Add(minTarget);
             }
 
             else
             {
                 ClosestUnreachableTarget = minTarget; //В противном случае записываем в переменную как самую опасную цель
                 result.Add(minTarget); // ← фикс: добавил недостижимую цель в результат
-            }*/
+            }
+
+            return result;
+        }
 
         public override void Update(float deltaTime, float time)
         {
             if (_overheated)
-            {              
+            {
                 _cooldownTime += Time.deltaTime;
-                float t = _cooldownTime / (OverheatCooldown/10);
+                float t = _cooldownTime / (OverheatCooldown / 10);
                 _temperature = Mathf.Lerp(OverheatTemperature, 0, t);
                 if (t >= 1)
                 {
@@ -131,7 +104,7 @@ namespace UnitBrains.Player
 
         private int GetTemperature()
         {
-            if(_overheated) return (int) OverheatTemperature;
+            if (_overheated) return (int)OverheatTemperature;
             else return (int)_temperature;
         }
 
