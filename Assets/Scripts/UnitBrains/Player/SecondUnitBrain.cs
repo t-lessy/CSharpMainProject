@@ -19,6 +19,8 @@ namespace UnitBrains.Player
         protected override void GenerateProjectiles(Vector2Int forTarget, List<BaseProjectile> intoList)
         {
             float overheatTemperature = OverheatTemperature;
+            if (!IsTargetInRange(forTarget)) //Исправление ошибки стрельбы по целям вне радиуса
+                return;
             if (GetTemperature() >= overheatTemperature)
             {
                 return;
@@ -67,7 +69,28 @@ namespace UnitBrains.Player
             List<Vector2Int> ReachableTargets = GetReachableTargets(); // Шаг В.1 Создаем список всех достижимых целей для дальнеших проверок.
             List<Vector2Int> result = new List<Vector2Int>();
 
-            Vector2Int minTarget = AllTargets[0];
+            var sortedTargets = AllTargets.OrderBy(t => DistanceToOwnBase(t)).ToList(); // Сортировка целей по расстоянию до базы
+
+
+            foreach (var target in sortedTargets)
+            {
+                if (ReachableTargets.Contains(target))
+                {
+                    result.Add(target);
+                    break; // берем первую достижимую цель
+                }
+            }
+
+            // Если достижимых нет, добавляем ближайшую вообще
+            if (result.Count == 0)
+            {
+                ClosestUnreachableTarget = sortedTargets[0];
+                result.Add(ClosestUnreachableTarget);
+            }
+
+            return result;
+        }
+          /*  Vector2Int minTarget = AllTargets[0];
             float minDistance = DistanceToOwnBase(minTarget);
 
             foreach (Vector2Int target in AllTargets)
@@ -89,10 +112,7 @@ namespace UnitBrains.Player
             {
                 ClosestUnreachableTarget = minTarget; //В противном случае записываем в переменную как самую опасную цель
                 result.Add(minTarget); // ← фикс: добавил недостижимую цель в результат
-            }
-
-            return result;
-        }
+            }*/
 
         public override void Update(float deltaTime, float time)
         {
