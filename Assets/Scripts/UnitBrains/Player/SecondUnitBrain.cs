@@ -16,10 +16,21 @@ namespace UnitBrains.Player
         private float _cooldownTime = 0f;
         private bool _overheated;
 
+        private static int UnitCounter = 0;
+        private int _unitNumber;
+        private const int MaxTargetsCount = 3;
+
+        private Vector2Int? _movementTarget = null;
+
+        public SecondUnitBrain()
+        {
+            _unitNumber = UnitCounter++;
+        }
+
         protected override void GenerateProjectiles(Vector2Int forTarget, List<BaseProjectile> intoList)
         {
             float overheatTemperature = OverheatTemperature;
-            if (!IsTargetInRange(forTarget)) //Исправление ошибки стрельбы по целям вне радиуса
+            if (!IsTargetInRange(forTarget)) 
                 return;
             if (GetTemperature() >= overheatTemperature)
             {
@@ -35,57 +46,55 @@ namespace UnitBrains.Player
 
         public override Vector2Int GetNextStep()
         {
-            return base.GetNextStep();
+            if (_movementTarget == null || IsTargetInRange(_movementTarget.Value))
+                return unit.Pos;
+
+            return unit.Pos.CalcNextStepTowards(_movementTarget.Value);
         }
 
-        // Вспомогательный метод для расчёта расстояния (если нет доступного в проекте)
+        
         private float Distance(Vector2Int a, Vector2Int b)
         {
             return Vector2Int.Distance(a, b);
         }
 
+        Vector2Int ClosestUnreachableTarget;
 
-        Vector2Int ClosestUnreachableTarget; //Шаг В.2 - создание новой переменной для хранения целей, к которым нужно идти, но которые вне зоны досягаемости.
         protected override List<Vector2Int> SelectTargets()
         {
-            List<Vector2Int> AllTargets = GetAllTargets().ToList(); //Шаг А. Замена достижиых целей на все цели. List<Vector2Int> result = GetReachableTargets();
+            _movementTarget = null;
+            var result = new List<Vector2Int>();
+            var allTargets = GetAllTargets().ToList();
 
-            if (AllTargets.Count == 0)
+            if (!allTargets.Any())
             {
-                int enemyPlayerId = IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId; //С1 Получаем айди противника
-                Vector2Int enemyBasePosition = runtimeModel.RoMap.Bases[enemyPlayerId]; //С2 Получаем координаты базы противника
-                return new List<Vector2Int> { enemyBasePosition };
+                int enemyBaseId = IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId;
+                allTargets.Add(runtimeModel.RoMap.Bases[enemyBaseId]);
             }
 
-            List<Vector2Int> ReachableTargets = GetReachableTargets(); // Шаг В.1 Создаем список всех достижимых целей для дальнеших проверок.
-            List<Vector2Int> result = new List<Vector2Int>();
+            SortByDistanceToOwnBase(allTargets);
 
-            Vector2Int minTarget = AllTargets[0];
-            float minDistance = DistanceToOwnBase(minTarget);
+            int targetIndex = _unitNumber % MaxTargetsCount;
 
-            foreach (Vector2Int target in AllTargets)
-            {
-                float distance = DistanceToOwnBase(target);
-                if (distance < minDistance)
-                {
-                    minDistance = distance;
-                    minTarget = target;
-                }
-            }
+            if (targetIndex >= allTargets.Count)
+                targetIndex = 0;
 
-            if (ReachableTargets.Contains(minTarget)) //Проверка на достижиомость цели
-            {
-                result.Add(minTarget);
-            }
+            var selectedTarget = allTargets[targetIndex];
 
+            if (IsTargetInRange(selectedTarget))
+                result.Add(selectedTarget);
             else
-            {
-                ClosestUnreachableTarget = minTarget; //В противном случае записываем в переменную как самую опасную цель
-                result.Add(minTarget); // ← фикс: добавил недостижимую цель в результат
-            }
+                _movementTarget = selectedTarget;
 
             return result;
         }
+
+        private new void SortByDistanceToOwnBase(List<Vector2Int> targets)
+        {
+            var ownBasePos = runtimeModel.RoMap.Bases[IsPlayerUnitBrain ? RuntimeModel.PlayerId : RuntimeModel.BotPlayerId];
+            targets.Sort((a, b) => Vector2Int.Distance(a, ownBasePos).CompareTo(Vector2Int.Distance(b, ownBasePos)));
+        }
+
 
         public override void Update(float deltaTime, float time)
         {
