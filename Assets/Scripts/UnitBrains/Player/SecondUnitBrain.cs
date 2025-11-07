@@ -4,107 +4,106 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Utilities;
-using static UnityEngine.GraphicsBuffer;
-
 
 namespace UnitBrains.Player
 {
     public class SecondUnitBrain : DefaultPlayerUnitBrain
     {
+        // Статический счётчик для нумерации юнитов
+        private static int _unitCounter = 0;
+        private readonly int _unitNumber;
 
-        Vector2Int one = new Vector2Int(1, 1);
         public override string TargetUnitName => "Cobra Commando";
-        private Vector2Int TargetsToAttack = new Vector2Int();
         private const float OverheatTemperature = 3f;
         private const float OverheatCooldown = 2f;
+        private const int _smartMaxTargets = 3;
         private float _temperature = 0f;
         private float _cooldownTime = 0f;
         private bool _overheated;
-        
+        private Vector2Int _targetToAttack;
+
+        public SecondUnitBrain()
+        {
+            _unitNumber = _unitCounter;
+            _unitCounter++;
+        }
+
         protected override void GenerateProjectiles(Vector2Int forTarget, List<BaseProjectile> intoList)
         {
             float overheatTemperature = OverheatTemperature;
             ///////////////////////////////////////
-            float currentTemp = GetTemperature();
-            if (currentTemp >= overheatTemperature)
+            // Homework 1.3 (1st block, 3rd module)
+            ///////////////////////////////////////
+            float temperature = GetTemperature();
+            if (temperature >= overheatTemperature)
             {
                 return;
             }
-            IncreaseTemperature();
 
-            for (int i = 0; i <= currentTemp; ++i)
+            for (int i = 0; i <= temperature; i++)
             {
-
                 var projectile = CreateProjectile(forTarget);
                 AddProjectileToList(projectile, intoList);
             }
+
+            IncreaseTemperature();
             ///////////////////////////////////////
         }
 
         public override Vector2Int GetNextStep()
         {
-            return IsTargetInRange(TargetsToAttack) ? unit.Pos : unit.Pos.CalcNextStepTowards(TargetsToAttack);
-        }
-        private Vector2Int GetCloserTarget(IEnumerable<Vector2Int> targets)
-        {
-            Vector2Int min_result = targets.First();
+            ///////////////////////////////////////
+            // Homework 1.4 (1st block, 4rd module)
+            ///////////////////////////////////////
+            if (_targetToAttack == default)
+                return unit.Pos;
 
-            foreach (Vector2Int target in targets)
-            {
-                if (DistanceToOwnBase(min_result) > DistanceToOwnBase(target))
-                {
-                    min_result = target;
-                }
-            }
-            return min_result;
+            if (GetReachableTargets().Contains(_targetToAttack))
+                return unit.Pos;
+            else
+                return unit.Pos.CalcNextStepTowards(_targetToAttack);
         }
 
         protected override List<Vector2Int> SelectTargets()
         {
+            var result = new List<Vector2Int>();
+            _targetToAttack = default;
+
             ///////////////////////////////////////
             // Homework 1.4 (1st block, 4rd module)
             ///////////////////////////////////////
+            var allTargets = GetAllTargets().ToList();
 
-                var allTargets = GetAllTargets();
-
-            List<Vector2Int> result = new List<Vector2Int>();
-
-            Vector2Int min_result = GetCloserTarget(allTargets);
-
-            if (IsTargetInRange(min_result))
+            if (allTargets.Any())
             {
-                TargetsToAttack = min_result;
-                result.Add(min_result);
+                var sortedTargets = allTargets.OrderBy(DistanceToOwnBase).ToList();
+                int targetIndex = _unitNumber % _smartMaxTargets;
+                _targetToAttack = sortedTargets.Count > targetIndex ? sortedTargets[targetIndex] : sortedTargets.Last();
+
+                if (IsTargetInRange(_targetToAttack))
+                {
+                    result.Add(_targetToAttack);
+                }
             }
             else
             {
-                TargetsToAttack = min_result;
+                var enemyBase = runtimeModel.RoMap.Bases[RuntimeModel.BotPlayerId];
+                _targetToAttack = enemyBase;
+                if (IsTargetInRange(enemyBase))
+                {
+                    result.Add(enemyBase);
+                }
             }
 
-            if (result.Count() == 0)
-            {
-                var targetBase = runtimeModel.RoMap.Bases[RuntimeModel.BotPlayerId];
-                if (!IsTargetInRange(targetBase))
-                {
-                    TargetsToAttack = targetBase;
-                }
-                else
-                {
-                    TargetsToAttack = targetBase;
-                    result.Add(targetBase);
-                }
-            }
             return result;
-
-            ///////////////////////////////////////
         }
 
         public override void Update(float deltaTime, float time)
         {
             if (_overheated)
-            {              
+            {
                 _cooldownTime += Time.deltaTime;
-                float t = _cooldownTime / (OverheatCooldown/10);
+                float t = _cooldownTime / (OverheatCooldown / 10);
                 _temperature = Mathf.Lerp(OverheatTemperature, 0, t);
                 if (t >= 1)
                 {
@@ -116,7 +115,7 @@ namespace UnitBrains.Player
 
         private int GetTemperature()
         {
-            if(_overheated) return (int) OverheatTemperature;
+            if (_overheated) return (int)OverheatTemperature;
             else return (int)_temperature;
         }
 
