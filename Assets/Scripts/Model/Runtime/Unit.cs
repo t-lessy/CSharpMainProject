@@ -11,20 +11,24 @@ using Utilities;
 
 namespace Model.Runtime
 {
-    public class Unit : IReadOnlyUnit
+    public class Unit : IReadOnlyUnit, IBuffableUnit
     {
         public UnitConfig Config { get; }
         public Vector2Int Pos { get; private set; }
         public int Health { get; private set; }
         public bool IsDead => Health <= 0;
         public BaseUnitPath ActivePath => _brain?.ActivePath;
+        public float AttackRange => Config.AttackRange * _attackRangeMultiplier;
         public UnitsCoordinator UnitsCoordinator { get; set; }
         public IReadOnlyList<BaseProjectile> PendingProjectiles => _pendingProjectiles;
 
         private readonly List<BaseProjectile> _pendingProjectiles = new();
         private IReadOnlyRuntimeModel _runtimeModel;
         private BaseUnitBrain _brain;
-        private BuffDebuffSystem _buffDebuffSystem;
+        private float _moveSpeedMultiplier = 1f;
+        private float _attackSpeedMultiplier = 1f;
+        private float _attackRangeMultiplier = 1f;
+        private int _extraAttackExecutions = 0;
 
         private float _nextBrainUpdateTime = 0f;
         private float _nextMoveTime = 0f;
@@ -39,7 +43,6 @@ namespace Model.Runtime
             _brain = UnitBrainProvider.GetBrain(config);
             _brain.SetUnit(this);
             _runtimeModel = ServiceLocator.Get<IReadOnlyRuntimeModel>();
-            _buffDebuffSystem = ServiceLocator.Get<BuffDebuffSystem>();
         }
 
         public void Update(float deltaTime, float time)
@@ -55,26 +58,39 @@ namespace Model.Runtime
             
             if (_nextMoveTime < time)
             {
-                var modifiedMoveDelay = _buffDebuffSystem.GetModifiedMoveSpeedDelay(this);
-                _nextMoveTime = time + modifiedMoveDelay;
+                _nextMoveTime = time + GetModifiedMoveDelay();
                 Move();
             }
             
             if (_nextAttackTime < time && Attack())
             {
-                var modifiedAttackDelay = _buffDebuffSystem.GetModifiedAttackSpeedDelay(this);
-                _nextAttackTime = time + modifiedAttackDelay;
+                _nextAttackTime = time + GetModifiedAttackDelay();
             }
         }
 
         private bool Attack()
         {
-            var projectiles = _brain.GetProjectiles();
-            if (projectiles == null || projectiles.Count == 0)
-                return false;
-            
-            _pendingProjectiles.AddRange(projectiles);
-            return true;
+            var attackPerformed = false;
+            var executions = Mathf.Max(1, 1 + _extraAttackExecutions);
+
+            for (int i = 0; i < executions; i++)
+            {
+                var projectiles = _brain.GetProjectiles();
+                if (projectiles == null || projectiles.Count == 0)
+                {
+                    if (!attackPerformed)
+                    {
+                        return false;
+                    }
+
+                    continue;
+                }
+
+                _pendingProjectiles.AddRange(projectiles);
+                attackPerformed = true;
+            }
+
+            return attackPerformed;
         }
 
         private void Move()
@@ -105,5 +121,29 @@ namespace Model.Runtime
         {
             Health -= projectileDamage;
         }
+
+        public void ApplyMoveSpeedMultiplier(float multiplier)
+        {
+            _moveSpeedMultiplier = _moveSpeedMultiplier * multiplier;
+        }
+
+        public void ApplyAttackSpeedMultiplier(float multiplier)
+        {
+            _attackSpeedMultiplier = _attackSpeedMultiplier * multiplier;
+        }
+
+        public void ModifyExtraAttackExecutions(int delta)
+        {
+            _extraAttackExecutions = Mathf.Max(0, _extraAttackExecutions + delta);
+        }
+
+        public void ApplyAttackRangeMultiplier(float multiplier)
+        {
+            _attackRangeMultiplier *= multiplier;
+        }
+
+        private float GetModifiedMoveDelay() => Config.MoveDelay / _moveSpeedMultiplier;
+
+        private float GetModifiedAttackDelay() => Config.AttackDelay / _attackSpeedMultiplier;
     }
 }

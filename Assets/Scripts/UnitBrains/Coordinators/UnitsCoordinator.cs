@@ -1,5 +1,6 @@
 using System.Linq;
 using Model;
+using Model.Runtime;
 using Model.Runtime.ReadOnly;
 using UnityEngine;
 using Utilities;
@@ -61,7 +62,11 @@ namespace UnitBrains.Coordinators
                 {
                     RecommendedTarget = enemies.OrderBy(e => e.Health).First().Pos;
                     var closestEnemy = enemies.OrderBy(e => Vector2Int.Distance(e.Pos, ourBase)).First();
-                    RecommendedPosition = Vector2Int.RoundToInt(Vector2.MoveTowards(closestEnemy.Pos, ourBase, closestEnemy.Config.AttackRange - 1));
+                    RecommendedPosition = Vector2Int.RoundToInt(
+                        Vector2.MoveTowards(
+                            closestEnemy.Pos,
+                            ourBase,
+                            GetAttackRange(closestEnemy) - 1));
                 }
                 else
                 {
@@ -83,7 +88,11 @@ namespace UnitBrains.Coordinators
                 {
                     RecommendedTarget = warriors.OrderBy(w => w.Health).First().Pos;
                     var closestWarrior = warriors.OrderBy(w => Vector2.Distance(w.Pos, enemyBase)).First();
-                    RecommendedPosition = Vector2Int.RoundToInt(Vector2.MoveTowards(closestWarrior.Pos, enemyBase, closestWarrior.Config.AttackRange - 1));
+                    RecommendedPosition = Vector2Int.RoundToInt(
+                        Vector2.MoveTowards(
+                            closestWarrior.Pos,
+                            enemyBase,
+                            GetAttackRange(closestWarrior) - 1));
                 }
                 else
                 {
@@ -97,6 +106,16 @@ namespace UnitBrains.Coordinators
         {
             var mapWidth = _runtimeModel.RoMap.Width;
             return position.x < mapWidth / 2;
+        }
+
+        private static float GetAttackRange(IReadOnlyUnit unit)
+        {
+            if (unit is IBuffableUnit buffableUnit)
+            {
+                return buffableUnit.AttackRange;
+            }
+
+            return unit.Config.AttackRange;
         }
     }
 }

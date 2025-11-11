@@ -44,7 +44,7 @@ namespace UnitBrains
             var recommendedTargetPos = coordinator.GetRecomendedTarget(!this.IsPlayerUnitBrain);
 
             if (recommendedTargetPos.HasValue &&
-                Vector2Int.Distance(unit.Pos, recommendedTargetPos.Value) <= 2 * unit.Config.AttackRange)
+                Vector2Int.Distance(unit.Pos, recommendedTargetPos.Value) <= 2 * unit.AttackRange)
             {
                 _activePath = new AStarUnitPath(runtimeModel, unit.Pos, recommendedTargetPos.Value);
                 return _activePath.GetNextStepFrom(unit.Pos);
@@ -128,7 +128,7 @@ namespace UnitBrains
 
         protected bool HasTargetsInRange()
         {
-            var attackRangeSqr = unit.Config.AttackRange * unit.Config.AttackRange;
+            var attackRangeSqr = unit.AttackRange * unit.AttackRange;
             foreach (var possibleTarget in GetAllTargets())
             {
                 var diff = possibleTarget - unit.Pos;
@@ -155,7 +155,7 @@ namespace UnitBrains
 
         protected bool IsTargetInRange(Vector2Int targetPos)
         {
-            var attackRangeSqr = unit.Config.AttackRange * unit.Config.AttackRange;
+            var attackRangeSqr = unit.AttackRange * unit.AttackRange;
             var diff = targetPos - unit.Pos;
             return diff.sqrMagnitude <= attackRangeSqr;
         }
@@ -163,7 +163,7 @@ namespace UnitBrains
         protected List<Vector2Int> GetReachableTargets()
         {
             var result = new List<Vector2Int>();
-            var attackRangeSqr = unit.Config.AttackRange * unit.Config.AttackRange;
+            var attackRangeSqr = unit.AttackRange * unit.AttackRange;
             foreach (var possibleTarget in GetAllTargets())
             {
                 if (!IsTargetInRange(possibleTarget))
