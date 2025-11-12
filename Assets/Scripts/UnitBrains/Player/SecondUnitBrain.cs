@@ -1,8 +1,11 @@
 ﻿using GluonGui.Dialog;
+using Model.Runtime;
 using Model.Runtime.Projectiles;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
+using Utilities;
 using static UnityEngine.GraphicsBuffer;
 
 namespace UnitBrains.Player
@@ -16,6 +19,7 @@ namespace UnitBrains.Player
         private float _cooldownTime = 0f;
         private bool _overheated;
 
+        private Vector2Int priorityTarget; 
         protected override void GenerateProjectiles(Vector2Int forTarget, List<BaseProjectile> intoList)
         {
             float overheatTemperature = OverheatTemperature;
@@ -37,35 +41,57 @@ namespace UnitBrains.Player
 
         public override Vector2Int GetNextStep()
         {
-            return base.GetNextStep();
+            if (priorityTarget == Vector2Int.zero || GetReachableTargets().Contains(priorityTarget))
+            {
+                return base.GetNextStep();
+            }
+            else
+            {
+                Vector2Int currentPosition = base.GetNextStep();
+                return currentPosition.CalcNextStepTowards(priorityTarget);
+            }
         }
 
         protected override List<Vector2Int> SelectTargets()
         {
+            var allTargets = GetAllTargets();
+            List<Vector2Int> result = new List<Vector2Int>();
 
-            List<Vector2Int> result = GetReachableTargets();
-           
-          
-            if (result.Count == 0)
+            if (!allTargets.Any())
             {
-                return result;
+                var allBases = runtimeModel.RoMap.Bases;
+
+                foreach (var baseObj in allBases)
+                {
+                    if (!IsPlayerUnitBrain)
+                    {
+                        result.Add(baseObj);
+                        break;
+                    }
+                }
             }
-           
-            Vector2Int target = result[0];
+
             float minDistance = float.MaxValue;
-            
-            foreach (Vector2Int targets in result) 
+            foreach (Vector2Int target in allTargets)
             {
-            float distance = DistanceToOwnBase(targets);
+                float distance = DistanceToOwnBase(target);
                 if (distance < minDistance)
                 {
                     minDistance = distance;
-                    target = targets;
+                    priorityTarget = target;
                 }
+
             }
-            result.Clear();
-            result.Add(target);
+
+            List<Vector2Int> results = GetReachableTargets();
+
+            if (results.Contains(priorityTarget))
+            {
+                result.Add(priorityTarget);
+            }
+
             return result;
+
         }
 
         public override void Update(float deltaTime, float time)
