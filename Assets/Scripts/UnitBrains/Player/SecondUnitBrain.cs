@@ -1,6 +1,9 @@
-﻿using GluonGui.Dialog;
+﻿using Codice.Client.Common;
+using GluonGui.Dialog;
+using Model;
 using Model.Runtime;
 using Model.Runtime.Projectiles;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor.Experimental.GraphView;
@@ -18,8 +21,8 @@ namespace UnitBrains.Player
         private float _temperature = 0f;
         private float _cooldownTime = 0f;
         private bool _overheated;
-
-        private Vector2Int priorityTarget; 
+        private  List<Vector2Int> _priorityTarget = new();
+        
         protected override void GenerateProjectiles(Vector2Int forTarget, List<BaseProjectile> intoList)
         {
             float overheatTemperature = OverheatTemperature;
@@ -41,64 +44,56 @@ namespace UnitBrains.Player
 
         public override Vector2Int GetNextStep()
         {
-            if (priorityTarget == Vector2Int.zero || GetReachableTargets().Contains(priorityTarget))
-            {
-                return base.GetNextStep();
-            }
-            else
-            {
-                Vector2Int currentPosition = base.GetNextStep();
-                return currentPosition.CalcNextStepTowards(priorityTarget);
-            }
+            var target = _priorityTarget.Count > 0 ? _priorityTarget[0] : unit.Pos;
+            
+            return IsTargetInRange(target) ? unit.Pos : unit.Pos.CalcNextStepTowards(target);
         }
+
+        
 
         protected override List<Vector2Int> SelectTargets()
         {
-            var allTargets = GetAllTargets();
-            List<Vector2Int> result = new List<Vector2Int>();
-
-            if (!allTargets.Any())
-            {
-                var allBases = runtimeModel.RoMap.Bases;
-
-                foreach (var baseObj in allBases)
-                {
-                    if (!IsPlayerUnitBrain)
-                    {
-                        result.Add(baseObj);
-                        break;
-                    }
-                }
-            }
-
-            float minDistance = float.MaxValue;
-            foreach (Vector2Int target in allTargets)
-            {
-                float distance = DistanceToOwnBase(target);
-                if (distance < minDistance)
+           var result = new List<Vector2Int>();
+           var minDistance = float.MaxValue;
+            var bestTarget = Vector2Int.zero;
+          
+            foreach (var target in GetAllTargets()) 
+            { 
+            var distance = DistanceToOwnBase(target);
+                if(distance < minDistance)
                 {
                     minDistance = distance;
-                    priorityTarget = target;
+                    bestTarget = target;
                 }
-
             }
 
-            List<Vector2Int> results = GetReachableTargets();
-
-            if (results.Contains(priorityTarget))
+            _priorityTarget.Clear();
+            if (minDistance < float.MaxValue)
             {
-                result.Add(priorityTarget);
+                _priorityTarget.Add(bestTarget);
+                if (IsTargetInRange(bestTarget))
+                {
+                    _priorityTarget.Add(bestTarget);
+                }
+            }
+            else
+            {
+
+                _priorityTarget.Add(runtimeModel.RoMap.Bases[
+                    IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId]);
             }
 
-            return result;
+               return result;         
+            }
 
-        }
+        
+
 
         public override void Update(float deltaTime, float time)
         {
             if (_overheated)
             {
-                _cooldownTime += Time.deltaTime;
+                _cooldownTime += UnityEngine.Time.deltaTime;
                 float t = _cooldownTime / (OverheatCooldown / 10);
                 _temperature = Mathf.Lerp(OverheatTemperature, 0, t);
                 if (t >= 1)
