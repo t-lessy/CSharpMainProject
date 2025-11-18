@@ -43,15 +43,10 @@ namespace UnitBrains.Player
             ///////////////////////////////////////
         }
 
-        public override Vector2Int GetNextStep()
-        {
-            if (_unreachableTargets.Count > 0)
-            {
-                Vector2Int target = _unreachableTargets[0];
-                return unit.Pos.CalcNextStepTowards(target);
-            }
-            return unit.Pos;
-        }
+        public override Vector2Int GetNextStepTarget() =>
+            _unreachableTargets.Any()
+                ? _unreachableTargets.First()
+                : runtimeModel.RoMap.Bases[RuntimeModel.BotPlayerId];
 
         protected override List<Vector2Int> SelectTargets()
         {

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Model;
 using UnityEngine;
+using System.Linq;
 
 namespace UnitBrains.Pathfinding
 {
@@ -45,5 +46,6 @@ namespace UnitBrains.Pathfinding
             this.startPoint = startPoint;
             this.endPoint = endPoint;
         }
+
     }
 }
