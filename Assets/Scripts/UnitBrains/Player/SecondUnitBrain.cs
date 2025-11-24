@@ -22,7 +22,15 @@ namespace UnitBrains.Player
         private float _cooldownTime = 0f;
         private bool _overheated;
         private  List<Vector2Int> _priorityTarget = new();
+        private static int _count = 0;
+        private int UnitId;
+        private const int MaxTarget = 3;
+
         
+
+        
+           
+
         protected override void GenerateProjectiles(Vector2Int forTarget, List<BaseProjectile> intoList)
         {
             float overheatTemperature = OverheatTemperature;
@@ -49,32 +57,36 @@ namespace UnitBrains.Player
             return IsTargetInRange(target) ? unit.Pos : unit.Pos.CalcNextStepTowards(target);
         }
 
-        
+
 
         protected override List<Vector2Int> SelectTargets()
         {
-           var result = new List<Vector2Int>();
-           var minDistance = float.MaxValue;
-            var bestTarget = Vector2Int.zero;
-          
-            foreach (var target in GetAllTargets()) 
-            { 
-            var distance = DistanceToOwnBase(target);
-                if(distance < minDistance)
-                {
-                    minDistance = distance;
-                    bestTarget = target;
-                }
-            }
 
-            _priorityTarget.Clear();
-            if (minDistance < float.MaxValue)
+            if (UnitId == 0)
             {
+                UnitId = _count;
+                _count++;
+                Debug.Log($"создан {UnitId} с {_count}");
+            }
+            _priorityTarget.Clear();
+            var result = new List<Vector2Int>();
+            var allTargets = GetAllTargets().ToList();
+
+            if (allTargets.Count() > 0)
+            {
+                SortByDistanceToOwnBase(allTargets);
+
+                var priorityTargets = allTargets.Take(MaxTarget).ToList();
+                int targetIndex = UnitId % priorityTargets.Count();
+                var bestTarget = priorityTargets[targetIndex];
+
+                _priorityTarget.Clear();
                 _priorityTarget.Add(bestTarget);
                 if (IsTargetInRange(bestTarget))
                 {
-                    _priorityTarget.Add(bestTarget);
+                    result.Add(bestTarget);
                 }
+
             }
             else
             {
@@ -83,10 +95,12 @@ namespace UnitBrains.Player
                     IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId]);
             }
 
-               return result;         
-            }
+            return result;
+        }
 
-        
+
+
+
 
 
         public override void Update(float deltaTime, float time)
