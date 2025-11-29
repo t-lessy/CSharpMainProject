@@ -54,7 +54,7 @@
     <UnityVersion>2022.3.12f1</UnityVersion>
   </PropertyGroup>
   <ItemGroup>
-    <Analyzer Include="C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\Extensions\Microsoft\Visual Studio Tools for Unity\Analyzers\Microsoft.Unity.Analyzers.dll" />
+    <Analyzer Include="C:\Program Files\Microsoft Visual Studio\18\Community\Common7\IDE\Extensions\Microsoft\Visual Studio Tools for Unity\Analyzers\Microsoft.Unity.Analyzers.dll" />
     <Analyzer Include="C:\Program Files\Unity\2022.3.12f1\Editor\Data\Tools\Unity.SourceGenerators\Unity.SourceGenerators.dll" />
     <Analyzer Include="C:\Program Files\Unity\2022.3.12f1\Editor\Data\Tools\Unity.SourceGenerators\Unity.Properties.SourceGenerator.dll" />
   </ItemGroup>
@@ -67,6 +67,7 @@
     <Compile Include="Assets\Scripts\Utilities\CameraPositioning.cs" />
     <Compile Include="Assets\Scripts\View\ChooseUnitView.cs" />
     <Compile Include="Assets\Scripts\View\UnitCardView.cs" />
+    <Compile Include="Assets\Scripts\UnitBrains\Player\PlayerUnitCoordinator.cs" />
     <Compile Include="Assets\Scripts\UnitBrains\Player\DefaultPlayerUnitBrain.cs" />
     <Compile Include="Assets\Scripts\View\LevelFinishedView.cs" />
     <Compile Include="Assets\Scripts\View\Gameplay3dView.cs" />

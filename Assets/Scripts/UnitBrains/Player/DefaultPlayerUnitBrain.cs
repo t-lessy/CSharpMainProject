@@ -7,6 +7,39 @@ namespace UnitBrains.Player
 {
     public class DefaultPlayerUnitBrain : BaseUnitBrain
     {
+        private PlayerUnitCoordinator _coordinator;
+        private PlayerUnitCoordinator Coordinator => _coordinator ??= PlayerUnitCoordinator.Instance;
+
+        public override Vector2Int GetNextStep()
+        {
+            var target = GetNextStepTarget();
+
+            if (IsTargetInRange(target))
+                return unit.Pos;
+
+            var destination = Coordinator.Destination;
+            var moveTo = runtimeModel.RoMap.Bases[RuntimeModel.BotPlayerId];
+
+            _activePath = new UpdatedUnitPath(runtimeModel, unit.Pos, moveTo);
+
+            return _activePath.GetNextStepFrom(unit.Pos);
+        }
+
+        public override Vector2Int GetNextStepTarget()
+        {
+            return Coordinator.Target;
+        }
+
+        protected override List<Vector2Int> SelectTargets()
+        {
+            var suggestedTarget = GetNextStepTarget();
+
+            if (IsTargetInRange(suggestedTarget))
+                return new List<Vector2Int> { suggestedTarget };
+
+            return base.SelectTargets();
+        }
+
         protected float DistanceToOwnBase(Vector2Int fromPos) =>
             Vector2Int.Distance(fromPos, runtimeModel.RoMap.Bases[RuntimeModel.PlayerId]);
 
