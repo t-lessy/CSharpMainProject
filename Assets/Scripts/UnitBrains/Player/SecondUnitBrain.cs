@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.Numerics;
+using System.Runtime.InteropServices;
 using Model.Runtime.Projectiles;
 using UnityEngine;
 
@@ -41,11 +43,30 @@ namespace UnitBrains.Player
             // Homework 1.4 (1st block, 4rd module)
             ///////////////////////////////////////
             List<Vector2Int> result = GetReachableTargets();
+            float maxDist = float.MaxValue;
+            Vector2Int activeTarget = new Vector2Int();
+
             while (result.Count > 1)
             {
+                foreach (Vector2Int target in result)
+                {
+                    float dist = DistanceToOwnBase(target);
+                    if(dist < maxDist)
+                     dist = maxDist;
+                    activeTarget = target;
+                }
                 result.RemoveAt(result.Count - 1);
             }
+            if(activeTarget != Vector2Int.zero)
+            {
+                result.Clear();
+                result.Add(activeTarget);
+            }
             return result;
+
+
+
+
             ///////////////////////////////////////
         }
 
