@@ -34,7 +34,6 @@ namespace UnitBrains.Player
 
         public override Vector2Int GetNextStep()
         {
-            return base.GetNextStep();
         }
 
         protected override List<Vector2Int> SelectTargets()
@@ -42,10 +41,13 @@ namespace UnitBrains.Player
             ///////////////////////////////////////
             // Homework 1.4 (1st block, 4rd module)
             ///////////////////////////////////////
-            List<Vector2Int> result = GetReachableTargets();
+            List<Vector2Int> AllTargets = GetAllTargets();
+            List<Vector2Int> Result = new List<Vector2Int>();
+            List<Vector2Int> UnattainableTargets = new List<Vector2Int>();
+            List<Vector2Int> ReachableTargets = GetReachableTargets();
             float lowestDistance = float.MaxValue;
             Vector2Int nearestTarget = new Vector2Int();
-            foreach (var target in result)
+            foreach (var target in AllTargets)
             {
                 if (DistanceToOwnBase(target) < lowestDistance)
                 {
@@ -53,12 +55,26 @@ namespace UnitBrains.Player
                     nearestTarget = target;
                 }
             }
-            if (result.Count > 0)
+            if (AllTargets.Count > 1)
             {
-                result.Clear();
-                result.Add(nearestTarget);
+                if (ReachableTargets.Contains(nearestTarget) == true)
+                {
+                    Result.Clear();
+                    Result.Add(nearestTarget);
+                }
+                else
+                {
+                    UnattainableTargets.Clear();
+                    UnattainableTargets.Add(nearestTarget);
+                }
+                
             }
-            return result;
+            else
+            {
+                UnattainableTargets.Clear();
+                UnattainableTargets.Add(runtimeModel.RoMap.Bases.BotPlayerId);
+            }
+                return Result;
             ///////////////////////////////////////
         }
 
