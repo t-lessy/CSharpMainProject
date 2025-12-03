@@ -40,7 +40,7 @@ namespace UnitBrains
                 IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId];
 
             //_activePath = new DummyUnitPath(runtimeModel, unit.Pos, target);
-            _activePath = new AStartUnitPath(runtimeModel, unit.Pos, target);
+            _activePath = new AStarUnitPath(runtimeModel, unit.Pos, target);
             return _activePath.GetNextStepFrom(unit.Pos);
         }
 
