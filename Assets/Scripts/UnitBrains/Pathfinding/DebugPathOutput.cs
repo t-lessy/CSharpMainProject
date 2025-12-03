@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using View;
 
@@ -33,6 +34,12 @@ namespace UnitBrains.Pathfinding
         private IEnumerator HighlightCoroutine(BaseUnitPath path)
         {
             // TODO Implement me
+            //yield break;
+
+            foreach (var cell in path.GetPath())
+            {
+                CreateHighlight(cell);
+            }
             yield break;
         }
 

@@ -40,7 +40,8 @@ namespace UnitBrains.Player
         }
         public override Vector2Int GetNextStep()
         {
-            return TargetToAttackList.Count > 0 ? unit.Pos.CalcNextStepTowards(TargetToAttackList[0]) : unit.Pos;
+            //return TargetToAttackList.Count > 0 ? unit.Pos.CalcNextStepTowards(TargetToAttackList[0]) : unit.Pos;
+            return base.GetNextStep();
         }
         protected override List<Vector2Int> SelectTargets()
         {
