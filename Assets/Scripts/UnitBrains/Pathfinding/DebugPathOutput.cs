@@ -35,12 +35,18 @@ namespace UnitBrains.Pathfinding
         {
             // TODO Implement me
             //yield break;
-
-            foreach (var cell in path.GetPath())
+            while (true)
             {
-                CreateHighlight(cell);
+                foreach (var cell in path.GetPath())
+                {
+                    CreateHighlight(cell);
+                    if (allHighlights.Count > maxHighlights)
+                    {
+                        DestroyHighlight(0);
+                    }
+                    yield return new WaitForSeconds(0.1f);
+                }
             }
-            yield break;
         }
 
         private void CreateHighlight(Vector2Int atCell)

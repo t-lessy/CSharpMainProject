@@ -70,6 +70,7 @@
     <Compile Include="Assets\Scripts\View\UnitCardView.cs" />
     <Compile Include="Assets\Scripts\UnitBrains\Player\DefaultPlayerUnitBrain.cs" />
     <Compile Include="Assets\Scripts\View\LevelFinishedView.cs" />
+    <Compile Include="Assets\Scripts\UnitBrains\Pathfinding\CellClass.cs" />
     <Compile Include="Assets\Scripts\View\Gameplay3dView.cs" />
     <Compile Include="Assets\Scripts\EnterPoint.cs" />
     <Compile Include="Assets\Scripts\Model\Runtime\MainBase.cs" />
@@ -109,6 +110,7 @@
     <Compile Include="Assets\Scripts\Utilities\MapGenerator.cs" />
     <Compile Include="Assets\Scripts\Controller\BotController.cs" />
     <Compile Include="Assets\Scripts\Controller\SimulationController.cs" />
+    <Compile Include="Assets\Scripts\UnitBrains\Pathfinding\AStartUnitPath.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\Scripts\Root.asmdef" />
