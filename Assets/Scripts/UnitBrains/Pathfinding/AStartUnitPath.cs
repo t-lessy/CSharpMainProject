@@ -5,6 +5,7 @@ using System.Linq;
 using UnitBrains.Pathfinding;
 using UnityEngine;
 using Utilities;
+using static UnityEditor.PlayerSettings;
 
 public class AStarUnitPath : BaseUnitPath
 {
@@ -60,7 +61,7 @@ public class AStarUnitPath : BaseUnitPath
             {
                 Vector2Int newCords = currentCell._cords + _shift[i];
 
-                if (runtimeModel.IsTileWalkable(newCords) || newCords == targetCell._cords)
+                if (runtimeModel.IsTileWalkable(newCords) || newCords == targetCell._cords || runtimeModel.RoUnits.Any(u => u.Pos == newCords))
                 {
                     CellClass nei = new CellClass(newCords, runtimeModel);
 
