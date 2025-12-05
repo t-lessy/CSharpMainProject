@@ -43,23 +43,23 @@ namespace UnitBrains.Player
             List<Vector2Int> result = GetReachableTargets(); // наши цели
 
             if (result.Count == 0)
-                return result; // если целей нет, возвращаем пустой список
+                return result; 
 
             Vector2Int closestTarget = result[0];
-            float minDistance = DistanceToOwnBase(closestTarget);
+            float minDist = DistanceToOwnBase(closestTarget);
 
-            // Ищем цель с минимальным расстоянием до базы
+          
             foreach (Vector2Int target in result)
             {
                 float distance = DistanceToOwnBase(target);
-                if (distance < minDistance)
+                if (distance < minDist)
                 {
-                    minDistance = distance;
+                    minDist = distance;
                     closestTarget = target;
                 }
             }
 
-            // Очищаем список и добавляем только ближайшую цель
+  
             result.Clear();
             result.Add(closestTarget);
 
