@@ -38,33 +38,34 @@ namespace UnitBrains.Player
             return base.GetNextStep();
         }
 
+
         protected override List<Vector2Int> SelectTargets()
         {
-            List<Vector2Int> result = GetReachableTargets(); // наши цели
-
+            List<Vector2Int> result = GetReachableTargets();
             if (result.Count == 0)
-                return result; 
+            {
+                return result;
+            }
 
             Vector2Int closestTarget = result[0];
-            float minDist = DistanceToOwnBase(closestTarget);
+            float minDistance = float.MaxValue;  // Для корректности лучше использовать MaxValue
 
-          
             foreach (Vector2Int target in result)
             {
                 float distance = DistanceToOwnBase(target);
-                if (distance < minDist)
+                if (distance < minDistance)  // Ищем минимальное расстояние
                 {
-                    minDist = distance;
+                    minDistance = distance;
                     closestTarget = target;
                 }
             }
 
-  
             result.Clear();
             result.Add(closestTarget);
 
             return result;
         }
+
 
 
 
