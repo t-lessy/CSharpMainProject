@@ -12,6 +12,7 @@ namespace UnitBrains.Player
         private float _temperature = 0f;
         private float _cooldownTime = 0f;
         private bool _overheated;
+        public List<Vector2Int> result { get; set; }
 
         protected override void GenerateProjectiles(Vector2Int forTarget, List<BaseProjectile> intoList)
         {
@@ -34,20 +35,29 @@ namespace UnitBrains.Player
 
         public override Vector2Int GetNextStep()
         {
+            if (result.Count > 0)
+            {
+                Vector2Int currentTarget = result[0];
+                if (IsItPossibleToShootTarget(currentTarget) == false)
+                {
+                    return unit.Pos.CalcNextStepTowards(currentTarget);
+                }
+                
+            }
+            return base.GetNextStep();
         }
-
+        
         protected override List<Vector2Int> SelectTargets()
         {
             ///////////////////////////////////////
             // Homework 1.4 (1st block, 4rd module)
             ///////////////////////////////////////
-            List<Vector2Int> AllTargets = GetAllTargets();
-            List<Vector2Int> Result = new List<Vector2Int>();
+            result = GetAllTargets().ToList();
             List<Vector2Int> UnattainableTargets = new List<Vector2Int>();
             List<Vector2Int> ReachableTargets = GetReachableTargets();
             float lowestDistance = float.MaxValue;
             Vector2Int nearestTarget = new Vector2Int();
-            foreach (var target in AllTargets)
+            foreach (var target in result)
             {
                 if (DistanceToOwnBase(target) < lowestDistance)
                 {
@@ -55,27 +65,35 @@ namespace UnitBrains.Player
                     nearestTarget = target;
                 }
             }
-            if (AllTargets.Count > 1)
+            if (result.Count > 0)
             {
-                if (ReachableTargets.Contains(nearestTarget) == true)
+                if (IsItPossibleToShootTarget(nearestTarget) == true)
                 {
-                    Result.Clear();
-                    Result.Add(nearestTarget);
+                    result.Clear();
+                    result.Add(nearestTarget);
+                    return result;
                 }
                 else
                 {
-                    UnattainableTargets.Clear();
-                    UnattainableTargets.Add(nearestTarget);
+                   GetNextStep();
                 }
                 
             }
             else
             {
-                UnattainableTargets.Clear();
-                UnattainableTargets.Add(runtimeModel.RoMap.Bases.BotPlayerId);
+                var baseEnemy = runtimeModel.RoMap.Bases[IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerID];
+                result.Add(baseEnemy);
             }
-                return Result;
+
+            return result;
+            
             ///////////////////////////////////////
+        }
+
+        public bool IsItPossibleToShootTarget(Vector2Int mostDangerousEnemy)
+        {
+            List<Vector2Int> rectTargets = GetReachableTargets();
+            return rectTargets.Contains(mostDangerousEnemy);
         }
 
         public override void Update(float deltaTime, float time)
