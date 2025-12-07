@@ -1,28 +1,23 @@
 using Model;
 using Model.Runtime.Projectiles;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnitBrains.Player;
 using UnityEngine;
 using Utilities;
 
-using System.Collections.Generic;
-using System.Linq;
-using UnityEngine;
-
 public class ThirdUnitBrain : DefaultPlayerUnitBrain
 {
     public override string TargetUnitName => "Ironclad Behemoth";
-    public bool isAttackMode = false;
-    public bool isMoveMode = true;
-    public const float changeMode = 1f;
-    public float switchTimer = 0;
 
+    private bool isAttackMode = false;
+    private bool isMoveMode = true;
+    private const float switchTime = 1.0f;
+    private float switchTimer = 0f;
 
-    protected List<Vector2Int> SelectTargets()
+    protected override List<Vector2Int> SelectTargets()
     {
-        if (isAttackMode || switchTimer == 0)
+        if (isAttackMode && switchTimer <= 0)
         {
             return base.SelectTargets();
         }
@@ -31,11 +26,10 @@ public class ThirdUnitBrain : DefaultPlayerUnitBrain
 
     public override Vector2Int GetNextStep()
     {
-        if (switchTimer == 0 || isAttackMode)
+        if (isMoveMode && switchTimer <= 0)
         {
             return base.GetNextStep();
         }
-
         return unit.Pos;
     }
 
@@ -43,36 +37,33 @@ public class ThirdUnitBrain : DefaultPlayerUnitBrain
     {
         base.Update(deltaTime, time);
 
+        var targets = base.SelectTargets();
+        bool hasTargets = targets != null && targets.Count > 0;
         if (switchTimer > 0)
         {
-            switchTimer -= changeMode;
+            switchTimer -= deltaTime;
 
-            if (switchTimer < 0)
+            if (switchTimer <= 0)
             {
-                isMoveMode = !isMoveMode;
-                isAttackMode = !isAttackMode;
+                isMoveMode = !hasTargets;
+                isAttackMode = hasTargets;
             }
             return;
-        }
-
-        List<Vector2Int> targets = base.SelectTargets();
-        
-
-        if (isMoveMode && targets.Count > 0)
+        }     
+        if (isMoveMode && hasTargets)
         {
-            isAttackMode = true;
+            switchTimer = switchTime;
             isMoveMode = false;
-            
-            switchTimer = changeMode;
-        }
-        else if (isMoveMode && targets.Count == 0)
-        {
             isAttackMode = false;
-            isMoveMode = true; 
-            switchTimer = changeMode;
+            return;
+        }
+        if (isAttackMode && !hasTargets)
+        {
+            switchTimer = switchTime;
+            isMoveMode = false;
+            isAttackMode = false;
+            return;
         }
     }
 }
-    
 
-    
