@@ -7,6 +7,7 @@ using UnitBrains.Pathfinding;
 using UnityEngine;
 using Utilities;
 using Unit = Model.Runtime.Unit;
+using UnitBrains.Player; // добавлено для доступа к координатору
 
 namespace UnitBrains
 {
@@ -20,7 +21,7 @@ namespace UnitBrains
         protected IReadOnlyRuntimeModel runtimeModel => ServiceLocator.Get<IReadOnlyRuntimeModel>();
         private BaseUnitPath _activePath = null;
 
-        private readonly Vector2[] _projectileShifts = new Vector2[]
+        private readonly Vector2[] _projectile_shifts = new Vector2[]
         {
             new (0f, 0f),
             new (0.15f, 0f),
@@ -55,7 +56,7 @@ namespace UnitBrains
             for (int i = 0; i < result.Count; i++)
             {
                 var proj = result[i];
-                proj.AddStartShift(_projectileShifts[i % _projectileShifts.Length]);
+                proj.AddStartShift(_projectile_shifts[i % _projectile_shifts.Length]);
             }
 
             return result;
@@ -75,9 +76,26 @@ namespace UnitBrains
             AddProjectileToList(CreateProjectile(forTarget), intoList);
         }
 
+        // Изменено: учитываем рекомендацию координатора.
+        // Если рекомендованная цель присутствует и находится в пределах 2 * attackRange юнита,
+        // добавляем её в приоритетный список целей для атаки.
         protected virtual List<Vector2Int> SelectTargets()
         {
             var result = GetReachableTargets();
+
+            var coordinator = PlayerUnitsCoordinatorSingleton.Instance;
+            var recUnit = coordinator?.RecommendedTargetUnit;
+            if (recUnit != null)
+            {
+                var diff = recUnit.Pos - unit.Pos;
+                var allowedRange = unit.Config.AttackRange * 2f;
+                if (diff.sqrMagnitude <= allowedRange * allowedRange)
+                {
+                    if (!result.Contains(recUnit.Pos))
+                        result.Insert(0, recUnit.Pos);
+                }
+            }
+
             while (result.Count > 1)
                 result.RemoveAt(result.Count - 1);
             return result;

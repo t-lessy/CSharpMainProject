@@ -1,4 +1,4 @@
-using System;
+п»їusing System;
 using System.Collections.Generic;
 using System.Linq;
 using Model;
@@ -55,8 +55,8 @@ namespace UnitBrains.Pathfinding
             int maxDistance = ManhattanDistance(startNode, targetNode);
             int tryDistance = 0;
 
-            // Попытки расширять допустимую дистанцию в поиске, чтобы найти путь даже если прямой путь
-            // заблокирован; увеличиваем радиус поиска итеративно
+            // РџРѕРїС‹С‚РєРё СЂР°СЃС€РёСЂСЏС‚СЊ РґРѕРїСѓСЃС‚РёРјСѓСЋ РґРёСЃС‚Р°РЅС†РёСЋ РІ РїРѕРёСЃРєРµ, С‡С‚РѕР±С‹ РЅР°Р№С‚Рё РїСѓС‚СЊ РґР°Р¶Рµ РµСЃР»Рё РїСЂСЏРјРѕР№ РїСѓС‚СЊ
+            // Р·Р°Р±Р»РѕРєРёСЂРѕРІР°РЅ; СѓРІРµР»РёС‡РёРІР°РµРј СЂР°РґРёСѓСЃ РїРѕРёСЃРєР° РёС‚РµСЂР°С‚РёРІРЅРѕ
             while ((path == null || path.Length == 0) && tryDistance <= maxDistance)
             {
                 path = CalculatePath(startNode, targetNode, tryDistance)
@@ -101,7 +101,7 @@ namespace UnitBrains.Pathfinding
                     }
                     else
                     {
-                        // если найден более короткий путь к узлу в открытом списке
+                        // РµСЃР»Рё РЅР°Р№РґРµРЅ Р±РѕР»РµРµ РєРѕСЂРѕС‚РєРёР№ РїСѓС‚СЊ Рє СѓР·Р»Сѓ РІ РѕС‚РєСЂС‹С‚РѕРј СЃРїРёСЃРєРµ
                         if (tentativeG < inOpen.G)
                         {
                             inOpen.Parent = current;
