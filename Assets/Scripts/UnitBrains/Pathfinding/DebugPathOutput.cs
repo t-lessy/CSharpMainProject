@@ -32,12 +32,13 @@ namespace UnitBrains.Pathfinding
 
         private IEnumerator HighlightCoroutine(BaseUnitPath path)
         {
+            // Fade In
             foreach (var pos in path.GetPath())
             {
                 CreateHighlight(pos);
                 if (allHighlights.Count >= maxHighlights)
                     DestroyHighlight(0);
-
+                
                 yield return new WaitForSeconds(0.05f);
             }
 
@@ -45,7 +46,7 @@ namespace UnitBrains.Pathfinding
             while (allHighlights.Count > 0)
             {
                 DestroyHighlight(0);
-
+                
                 yield return new WaitForSeconds(0.05f);
             }
         }

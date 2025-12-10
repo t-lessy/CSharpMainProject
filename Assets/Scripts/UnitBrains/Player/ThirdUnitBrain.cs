@@ -1,3 +1,4 @@
+﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -5,61 +6,48 @@ namespace UnitBrains.Player
 {
     public class ThirdUnitBrain : DefaultPlayerUnitBrain
     {
-        enum UnitState
-        {
-            Moving,
-            Attacking,
-        }
-
         public override string TargetUnitName => "Ironclad Behemoth";
-        private const float SwitchStateDurationSec = 1f;
 
-        private UnitState _unitState = UnitState.Moving;
-        private UnitState _targetUnitState = UnitState.Moving;
-
-        private bool IsSwitchingState => _unitState != _targetUnitState;
-        private float _switchStateStartTime = 0;
+        private static int _switchingTimeSeconds = 1;
+        private static DateTime _switchingStartDateTime;
+        
+        private bool _isSwitching;
+        private bool _isSiegeMode;
+        
+        public override Vector2Int GetNextStep()
+        {
+            if (NeedToSwitchMode()) StartModeSwitching();
+            return _isSwitching || _isSiegeMode ? unit.Pos : base.GetNextStep();
+        }
+        
+        protected override List<Vector2Int> SelectTargets()
+        {
+            if (NeedToSwitchMode()) StartModeSwitching();
+            return _isSwitching || !_isSiegeMode ? new List<Vector2Int>() : base.SelectTargets();
+        }
 
         public override void Update(float deltaTime, float time)
         {
-            base.Update(deltaTime, time);
-
-            if (IsSwitchingState)
+            if (_isSwitching)
             {
-                if (time - _switchStateStartTime > SwitchStateDurationSec)
-                {
-                    _unitState = _targetUnitState;
-                }
-
-                return;
-            }
-
-            var hasTargets = HasTargetsInRange();
-
-            if (_unitState == UnitState.Moving && hasTargets)
-            {
-                _targetUnitState = UnitState.Attacking;
-                _switchStateStartTime = time;
-            }
-            else if (_unitState == UnitState.Attacking && !hasTargets)
-            {
-                _targetUnitState = UnitState.Moving;
-                _switchStateStartTime = time;
+                int totalSwitchingTime = (DateTime.Now - _switchingStartDateTime).Seconds;
+                if (totalSwitchingTime >= _switchingTimeSeconds) CompleteModeSwitching();
             }
         }
 
-        public override Vector2Int GetNextStep()
+        private bool NeedToSwitchMode() => !_isSwitching && (HasTargetsInRange() != _isSiegeMode);
+        
+        private void StartModeSwitching()
         {
-            return IsSwitchingState || _unitState == UnitState.Attacking
-                ? unit.Pos
-                : base.GetNextStep();
+            _switchingStartDateTime = DateTime.Now;
+            _isSwitching = true;
         }
 
-        protected override List<Vector2Int> SelectTargets()
+        private void CompleteModeSwitching()
         {
-            return IsSwitchingState || _unitState == UnitState.Moving
-                ? new List<Vector2Int>()
-                : base.SelectTargets();
+            _isSiegeMode = !_isSiegeMode;
+            _isSwitching = false;
         }
+        
     }
 }
