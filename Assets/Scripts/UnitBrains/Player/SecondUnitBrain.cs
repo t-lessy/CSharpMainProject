@@ -1,8 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Numerics;
 using System.Runtime.InteropServices;
 using Model.Runtime.Projectiles;
 using UnityEngine;
+using System.Linq;
+using GluonGui.Dialog;
+using Model;
+using Utilities;
 
 namespace UnitBrains.Player
 {
@@ -14,6 +19,8 @@ namespace UnitBrains.Player
         private float _temperature = 0f;
         private float _cooldownTime = 0f;
         private bool _overheated;
+
+        Vector2Int targetsAttacked = new Vector2Int();
 
         protected override void GenerateProjectiles(Vector2Int forTarget, List<BaseProjectile> intoList)
         {
@@ -34,36 +41,52 @@ namespace UnitBrains.Player
 
         public override Vector2Int GetNextStep()
         {
-            return base.GetNextStep();
+            return IsTargetInRange(targetsAttacked) ? unit.Pos : unit.Pos.CalcNextStepTowards(targetsAttacked);
         }
 
+        private Vector2Int GetCloserTarget(IEnumerable<Vector2Int> targets)
+        {
+            Vector2Int minRes = targets.First();
+            foreach(Vector2Int target in targets)
+            {
+                if(DistanceToOwnBase(minRes) > DistanceToOwnBase(target))
+                {
+                    minRes = target;
+                }
+            }
+            return minRes;
+        }
         protected override List<Vector2Int> SelectTargets()
         {
             ///////////////////////////////////////
             // Homework 1.4 (1st block, 4rd module)
-            ///////////////////////////////////////
-            List<Vector2Int> result = GetReachableTargets();
-            float maxDist = float.MaxValue;
-            Vector2Int activeTarget = new Vector2Int();
+            //////////////////////////////////////
+            var allTargets = GetAllTargets();
+            List<Vector2Int> result = new List<Vector2Int>();
+            Vector2Int minRes = GetCloserTarget(allTargets);
 
-            while (result.Count > 1)
+            if(IsTargetInRange(minRes))
             {
-                foreach (Vector2Int target in result)
+                targetsAttacked = minRes;
+                result.Add(minRes); 
+            }
+            else
+            targetsAttacked = minRes;
+
+            if(result.Count == 0)
+            {
+                var targetBase = runtimeModel.RoMap.Bases[RuntimeModel.BotPlayerId];
+                if (!IsTargetInRange(targetBase))
+                targetsAttacked = targetBase;
+                else
                 {
-                    float dist = DistanceToOwnBase(target);
-                    if(dist < maxDist)
-                     dist = maxDist;
-                    activeTarget = target;
+                    targetsAttacked = targetBase;
+                    result.Add(targetBase);
                 }
-                result.RemoveAt(result.Count - 1);
             }
-            if(activeTarget != Vector2Int.zero)
-            {
-                result.Clear();
-                result.Add(activeTarget);
-            }
-            return result;
+            
 
+            return result;
 
 
 
