@@ -2,14 +2,14 @@
 
 namespace Model.Runtime.Projectiles
 {
-    public class HomingProjectile : BaseProjectile
+  public class HomingProjectile : BaseProjectile
+  {
+    public HomingProjectile(Unit unit, Vector2Int target, int damage, Vector2Int startPoint) : base(damage, startPoint)
     {
-        public HomingProjectile(Unit unit, Vector2Int target, int damage, Vector2Int startPoint) : base(damage, startPoint)
-        {
-        }
-        
-        protected override void UpdateImpl(float deltaTime, float time)
-        {
-        }
     }
+
+    protected override void UpdateImpl(float deltaTime, float time)
+    {
+    }
+  }
 }

@@ -7,41 +7,41 @@ using UnityEngine;
 
 namespace UnitBrains
 {
-    public static class UnitBrainProvider
+  public static class UnitBrainProvider
+  {
+    private static readonly List<BaseUnitBrain> _brainsCache = new();
+
+    public static BaseUnitBrain GetBrain(UnitConfig forUnit)
     {
-        private static readonly List<BaseUnitBrain> _brainsCache = new();
-        
-        public static BaseUnitBrain GetBrain(UnitConfig forUnit)
-        {
-            InitBrainsCache();
+      InitBrainsCache();
 
-            var brain = _brainsCache.FirstOrDefault(b =>
-                b.TargetUnitName == forUnit.Name && b.IsPlayerUnitBrain == forUnit.IsPlayerUnit);
-            
-            if (brain == null)
-                brain = _brainsCache.FirstOrDefault(b =>
-                    string.IsNullOrEmpty(b.TargetUnitName) && b.IsPlayerUnitBrain == forUnit.IsPlayerUnit);
+      var brain = _brainsCache.FirstOrDefault(b =>
+          b.TargetUnitName == forUnit.Name && b.IsPlayerUnitBrain == forUnit.IsPlayerUnit);
 
-            if (brain == null)
-            {
-                Debug.LogError($"Could not find brains for unit {forUnit.Name}");
-                return null;
-            }
+      if (brain == null)
+        brain = _brainsCache.FirstOrDefault(b =>
+            string.IsNullOrEmpty(b.TargetUnitName) && b.IsPlayerUnitBrain == forUnit.IsPlayerUnit);
 
-            return (BaseUnitBrain) Activator.CreateInstance(brain.GetType());
-        }
+      if (brain == null)
+      {
+        Debug.LogError($"Could not find brains for unit {forUnit.Name}");
+        return null;
+      }
 
-        private static void InitBrainsCache()
-        {
-            if (_brainsCache.Count != 0)
-                return;
-            
-            _brainsCache.AddRange(
-                AppDomain.CurrentDomain.GetAssemblies()
-                    .SelectMany(a => a.GetTypes())
-                    .Where(t => !t.IsAbstract && typeof(BaseUnitBrain).IsAssignableFrom(t))
-                    .Select(t => (BaseUnitBrain) Activator.CreateInstance(t))
-            );
-        }
+      return (BaseUnitBrain)Activator.CreateInstance(brain.GetType());
     }
+
+    private static void InitBrainsCache()
+    {
+      if (_brainsCache.Count != 0)
+        return;
+
+      _brainsCache.AddRange(
+          AppDomain.CurrentDomain.GetAssemblies()
+              .SelectMany(a => a.GetTypes())
+              .Where(t => !t.IsAbstract && typeof(BaseUnitBrain).IsAssignableFrom(t))
+              .Select(t => (BaseUnitBrain)Activator.CreateInstance(t))
+      );
+    }
+  }
 }

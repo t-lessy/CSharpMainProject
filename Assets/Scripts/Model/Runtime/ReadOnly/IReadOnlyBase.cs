@@ -1,7 +1,7 @@
 ﻿namespace Model.Runtime.ReadOnly
 {
-    public interface IReadOnlyBase
-    {
-        
-    }
+  public interface IReadOnlyBase
+  {
+
+  }
 }

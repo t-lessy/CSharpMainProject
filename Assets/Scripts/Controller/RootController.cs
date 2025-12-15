@@ -7,76 +7,76 @@ using View;
 
 namespace Controller
 {
-    public class RootController
+  public class RootController
+  {
+    private readonly PersistedModel _persisted;
+    private readonly RuntimeModel _runtimeModel;
+    private readonly LevelController _levelController;
+
+    private RootView _rootView;
+
+    public RootController(Settings settings, Canvas targetCanvas)
     {
-        private readonly PersistedModel _persisted;
-        private readonly RuntimeModel _runtimeModel;
-        private readonly LevelController _levelController;
-        
-        private RootView _rootView;
+      _persisted = PersistanceUtils.LoadSingleton(new PersistedModel());
+      ServiceLocator.Register(TimeUtil.Create());
 
-        public RootController(Settings settings, Canvas targetCanvas)
-        {
-            _persisted = PersistanceUtils.LoadSingleton(new PersistedModel());
-            ServiceLocator.Register(TimeUtil.Create());
-            
-            _runtimeModel = new();
-            ServiceLocator.RegisterAs(_runtimeModel, typeof(IReadOnlyRuntimeModel));
-            
-            SpawnRootVisual(targetCanvas);
-            ServiceLocator.Register(_rootView);
-            
-            var gameplayVisual = SpawnGameplayVisual();
-            ServiceLocator.Register(gameplayVisual);
+      _runtimeModel = new();
+      ServiceLocator.RegisterAs(_runtimeModel, typeof(IReadOnlyRuntimeModel));
 
-            var vfxView = SpawnVFXView();
-            ServiceLocator.Register(vfxView);
-            
-            ServiceLocator.Register(BuffSystem.Create());
-            
-            _levelController = new(_runtimeModel, this);
-            
-            _rootView.ShowStartMenu();
-        }
+      SpawnRootVisual(targetCanvas);
+      ServiceLocator.Register(_rootView);
 
-        public void RestartGame()
-        {
-            _runtimeModel.Level = _persisted.Level;
-            _levelController.StartLevel(_persisted.Level);
-        }
+      var gameplayVisual = SpawnGameplayVisual();
+      ServiceLocator.Register(gameplayVisual);
 
-        public void OnLevelFinished(bool playerWon)
-        {
-            if (playerWon)
-            {
-                _persisted.IncLevel();
-            }
+      var vfxView = SpawnVFXView();
+      ServiceLocator.Register(vfxView);
 
-            RestartGame();
-        }
+      ServiceLocator.Register(BuffSystem.Create());
 
-        public void ResetProgress()
-        {
-            _persisted.ResetLevel();
-        }
+      _levelController = new(_runtimeModel, this);
 
-        private void SpawnRootVisual(Canvas targetCanvas)
-        {
-            var prefab = Resources.Load<RootView>("View/RootView");
-            _rootView = Object.Instantiate(prefab, targetCanvas.transform);
-            _rootView.Initialize(this);
-        }
-        
-        private Gameplay3dView SpawnGameplayVisual()
-        {
-            var prefab = Resources.Load<Gameplay3dView>("View/Gameplay3dView");
-            return Object.Instantiate(prefab, Vector3.zero, Quaternion.identity);
-        }
-        
-        private VFXView SpawnVFXView()
-        {
-            var prefab = Resources.Load<VFXView>("View/VFXView");
-            return Object.Instantiate(prefab, Vector3.zero, Quaternion.identity);
-        }
+      _rootView.ShowStartMenu();
     }
+
+    public void RestartGame()
+    {
+      _runtimeModel.Level = _persisted.Level;
+      _levelController.StartLevel(_persisted.Level);
+    }
+
+    public void OnLevelFinished(bool playerWon)
+    {
+      if (playerWon)
+      {
+        _persisted.IncLevel();
+      }
+
+      RestartGame();
+    }
+
+    public void ResetProgress()
+    {
+      _persisted.ResetLevel();
+    }
+
+    private void SpawnRootVisual(Canvas targetCanvas)
+    {
+      var prefab = Resources.Load<RootView>("View/RootView");
+      _rootView = Object.Instantiate(prefab, targetCanvas.transform);
+      _rootView.Initialize(this);
+    }
+
+    private Gameplay3dView SpawnGameplayVisual()
+    {
+      var prefab = Resources.Load<Gameplay3dView>("View/Gameplay3dView");
+      return Object.Instantiate(prefab, Vector3.zero, Quaternion.identity);
+    }
+
+    private VFXView SpawnVFXView()
+    {
+      var prefab = Resources.Load<VFXView>("View/VFXView");
+      return Object.Instantiate(prefab, Vector3.zero, Quaternion.identity);
+    }
+  }
 }
