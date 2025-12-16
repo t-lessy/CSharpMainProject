@@ -4,26 +4,26 @@ using UnityEngine;
 
 namespace View
 {
-  public class UnitView : MonoBehaviour
-  {
-    [SerializeField] private HealthBar _healthBar;
-    [SerializeField] private DebugPathOutput _debugPathOutput;
-
-    public void UpdateState(IReadOnlyUnit model, Vector3 prevPosition)
+    public class UnitView : MonoBehaviour
     {
-      _healthBar.UpdateHealth((float)model.Health / model.Config.MaxHealth);
-      var deltaPos = transform.position - prevPosition;
-      if (deltaPos != Vector3.zero)
-      {
-        transform.rotation = Quaternion.LookRotation(deltaPos, Vector3.up);
-      }
+        [SerializeField] private HealthBar _healthBar;
+        [SerializeField] private DebugPathOutput _debugPathOutput;
 
-      if (_debugPathOutput != null &&
-          model.ActivePath != null &&
-          model.ActivePath?.EndPoint != _debugPathOutput.Path?.EndPoint)
-      {
-        _debugPathOutput.HighlightPath(model.ActivePath);
-      }
+        public void UpdateState(IReadOnlyUnit model, Vector3 prevPosition)
+        {
+            _healthBar.UpdateHealth((float) model.Health / model.Config.MaxHealth);
+            var deltaPos = transform.position - prevPosition;
+            if (deltaPos != Vector3.zero)
+            {
+                transform.rotation = Quaternion.LookRotation(deltaPos, Vector3.up);
+            }
+
+            if (_debugPathOutput != null &&
+                model.ActivePath != null &&
+                model.ActivePath?.EndPoint != _debugPathOutput.Path?.EndPoint)
+            {
+                _debugPathOutput.HighlightPath(model.ActivePath);
+            }
+        }
     }
-  }
 }

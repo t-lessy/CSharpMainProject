@@ -4,23 +4,23 @@ using Utilities;
 
 namespace Model
 {
-  [Serializable]
-  public class PersistedModel
-  {
-    [SerializeField] private int _level = 0;
-
-    public int Level => _level;
-
-    public void IncLevel()
+    [Serializable]
+    public class PersistedModel
     {
-      _level++;
-      PersistanceUtils.PersistSingleton(this);
-    }
+        [SerializeField] private int _level = 0;
 
-    public void ResetLevel()
-    {
-      _level = 0;
-      PersistanceUtils.PersistSingleton(this);
+        public int Level => _level;
+
+        public void IncLevel()
+        {
+            _level++;
+            PersistanceUtils.PersistSingleton(this);
+        }
+
+        public void ResetLevel()
+        {
+            _level = 0;
+            PersistanceUtils.PersistSingleton(this);
+        }
     }
-  }
 }

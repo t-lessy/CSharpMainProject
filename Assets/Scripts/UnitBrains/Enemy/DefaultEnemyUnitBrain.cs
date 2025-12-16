@@ -6,8 +6,8 @@ using UnityEngine;
 
 namespace UnitBrains.Enemy
 {
-  public class DefaultEnemyUnitBrain : BaseUnitBrain
-  {
-    public override bool IsPlayerUnitBrain => false;
-  }
+    public class DefaultEnemyUnitBrain : BaseUnitBrain
+    {
+        public override bool IsPlayerUnitBrain => false;
+    }
 }

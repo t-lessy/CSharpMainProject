@@ -3,24 +3,24 @@ using UnityEngine;
 
 namespace View
 {
-  public class LevelFinishedView : MonoBehaviour
-  {
-    [SerializeField] private RectTransform _wonRoot;
-    [SerializeField] private RectTransform _loseRoot;
-
-    private Action _onClick;
-
-    public void Setup(bool playerWon, Action onClick)
+    public class LevelFinishedView : MonoBehaviour
     {
-      _wonRoot.gameObject.SetActive(playerWon);
-      _loseRoot.gameObject.SetActive(!playerWon);
+        [SerializeField] private RectTransform _wonRoot;
+        [SerializeField] private RectTransform _loseRoot;
+        
+        private Action _onClick;
 
-      _onClick = onClick;
-    }
+        public void Setup(bool playerWon, Action onClick)
+        {
+            _wonRoot.gameObject.SetActive(playerWon);
+            _loseRoot.gameObject.SetActive(!playerWon);
 
-    public void OnClick()
-    {
-      _onClick?.Invoke();
+            _onClick = onClick;
+        }
+        
+        public void OnClick()
+        {
+            _onClick?.Invoke();
+        }
     }
-  }
 }

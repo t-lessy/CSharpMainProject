@@ -2,8 +2,8 @@
 
 namespace Controller
 {
-  public interface IPlayerUnitChoosingListener
-  {
-    void OnPlayersUnitChosen(UnitConfig unitConfig);
-  }
+    public interface IPlayerUnitChoosingListener
+    {
+        void OnPlayersUnitChosen(UnitConfig unitConfig);
+    }
 }
