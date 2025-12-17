@@ -1,6 +1,10 @@
 ﻿using System.Collections.Generic;
+using Model;
 using Model.Runtime.Projectiles;
 using UnityEngine;
+using UnityEngine.UIElements;
+using Utilities;
+using static UnityEngine.GraphicsBuffer;
 
 namespace UnitBrains.Player
 {
@@ -32,39 +36,110 @@ namespace UnitBrains.Player
                 AddProjectileToList(projectile, intoList);
             }
         }
+       
 
-        public override Vector2Int GetNextStep()
+        protected override List<Vector2Int> SelectTargets
         {
-            return base.GetNextStep();
+            get
+            {
+                List<Vector2Int> allTargets = GetReachableTargets();
+                List<Vector2Int> result = new List<Vector2Int>();
+
+                if (allTargets.Count == 0)
+                    return result;
+                {
+                    var enemyBase = runtimeModel.RoMap.Bases[RuntimeModel.BotPlayerId];
+                    result.Add(enemyBase);
+                    return result;
+                }
+                  Vector2Int closestToBase = result[0];
+                float minDistanceToBase = DistanceToOwnBase(result[0]);
+
+                for (int i = 1; i < result.Count; i++)
+                {
+                    float distanceToBase = DistanceToOwnBase(result[i]);
+                    if (distanceToBase < minDistanceToBase)
+                    {
+                        minDistanceToBase = distanceToBase;
+                        closestToBase = result[i];
+                    }
+                }
+
+                result.Add(closestToBase);
+                return result;
+            }
         }
+        
 
-        protected override List<Vector2Int> SelectTargets()
+        private List<Vector2Int> _outOfRangeTargets = new List<Vector2Int>();
+        protected List<Vector2Int> GetReachableTargets()
         {
-            List<Vector2Int> allTargets = GetReachableTargets();
+            List<Vector2Int> allTargets = GetReachableTargets(); 
             List<Vector2Int> result = new List<Vector2Int>();
 
             if (allTargets.Count == 0)
-                return result;
-
-
-
-            Vector2Int closestToBase = result[0];
-            float minDistanceToBase = DistanceToOwnBase(result[0]);
-
-            for (int i = 1; i < result.Count; i++)
             {
-                float distanceToBase = DistanceToOwnBase(result[i]);
+                var enemyBase = runtimeModel.RoMap.Bases[RuntimeModel.BotPlayerId];
+                result.Add(enemyBase);
+                return result;
+            }
+
+            Vector2Int mostDangerousTarget = allTargets[0];
+            float minDistanceToBase = DistanceToOwnBase(allTargets[0]);
+
+            for (int i = 1; i < allTargets.Count; i++)
+            {
+                float distanceToBase = DistanceToOwnBase(allTargets[i]);
                 if (distanceToBase < minDistanceToBase)
                 {
                     minDistanceToBase = distanceToBase;
-                    closestToBase = result[i];
+                    mostDangerousTarget = allTargets[i];
                 }
             }
 
-            result.Add(closestToBase);
-            return result;
+            if (IsTargetReachable(mostDangerousTarget))
+            {
+                result.Add(mostDangerousTarget);
+            }
+            else
+            {
+                _outOfRangeTargets.Clear();
+                _outOfRangeTargets.Add(mostDangerousTarget); 
+            }
+
+            return result.Count > 0 ? result : _outOfRangeTargets;
         }
 
+        private bool IsTargetReachable(Vector2Int target)
+        {
+            return GetReachableTargets().Contains(target);
+        }
+        public override Vector2Int GetNextStep()
+        {
+            List<Vector2Int> targets = SelectTargets;
+
+            if (targets.Count == 0)
+            {
+                return base.GetNextStep();
+            }
+
+            Vector2Int target = targets[0]; 
+            bool isInAttackRange = true;
+            Vector2Int position = Vector2Int.zero;
+            Vector2Int nextposition = Vector2Int.right;
+            position = position.CalcNextStepTowards(target);
+
+
+            if (isInAttackRange)
+            {
+                return base.GetNextStep(); ;
+            }
+            else
+            {
+                return position. CalcNextStepTowards(target);
+            }
+        }
+       
         public override void Update(float deltaTime, float time)
         {
             if (_overheated)
