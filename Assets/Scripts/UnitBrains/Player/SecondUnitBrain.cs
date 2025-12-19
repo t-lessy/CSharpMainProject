@@ -28,15 +28,18 @@ namespace UnitBrains.Player
             float TemperatureAtTheTime = GetTemperature();
 
             //То самое ДЗ 1.3
-            if (TemperatureAtTheTime <= overheatTemperature)
-            {
+            if (TemperatureAtTheTime >= overheatTemperature) 
+                return;
+            
+                            
                 for (float i = 0; i <= TemperatureAtTheTime; i++)
                 {
-                    IncreaseTemperature();
                     var projectile = CreateProjectile(forTarget);
                     AddProjectileToList(projectile, intoList);
-                }
-            }
+                } 
+                IncreaseTemperature(); 
+            
+            
         }
 
         public override Vector2Int GetNextStep()
