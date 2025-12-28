@@ -35,10 +35,13 @@ namespace UnitBrains.Player
 
             ///////////////////////////////////////
         }
-
+    
         public override Vector2Int GetNextStep()
         {
-            return base.GetNextStep();
+          
+                return base.GetNextStep();
+      
+
         }
 
         protected override List<Vector2Int> SelectTargets()
@@ -61,6 +64,7 @@ namespace UnitBrains.Player
                     minDistance = DistanceToOwnBase(target);
                 }
             }
+
             result.Clear();
             if (minDistance != float.MaxValue)
                 result.Add(criticalTarget);

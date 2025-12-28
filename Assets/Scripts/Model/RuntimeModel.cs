@@ -39,7 +39,8 @@ namespace Model
             { PlayerId, 0 },
             { BotPlayerId, 0 }
         };
-        
+        public static int PlayerID { get; internal set; }
+
         private readonly List<List<Unit>> _playersUnits = new()
         {
             new (), new ()
