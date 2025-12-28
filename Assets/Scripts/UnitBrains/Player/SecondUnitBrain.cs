@@ -38,9 +38,8 @@ namespace UnitBrains.Player
     
         public override Vector2Int GetNextStep()
         {
-          
-                return base.GetNextStep();
-      
+
+            return base.GetNextStep();
 
         }
 

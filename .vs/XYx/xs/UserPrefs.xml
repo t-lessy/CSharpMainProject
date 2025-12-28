@@ -1,12 +1,5 @@
 ﻿<Properties StartupConfiguration="{802CDF90-C5C6-7CA9-F8EE-EA14FE645CAC}|">
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/UnitBrains/BaseUnitBrain.cs">
-    <Files>
-      <File FileName="Assets/Scripts/EnterPoint.cs" Line="13" Column="32" />
-      <File FileName="Assets/Scripts/Model/Runtime/Projectiles/ArchToTileProjectile.cs" />
-      <File FileName="Assets/Scripts/UnitBrains/Player/SecondUnitBrain.cs" Line="57" Column="1" />
-      <File FileName="Assets/Scripts/Model/Runtime/Unit.cs" />
-      <File FileName="Assets/Scripts/UnitBrains/BaseUnitBrain.cs" Line="158" Column="1" />
-    </Files>
+  <MonoDevelop.Ide.Workbench>
     <Pads>
       <Pad Id="ProjectPad">
         <State name="__root__">
