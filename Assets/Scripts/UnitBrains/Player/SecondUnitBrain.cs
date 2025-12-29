@@ -37,18 +37,19 @@ namespace UnitBrains.Player
             }
         }
        
+        protected virtual List<Vector2Int> SelectTargets()
 
-        protected override List<Vector2Int> SelectTargets
         {
-            get
+           
+             List<Vector2Int> result = GetReachableTargets();
+            while (result.Count > 1)
             {
-                List<Vector2Int> allTargets = GetReachableTargets();
-                List<Vector2Int> result = new List<Vector2Int>();
+                result.RemoveAt(result.Count - 1);
+                return result;
+            }
 
-                if (allTargets.Count == 0)
-                    return result;
-                {
-                    var enemyBase = runtimeModel.RoMap.Bases[RuntimeModel.BotPlayerId];
+            {
+                var enemyBase = runtimeModel.RoMap.Bases[RuntimeModel.BotPlayerId];
                     result.Add(enemyBase);
                     return result;
                 }
@@ -67,8 +68,8 @@ namespace UnitBrains.Player
 
                 result.Add(closestToBase);
                 return result;
-            }
-        }
+         }
+        
         
 
         private List<Vector2Int> _outOfRangeTargets = new List<Vector2Int>();
@@ -116,7 +117,7 @@ namespace UnitBrains.Player
         }
         public override Vector2Int GetNextStep()
         {
-            List<Vector2Int> targets = SelectTargets;
+            List<Vector2Int> targets = SelectTargets();
 
             if (targets.Count == 0)
             {
