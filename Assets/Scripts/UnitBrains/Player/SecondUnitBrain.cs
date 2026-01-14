@@ -1,22 +1,26 @@
-﻿using Model;
+﻿using Codice.Client.BaseCommands;
+using Codice.Client.Common.GameUI;
+using Model;
 using Model.Runtime.Projectiles;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Utilities;
+using static Codice.CM.Common.CmCallContext;
 namespace UnitBrains.Player
 {
     public class SecondUnitBrain : DefaultPlayerUnitBrain
     {
-        Vector2Int one = new Vector2Int(1, 1);
         public override string TargetUnitName => "Cobra Commando";
-        private Vector2Int TargetsToAttack = new Vector2Int();
         private const float OverheatTemperature = 3f;
         private const float OverheatCooldown = 2f;
         private float _temperature = 0f;
         private float _cooldownTime = 0f;
         private bool _overheated;
-
+        private List<Vector2Int> TargetToAttackList = new List<Vector2Int>();
+        private const int _maxTargetsCount = 3;
+        static private int _unitCounter = 0;
+        private int _unitId = _unitCounter++;
         protected override void GenerateProjectiles(Vector2Int forTarget, List<BaseProjectile> intoList)
         {
             float overheatTemperature = OverheatTemperature;
@@ -34,52 +38,30 @@ namespace UnitBrains.Player
             IncreaseTemperature();
             ///////////////////////////////////////
         }
-
         public override Vector2Int GetNextStep()
         {
-            return IsTargetInRange(TargetsToAttack) ? unit.Pos : unit.Pos.CalcNextStepTowards(TargetsToAttack);
-        }
-        private Vector2Int GetCloserTarget(IEnumerable<Vector2Int> targets)
-        {
-            Vector2Int min_result = targets.First();
-            foreach (Vector2Int target in targets)
-            {
-                if (DistanceToOwnBase(min_result) > DistanceToOwnBase(target))
-                {
-                    min_result = target;
-                }
-            }
-            return min_result;
+            return TargetToAttackList.Count > 0 ? unit.Pos.CalcNextStepTowards(TargetToAttackList[0]) : unit.Pos;
         }
         protected override List<Vector2Int> SelectTargets()
         {
             ///////////////////////////////////////
             // Homework 1.4 (1st block, 4rd module)
             ///////////////////////////////////////
-            var allTargets = GetAllTargets();
+            TargetToAttackList.Clear();
             List<Vector2Int> result = new List<Vector2Int>();
-            Vector2Int min_result = GetCloserTarget(allTargets);
-            if (IsTargetInRange(min_result))
+            IEnumerable<Vector2Int> allTargets = GetAllTargets();
+            if (allTargets.Any())
             {
-                TargetsToAttack = min_result;
-                result.Add(min_result);
-            }
-            else
-            {
-                TargetsToAttack = min_result;
-            }
-            if (result.Count() == 0)
-            {
-                var targetBase = runtimeModel.RoMap.Bases[RuntimeModel.BotPlayerId];
-                if (!IsTargetInRange(targetBase))
+                List<Vector2Int> temp = new List<Vector2Int>();
+                foreach (Vector2Int target in allTargets)
                 {
-                    TargetsToAttack = targetBase;
+                    temp.Add(target);
                 }
-                else
-                {
-                    TargetsToAttack = targetBase;
-                    result.Add(targetBase);
-                }
+                SortByDistanceToOwnBase(temp);
+                int cur_id = _unitId % _maxTargetsCount;
+                Vector2Int current = temp.Count >= _maxTargetsCount ? temp[cur_id % temp.Count] : temp[0];
+                if (IsTargetInRange(current)) result.Add(current);
+                else TargetToAttackList.Add(current);
             }
             return result;
             ///////////////////////////////////////
