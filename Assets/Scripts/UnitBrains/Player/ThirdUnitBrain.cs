@@ -24,7 +24,6 @@ public class ThirdUnitBrain : DefaultPlayerUnitBrain
 
     public virtual void Update()
     {
-        Update();
 
         // Обновляем таймер перехода, если находимся в состоянии перехода
         if (_currentState == State.Transitioning)
