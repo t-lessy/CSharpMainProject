@@ -37,7 +37,7 @@ namespace UnitBrains.Player
             }
         }
        
-        protected virtual List<Vector2Int> SelectTargets()
+        protected  List<Vector2Int> SelectTargets()
 
         {
            
