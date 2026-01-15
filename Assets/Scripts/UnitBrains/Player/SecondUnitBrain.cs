@@ -45,6 +45,8 @@ namespace UnitBrains.Player
 
             foreach (var target in targets)
             {
+                if (!IsTargetInRange(target))
+                    continue;
                 float distance = DistanceToOwnBase (target);
                 if (distance < minDistance)
                 {
