@@ -7,7 +7,7 @@
       "RelativeMoniker": "D:0:0:{30E4A36B-DBC1-3EB5-7C27-41F2EDC2C301}|Root.csproj|solutionrelative:assets\\scripts\\unitbrains\\player\\secondunitbrain.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{30E4A36B-DBC1-3EB5-7C27-41F2EDC2C301}|Root.csproj|c:\\users\\user\\csharpmainproject\\assets\\scripts\\enterpoint.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{30E4A36B-DBC1-3EB5-7C27-41F2EDC2C301}|Root.csproj|C:\\Users\\User\\CSharpMainProject\\assets\\scripts\\enterpoint.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{30E4A36B-DBC1-3EB5-7C27-41F2EDC2C301}|Root.csproj|solutionrelative:assets\\scripts\\enterpoint.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
@@ -64,7 +64,7 @@
               "RelativeDocumentMoniker": "Assets\\Scripts\\UnitBrains\\Player\\SecondUnitBrain.cs",
               "ToolTip": "C:\\Users\\User\\CSharpMainProject\\Assets\\Scripts\\UnitBrains\\Player\\SecondUnitBrain.cs",
               "RelativeToolTip": "Assets\\Scripts\\UnitBrains\\Player\\SecondUnitBrain.cs",
-              "ViewState": "AgIAAA4AAAAAAAAAAADwvx4AAAAiAAAAAAAAAA==",
+              "ViewState": "AgIAAC4AAAAAAAAAAAA5wEYAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-02-18T14:12:05.783Z",
               "EditorCaption": ""
@@ -79,7 +79,8 @@
               "RelativeToolTip": "Assets\\Scripts\\Controller\\SimulationController.cs",
               "ViewState": "AgIAAB4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-02-06T08:29:47.24Z"
+              "WhenOpened": "2026-02-06T08:29:47.24Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -91,7 +92,8 @@
               "RelativeToolTip": "Assets\\Scripts\\Model\\Runtime\\Projectiles\\ArchToTileProjectile.cs",
               "ViewState": "AgIAABUAAAAAAAAAAAAYwCUAAAAdAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-01-25T11:26:30.955Z"
+              "WhenOpened": "2026-01-25T11:26:30.955Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -114,7 +116,8 @@
               "RelativeToolTip": "Assets\\Scripts\\Editor\\Tests\\Dz2Test.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABkAAAAtAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-01-19T11:04:54.765Z"
+              "WhenOpened": "2026-01-19T11:04:54.765Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -126,7 +129,8 @@
               "RelativeToolTip": "Assets\\Scripts\\Controller\\BotController.cs",
               "ViewState": "AgIAADUAAAAAAAAAAAAgwAoAAAALAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-01-19T10:08:58.376Z"
+              "WhenOpened": "2026-01-19T10:08:58.376Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -136,7 +140,7 @@
               "RelativeDocumentMoniker": "Assets\\Scripts\\EnterPoint.cs",
               "ToolTip": "C:\\Users\\User\\CSharpMainProject\\Assets\\Scripts\\EnterPoint.cs",
               "RelativeToolTip": "Assets\\Scripts\\EnterPoint.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAARAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAAgAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2026-01-19T09:38:40.806Z",
               "EditorCaption": ""
