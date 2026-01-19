@@ -8,19 +8,19 @@ using Utilities;
 
 public class UnitCoordinator
 {
-    private static UnitCoordinator _instance;
+    
 
     private readonly IReadOnlyRuntimeModel _runtimeModel = ServiceLocator.Get<IReadOnlyRuntimeModel>();
     private TimeUtil _timeUtil = ServiceLocator.Get<TimeUtil>();
 
-    private static Vector2Int _target;
+    private  Vector2Int _target;
     private List<Vector2Int> _enemyUnitsPos;
     private IEnumerable<IReadOnlyUnit> _enemyUnits;
-    private static int _counter;
-    private static int _resultIterationCounter;
+    private  int _counter;
+    private  int _resultIterationCounter;
 
 
-    private UnitCoordinator()
+    public UnitCoordinator()
     {
         _enemyUnits = GetAllEnemyUnits();
         _enemyUnitsPos = unitsToListUnitsPos(_enemyUnits);
@@ -28,13 +28,6 @@ public class UnitCoordinator
         _counter = 0;
         _resultIterationCounter = 0;
         _target = new Vector2Int(0, 0);
-    }
-
-    public static UnitCoordinator GetInstance()
-    {
-        if (_instance == null)
-            _instance = new UnitCoordinator();
-        return _instance;
     }
 
     private void UpdateThis(float number)

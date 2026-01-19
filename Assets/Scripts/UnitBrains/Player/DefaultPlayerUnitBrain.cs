@@ -8,6 +8,13 @@ namespace UnitBrains.Player
 {
     public class DefaultPlayerUnitBrain : BaseUnitBrain
     {
+        private UnitCoordinator _coordinator;
+
+        public void SetCoordinator(UnitCoordinator coordinator)
+        {
+            _coordinator = coordinator;
+        }
+
         public override BaseUnitPath ActivePath => _activePath;
         private BaseUnitPath _activePath = null;
         protected float DistanceToOwnBase(Vector2Int fromPos) =>
@@ -48,9 +55,9 @@ namespace UnitBrains.Player
                 return unit.Pos;
 
             if (HasTargetsInDoubleRange())
-                target = UnitCoordinator.GetInstance().GetTarget();
+                target = _coordinator.GetTarget();
             else
-                target = UnitCoordinator.GetInstance().GetPoint();
+                target = _coordinator.GetPoint();
 
             _activePath = new AStarUnitPath(runtimeModel, unit.Pos, target);
             return _activePath.GetNextStepFrom(unit.Pos);
