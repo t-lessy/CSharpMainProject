@@ -1,9 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
+using Model;
 using UnitBrains.Player;
 using UnityEngine;
+using Utilities;
 
 public class ThirdUnitBrain : DefaultPlayerUnitBrain
+
 {
     /// <summary>
     /// Имя целевой единицы. Всегда возвращает "Ironclad Behemoth".
@@ -38,6 +41,7 @@ public class ThirdUnitBrain : DefaultPlayerUnitBrain
                 Debug.Log($"ThirdUnitBrain: Завершён переход в режим {_currentState}");
             }
         }
+
     }
 
     /// <summary>
@@ -90,4 +94,68 @@ public class ThirdUnitBrain : DefaultPlayerUnitBrain
     {
         Debug.Log("ThirdUnitBrain: Активирована особая способность!");
     }
+    protected override List<Vector2Int> SelectTargets
+    {
+        get
+        {
+
+            var result = GetReachableTargets();
+
+            if (result.Count > 1)
+            {
+                //находим ближайшую к своей базе
+                Vector2Int closestToBase = result[0];
+                float minDistanceToBase = DistanceToOwnBase(result[0]);
+
+                for (int i = 1; i < result.Count; i++)
+                {
+                    float distanceToBase = DistanceToOwnBase(result[i]);
+                    if (distanceToBase < minDistanceToBase)
+                    {
+                        minDistanceToBase = distanceToBase;
+                        closestToBase = result[i];
+                    }
+                }
+
+                //оставляем только ближайшую
+                result = new List<Vector2Int> { closestToBase };
+            }
+            else if (result.Count == 0)
+            {
+                //если нет достижимых целей добывляем базу противника
+                var enemyBase = runtimeModel.RoMap.Bases[RuntimeModel.BotPlayerId];
+                result.Add(enemyBase);
+            }
+            return result;
+        }
+    }
+    public override Vector2Int GetNextStep()
+    {
+        List<Vector2Int> targets = SelectTargets;
+
+        if (targets.Count == 0)
+        {
+            return base.GetNextStep();
+        }
+
+        Vector2Int target = targets[0];
+        bool isInAttackRange = true;
+        Vector2Int position = Vector2Int.zero;
+        Vector2Int nextposition = Vector2Int.right;
+        position = position.CalcNextStepTowards(target);
+
+
+        if (isInAttackRange)
+        {
+            return base.GetNextStep(); ;
+        }
+        else
+        {
+            return position.CalcNextStepTowards(target);
+        }
+    }
+    
 }
+
+
+
