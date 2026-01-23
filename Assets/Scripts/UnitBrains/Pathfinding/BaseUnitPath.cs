@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace UnitBrains.Pathfinding
 {
-    public abstract class BaseUnitPath
+    public abstract class BaseUnitPath 
     {
         public Vector2Int StartPoint => startPoint;
         public Vector2Int EndPoint => endPoint;
@@ -24,7 +24,7 @@ namespace UnitBrains.Pathfinding
             return path;
         }
 
-        public Vector2Int GetNextStepFrom(Vector2Int unitPos)
+        public virtual Vector2Int GetNextStepFrom(Vector2Int unitPos)
         {
             var found = false;
             foreach (var cell in GetPath())

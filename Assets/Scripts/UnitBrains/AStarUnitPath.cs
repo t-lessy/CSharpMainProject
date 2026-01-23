@@ -62,6 +62,7 @@ namespace UnitBrains.Pathfinding
         {
 
             if (_currentPosition != currentPos)
+
             {
                 _currentPosition = currentPos;
                 path = null;
