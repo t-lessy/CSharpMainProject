@@ -60,6 +60,7 @@ namespace UnitBrains.Pathfinding
 
         public override Vector2Int GetNextStepFrom(Vector2Int currentPos)
         {
+
             if (_currentPosition != currentPos)
             {
                 _currentPosition = currentPos;
@@ -84,6 +85,7 @@ namespace UnitBrains.Pathfinding
                     {
                         return path[i + 1];
                     }
+
                     break;
                 }
             }
