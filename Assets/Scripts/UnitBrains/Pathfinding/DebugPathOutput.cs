@@ -33,7 +33,6 @@ namespace UnitBrains.Pathfinding
 
         private IEnumerator HighlightCoroutine(BaseUnitPath path)
         {
-
             var pathPoints = path.GetPath().ToArray();
 
             foreach (var point in pathPoints)
