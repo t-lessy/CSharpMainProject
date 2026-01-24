@@ -49,5 +49,25 @@ namespace UnitBrains.Pathfinding
             Destroy(allHighlights[index]);
             allHighlights.RemoveAt(index);
         }
+
+        private IEnumerator HighlightCoroutine(BaseUnitPath path)
+        {
+            // небольшая задержка, чтобы визуально было видно "прокладку"
+            var delay = new WaitForSeconds(0.03f);
+
+            foreach (var cell in path.GetPath())
+            {
+                CreateHighlight(cell);
+
+                // ограничиваем количество подсветок
+                while (allHighlights.Count > maxHighlights)
+                {
+                    DestroyHighlight(0);
+                }
+
+                // подсветка "по кадрам" с небольшой задержкой
+                yield return delay;
+            }
+        }
     }
 }
