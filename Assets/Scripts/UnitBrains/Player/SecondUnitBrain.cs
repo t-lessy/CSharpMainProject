@@ -52,6 +52,7 @@ namespace UnitBrains.Player
 
         public override Vector2Int GetNextStep()
         {
+            base.GetNextStep();
             var target = _priorityTarget.Count > 0 ? _priorityTarget[0] : unit.Pos;
             
             return IsTargetInRange(target) ? unit.Pos : unit.Pos.CalcNextStepTowards(target);
