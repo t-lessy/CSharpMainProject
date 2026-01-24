@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using Codice.CM.Client.Differences.Merge;
+using System.Linq;
 using Model.Runtime.Projectiles;
 using UnityEngine;
 
@@ -50,17 +50,34 @@ namespace UnitBrains.Player
 
         protected override List<Vector2Int> SelectTargets()
         {
-            ///////////////////////////////////////
-            // Homework 1.4 (1st block, 4rd module)
-            ///////////////////////////////////////
-            List<Vector2Int> result = GetReachableTargets();
-            while (result.Count > 1)
+        ///////////////////////////////////////
+        // Homework 1.4 (1st block, 4rd module)
+        ///////////////////////////////////////
+        List<Vector2Int> allTargets = GetAllTargets().ToList();
+        if (allTargets.Count == 0)
+            return allTargets;
+
+        float minDistance = float.MaxValue;
+        Vector2Int mostDangerousTarget = allTargets[0];
+
+        foreach (Vector2Int target in allTargets)
+        {
+            float distance = DistanceToOwnBase(target);
+            if (distance < minDistance)
             {
-                result.RemoveAt(result.Count - 1);
+                minDistance = distance;
+                mostDangerousTarget = target;
             }
-            return result;
-            ///////////////////////////////////////
         }
+
+        var result = new List<Vector2Int>();
+        if (IsTargetInRange(mostDangerousTarget))
+            result.Add(mostDangerousTarget);
+
+        return result;
+        }
+            ///////////////////////////////////////
+        
 
         public override void Update(float deltaTime, float time)
         {
