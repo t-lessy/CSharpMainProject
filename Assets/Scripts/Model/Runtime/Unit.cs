@@ -3,6 +3,7 @@ using System.Linq;
 using Model.Config;
 using Model.Runtime.Projectiles;
 using Model.Runtime.ReadOnly;
+using Model.Runtime;
 using UnitBrains;
 using UnitBrains.Pathfinding;
 using UnityEngine;
@@ -49,16 +50,22 @@ namespace Model.Runtime
                 _nextBrainUpdateTime = time + Config.BrainUpdateInterval;
                 _brain.Update(deltaTime, time);
             }
-            
+
             if (_nextMoveTime < time)
             {
-                _nextMoveTime = time + Config.MoveDelay;
+                var buffSystem = ServiceLocator.Get<BuffSystem>();
+                var movementModifier = buffSystem.GetMovementSpeedModifier(this);
+                var adjustedMoveDelay = Config.MoveDelay / movementModifier;
+                _nextMoveTime = time + adjustedMoveDelay;
                 Move();
             }
-            
+
             if (_nextAttackTime < time && Attack())
             {
-                _nextAttackTime = time + Config.AttackDelay;
+                var buffSystem = ServiceLocator.Get<BuffSystem>();
+                var attackModifier = buffSystem.GetAttackSpeedModifier(this);
+                var adjustedAttackDelay = Config.AttackDelay / attackModifier;
+                _nextAttackTime = time + adjustedAttackDelay;
             }
         }
 
