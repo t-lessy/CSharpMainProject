@@ -7,7 +7,7 @@ using UnitBrains.Pathfinding;
 using UnityEngine;
 using Utilities;
 using Unit = Model.Runtime.Unit;
-using UnitBrains.Player; // добавлено для доступа к координатору
+using UnitBrains.Player; // использует интерфейс координатора
 
 namespace UnitBrains
 {
@@ -20,6 +20,9 @@ namespace UnitBrains
         protected Unit unit { get; private set; }
         protected IReadOnlyRuntimeModel runtimeModel => ServiceLocator.Get<IReadOnlyRuntimeModel>();
         private BaseUnitPath _activePath = null;
+
+        // координатор, переданный извне (не синглтон)
+        protected IPlayerUnitsCoordinator _coordinator;
 
         private readonly Vector2[] _projectile_shifts = new Vector2[]
         {
@@ -67,6 +70,12 @@ namespace UnitBrains
             this.unit = unit;
         }
 
+        // Новый метод: установить координатор (вызывается из Unit при создании)
+        public virtual void SetCoordinator(IPlayerUnitsCoordinator coordinator)
+        {
+            _coordinator = coordinator;
+        }
+
         public virtual void Update(float deltaTime, float time)
         {
         }
@@ -83,8 +92,12 @@ namespace UnitBrains
         {
             var result = GetReachableTargets();
 
-            var coordinator = PlayerUnitsCoordinatorSingleton.Instance;
-            var recUnit = coordinator?.RecommendedTargetUnit;
+            // используем явно переданный координатор, если есть, иначе пробуем ServiceLocator
+            IPlayerUnitsCoordinator coordinator = _coordinator;
+            if (coordinator == null && ServiceLocator.Contains<IPlayerUnitsCoordinator>())
+                coordinator = ServiceLocator.Get<IPlayerUnitsCoordinator>();
+
+            var recUnit = coordinator?.RecommendedTargetUnit ?? PlayerUnitsCoordinatorSingletonFallback.RecommendedTargetUnit;
             if (recUnit != null)
             {
                 var diff = recUnit.Pos - unit.Pos;

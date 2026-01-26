@@ -7,18 +7,19 @@ using Utilities;
 
 namespace UnitBrains.Player
 {
-    /// <summary>
-    /// ѕростой синглтон-координатор рекомендаций дл€ юнитов игрока.
-    /// ƒоступ к IReadOnlyRuntimeModel и TimeUtil через ServiceLocator.
-    ///  эширует рекомендации и обновл€ет их периодически через TimeUtil.
-    /// </summary>
-    public sealed class PlayerUnitsCoordinatorSingleton
+    public interface IPlayerUnitsCoordinator
     {
-        private static readonly Lazy<PlayerUnitsCoordinatorSingleton> _instance =
-            new Lazy<PlayerUnitsCoordinatorSingleton>(() => new PlayerUnitsCoordinatorSingleton());
+        IReadOnlyUnit RecommendedTargetUnit { get; }
+        Vector2Int RecommendedPoint { get; }
+    }
 
-        public static PlayerUnitsCoordinatorSingleton Instance => _instance.Value;
-
+    /// <summary>
+    ///  оординатор юнитов Ч теперь не синглтон, можно создавать несколько инстансов.
+    /// ћен€ет поведение из оригинального PlayerUnitsCoordinatorSingleton, но принимает
+    /// зависимости через конструктор и работает в контексте конкретного игрока.
+    /// </summary>
+    public sealed class PlayerUnitsCoordinator : IPlayerUnitsCoordinator
+    {
         private readonly IReadOnlyRuntimeModel _runtimeModel;
         private readonly TimeUtil _timeUtil;
 
@@ -28,19 +29,15 @@ namespace UnitBrains.Player
         private IReadOnlyUnit _cachedRecommendedUnit;
         private Vector2Int _cachedRecommendedPoint;
 
-        private PlayerUnitsCoordinatorSingleton()
+        private readonly bool _forPlayer; // true => coordinates for PlayerId, false => for BotPlayerId
+
+        public PlayerUnitsCoordinator(IReadOnlyRuntimeModel runtimeModel, TimeUtil timeUtil, bool forPlayer)
         {
-            // ѕолучаем сервисы Ч если их нет, оставл€ем ссылки null и не подписываемс€
-            if (ServiceLocator.Contains<IReadOnlyRuntimeModel>())
-                _runtimeModel = ServiceLocator.Get<IReadOnlyRuntimeModel>();
+            _runtimeModel = runtimeModel ?? throw new ArgumentNullException(nameof(runtimeModel));
+            _timeUtil = timeUtil ?? throw new ArgumentNullException(nameof(timeUtil));
+            _forPlayer = forPlayer;
 
-            if (ServiceLocator.Contains<TimeUtil>())
-            {
-                _timeUtil = ServiceLocator.Get<TimeUtil>();
-                _timeUtil.AddUpdateAction(OnUpdate);
-            }
-
-            // »нициалный расчЄт, если модель доступна
+            _timeUtil.AddUpdateAction(OnUpdate);
             Recalculate();
         }
 
@@ -63,32 +60,29 @@ namespace UnitBrains.Player
                 return;
             }
 
-            // —писок врагов (не наши)
-            var enemies = _runtimeModel.RoUnits.Where(u => !u.Config.IsPlayerUnit).ToList();
-            var ourBase = _runtimeModel.RoMap.Bases[RuntimeModel.PlayerId];
-            var enemyBase = _runtimeModel.RoMap.Bases[RuntimeModel.BotPlayerId];
+            var ourBase = _runtimeModel.RoMap.Bases[_forPlayer ? RuntimeModel.PlayerId : RuntimeModel.BotPlayerId];
+            var enemyBase = _runtimeModel.RoMap.Bases[_forPlayer ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId];
+
+            // enemies are units that belong to the opposite side
+            var enemies = _runtimeModel.RoUnits.Where(u => u.Config.IsPlayerUnit != _forPlayer).ToList();
 
             if (!enemies.Any())
             {
                 _cachedRecommendedUnit = null;
-                // если врагов нет Ч рекомендуем идти к вражеской базе
                 _cachedRecommendedPoint = enemyBase;
                 return;
             }
 
-            // ¬раги на нашей "половине" Ч ближе к нашей базе, чем к вражеской
             var enemiesOnOurHalf = enemies
                 .Where(e => Vector2Int.Distance(e.Pos, ourBase) < Vector2Int.Distance(e.Pos, enemyBase))
                 .ToList();
 
             if (enemiesOnOurHalf.Any())
             {
-                // рекомендованна€ цель = ближайший к нашей базе враг на нашей половине
                 _cachedRecommendedUnit = enemiesOnOurHalf
                     .OrderBy(e => Vector2Int.Distance(e.Pos, ourBase))
                     .First();
 
-                // рекомендованна€ точка Ч "перед базой": один шаг от базы в сторону вражеской базы
                 var dirX = Math.Sign(enemyBase.x - ourBase.x);
                 var dirY = Math.Sign(enemyBase.y - ourBase.y);
                 var recommended = ourBase + new Vector2Int(dirX, dirY);
@@ -96,13 +90,10 @@ namespace UnitBrains.Player
                 return;
             }
 
-            // »наче: цель = враг с наименьшим здоровьем
             _cachedRecommendedUnit = enemies.OrderBy(e => e.Health).First();
 
-            // –екомендуема€ точка: на рассто€нии выстрела от ближайшего к базе врага (в сторону нашей базы)
             var nearestToBase = enemies.OrderBy(e => Vector2Int.Distance(e.Pos, ourBase)).First();
 
-            // Ќаходим минимальный радиус атаки среди наших юнитов (если есть) Ч иначе берЄм 3
             float defaultAttackRange = 3f;
             float minAttackRange = defaultAttackRange;
             try
@@ -116,7 +107,6 @@ namespace UnitBrains.Player
                 minAttackRange = defaultAttackRange;
             }
 
-            // convert to Vector2 for proper normalization and arithmetic
             var dirToOurBase = (Vector2)(ourBase - nearestToBase.Pos);
             var len = dirToOurBase.magnitude;
             if (len <= 0.0001f)
@@ -130,7 +120,6 @@ namespace UnitBrains.Player
             }
         }
 
-        // ѕубличные свойства Ч дают кэшированную рекомендацию
         public IReadOnlyUnit RecommendedTargetUnit => _cachedRecommendedUnit;
         public Vector2Int RecommendedPoint => _cachedRecommendedPoint;
     }

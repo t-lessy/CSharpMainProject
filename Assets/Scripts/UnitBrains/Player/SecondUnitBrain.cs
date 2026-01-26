@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnitBrains.Pathfinding;
 using UnityEngine;
+using Utilities;
 
 namespace UnitBrains.Player
 {
@@ -17,7 +18,12 @@ namespace UnitBrains.Player
             if (HasTargetsInRange())
                 return unit.Pos;
 
-            var coordPoint = PlayerUnitsCoordinatorSingleton.Instance.RecommendedPoint;
+            // Получаем координатор через ServiceLocator, если он зарегистрирован
+            IPlayerUnitsCoordinator coord = null;
+            if (ServiceLocator.Contains<IPlayerUnitsCoordinator>())
+                coord = ServiceLocator.Get<IPlayerUnitsCoordinator>();
+
+            Vector2Int coordPoint = (coord != null) ? coord.RecommendedPoint : PlayerUnitsCoordinatorSingletonFallback.RecommendedPoint;
 
             // создаём небольшой детерминированный оффсет, зависящий от позиции юнита,
             // чтобы юниты распределялись вокруг рекомендованной точки
@@ -37,6 +43,32 @@ namespace UnitBrains.Player
             // По умолчанию — используем логику базового мозга,
             // но можно расширить поведение под SecondUnit (в будущем).
             return base.SelectTargets();
+        }
+    }
+
+    // Ведём лёгкую совместимость: если код ещё обращается к старому синглтону через класс,
+    // предоставим fallback-статик, использующий ServiceLocator при доступности, иначе
+    // возвращающий /0. Это временная мера, чтобы рефакторинг был постепенным.
+    internal static class PlayerUnitsCoordinatorSingletonFallback
+    {
+        public static Vector2Int RecommendedPoint
+        {
+            get
+            {
+                if (ServiceLocator.Contains<IPlayerUnitsCoordinator>())
+                    return ServiceLocator.Get<IPlayerUnitsCoordinator>().RecommendedPoint;
+                return Vector2Int.zero;
+            }
+        }
+
+        public static Model.Runtime.ReadOnly.IReadOnlyUnit RecommendedTargetUnit
+        {
+            get
+            {
+                if (ServiceLocator.Contains<IPlayerUnitsCoordinator>())
+                    return ServiceLocator.Get<IPlayerUnitsCoordinator>().RecommendedTargetUnit;
+                return null;
+            }
         }
     }
 }
