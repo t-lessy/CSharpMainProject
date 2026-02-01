@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Collections.Generic;
 using UnityEngine;
-
+//
 namespace Model.Runtime
 {
     public class BuffSystem
@@ -18,7 +18,7 @@ namespace Model.Runtime
             }
 
             _unitBuffs[unit].Add(buff);
-            Debug.Log($"[BuffSystem] Added buff to {unit.Config.Name}: {buff.GetDescription()}");
+            Debug.Log($"[BuffSystem] Бафнут {unit.Config.Name}: {buff.GetDescription()}");
         }
 
         public void RemoveUnit(Unit unit)
@@ -89,7 +89,7 @@ namespace Model.Runtime
                 foreach (var buff in buffsToRemove)
                 {
                     buffs.Remove(buff);
-                    Debug.Log($"[BuffSystem] Removed buff from {unit.Config.Name}: {buff.GetDescription()}");
+                    Debug.Log($"[BuffSystem] Убран бафф {unit.Config.Name}: {buff.GetDescription()}");
                 }
 
                 if (buffs.Count == 0)

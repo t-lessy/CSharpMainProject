@@ -16,7 +16,7 @@ namespace UnitBrains.Pathfinding
 
         public void HighlightPath(BaseUnitPath path)
         {
-            Debug.Log("HighlightPath called!", this);  // Проверка на то вызывается ли хайлайт
+            //Debug.Log("HighlightPath called!", this);  // Проверка на то вызывается ли хайлайт
             Path = path;
             while (allHighlights.Count > 0)
             {
