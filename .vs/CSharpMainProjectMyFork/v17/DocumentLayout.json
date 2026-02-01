@@ -1,12 +1,118 @@
 {
   "Version": 1,
   "WorkspaceRootPath": "E:\\XYZ\\Fork\\CSharpMainProjectMyFork\\",
-  "Documents": [],
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{CF148AF5-0DF0-FFD6-354A-FB3465FEF81D}|Assembly-CSharp.csproj|e:\\xyz\\fork\\csharpmainprojectmyfork\\assets\\effectmanagerbootstrap.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{CF148AF5-0DF0-FFD6-354A-FB3465FEF81D}|Assembly-CSharp.csproj|solutionrelative:assets\\effectmanagerbootstrap.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{C12C09C7-888C-7364-148B-3BC33A05AB3F}|Root.csproj|e:\\xyz\\fork\\csharpmainprojectmyfork\\assets\\scripts\\unitbrains\\player\\skybufferunitbrain.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{C12C09C7-888C-7364-148B-3BC33A05AB3F}|Root.csproj|solutionrelative:assets\\scripts\\unitbrains\\player\\skybufferunitbrain.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{C12C09C7-888C-7364-148B-3BC33A05AB3F}|Root.csproj|E:\\XYZ\\Fork\\CSharpMainProjectMyFork\\assets\\scripts\\enterpoint.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{C12C09C7-888C-7364-148B-3BC33A05AB3F}|Root.csproj|solutionrelative:assets\\scripts\\enterpoint.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{C12C09C7-888C-7364-148B-3BC33A05AB3F}|Root.csproj|E:\\XYZ\\Fork\\CSharpMainProjectMyFork\\assets\\scripts\\model\\runtime\\effects\\effectmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{C12C09C7-888C-7364-148B-3BC33A05AB3F}|Root.csproj|solutionrelative:assets\\scripts\\model\\runtime\\effects\\effectmanager.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{C12C09C7-888C-7364-148B-3BC33A05AB3F}|Root.csproj|E:\\XYZ\\Fork\\CSharpMainProjectMyFork\\assets\\scripts\\model\\runtime\\unit.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{C12C09C7-888C-7364-148B-3BC33A05AB3F}|Root.csproj|solutionrelative:assets\\scripts\\model\\runtime\\unit.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{C12C09C7-888C-7364-148B-3BC33A05AB3F}|Root.csproj|E:\\XYZ\\Fork\\CSharpMainProjectMyFork\\assets\\scripts\\model\\runtime\\unitnamespacebridge.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{C12C09C7-888C-7364-148B-3BC33A05AB3F}|Root.csproj|solutionrelative:assets\\scripts\\model\\runtime\\unitnamespacebridge.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
   "DocumentGroupContainers": [
     {
       "Orientation": 0,
       "VerticalTabListWidth": 256,
-      "DocumentGroups": []
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "EffectManagerBootstrap.cs",
+              "DocumentMoniker": "E:\\XYZ\\Fork\\CSharpMainProjectMyFork\\Assets\\EffectManagerBootstrap.cs",
+              "RelativeDocumentMoniker": "Assets\\EffectManagerBootstrap.cs",
+              "ToolTip": "E:\\XYZ\\Fork\\CSharpMainProjectMyFork\\Assets\\EffectManagerBootstrap.cs",
+              "RelativeToolTip": "Assets\\EffectManagerBootstrap.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAsAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-29T21:08:23.061Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "EnterPoint.cs",
+              "DocumentMoniker": "E:\\XYZ\\Fork\\CSharpMainProjectMyFork\\Assets\\Scripts\\EnterPoint.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\EnterPoint.cs",
+              "ToolTip": "E:\\XYZ\\Fork\\CSharpMainProjectMyFork\\Assets\\Scripts\\EnterPoint.cs",
+              "RelativeToolTip": "Assets\\Scripts\\EnterPoint.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAABQAAABKAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-29T20:27:42.499Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "SkyBufferUnitBrain.cs",
+              "DocumentMoniker": "E:\\XYZ\\Fork\\CSharpMainProjectMyFork\\Assets\\Scripts\\UnitBrains\\Player\\SkyBufferUnitBrain.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\UnitBrains\\Player\\SkyBufferUnitBrain.cs",
+              "ToolTip": "E:\\XYZ\\Fork\\CSharpMainProjectMyFork\\Assets\\Scripts\\UnitBrains\\Player\\SkyBufferUnitBrain.cs",
+              "RelativeToolTip": "Assets\\Scripts\\UnitBrains\\Player\\SkyBufferUnitBrain.cs",
+              "ViewState": "AQIAACoAAAAAAAAAAAAUwEYAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-29T18:55:28.422Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "EffectManager.cs",
+              "DocumentMoniker": "E:\\XYZ\\Fork\\CSharpMainProjectMyFork\\Assets\\Scripts\\Model\\Runtime\\Effects\\EffectManager.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\Model\\Runtime\\Effects\\EffectManager.cs",
+              "ToolTip": "E:\\XYZ\\Fork\\CSharpMainProjectMyFork\\Assets\\Scripts\\Model\\Runtime\\Effects\\EffectManager.cs",
+              "RelativeToolTip": "Assets\\Scripts\\Model\\Runtime\\Effects\\EffectManager.cs",
+              "ViewState": "AQIAABoAAAAAAAAAAAAUwDYAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-29T18:49:38.994Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "UnitNamespaceBridge.cs",
+              "DocumentMoniker": "E:\\XYZ\\Fork\\CSharpMainProjectMyFork\\Assets\\Scripts\\Model\\Runtime\\UnitNamespaceBridge.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\Model\\Runtime\\UnitNamespaceBridge.cs",
+              "ToolTip": "E:\\XYZ\\Fork\\CSharpMainProjectMyFork\\Assets\\Scripts\\Model\\Runtime\\UnitNamespaceBridge.cs",
+              "RelativeToolTip": "Assets\\Scripts\\Model\\Runtime\\UnitNamespaceBridge.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAABIAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-28T20:13:07.702Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "Unit.cs",
+              "DocumentMoniker": "E:\\XYZ\\Fork\\CSharpMainProjectMyFork\\Assets\\Scripts\\Model\\Runtime\\Unit.cs",
+              "RelativeDocumentMoniker": "Assets\\Scripts\\Model\\Runtime\\Unit.cs",
+              "ToolTip": "E:\\XYZ\\Fork\\CSharpMainProjectMyFork\\Assets\\Scripts\\Model\\Runtime\\Unit.cs",
+              "RelativeToolTip": "Assets\\Scripts\\Model\\Runtime\\Unit.cs",
+              "ViewState": "AQIAAIMAAAAAAAAAAAAAAIMAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-01-28T19:45:34.733Z"
+            }
+          ]
+        }
+      ]
     }
   ]
 }
