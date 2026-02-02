@@ -27,7 +27,12 @@ namespace Model.Runtime
         private float _nextBrainUpdateTime = 0f;
         private float _nextMoveTime = 0f;
         private float _nextAttackTime = 0f;
-        
+
+        private float _moveDelayMultiplier = 1f;
+        private float _attackDelayMultiplier = 1f;
+        private float _attackRangeMultiplier = 1f;
+        private int _extraShots = 0;
+
         public Unit(UnitConfig config, Vector2Int startPos)
         {
             Config = config;
@@ -36,9 +41,6 @@ namespace Model.Runtime
             _brain = UnitBrainProvider.GetBrain(config);
             _brain.SetUnit(this);
             _runtimeModel = ServiceLocator.Get<IReadOnlyRuntimeModel>();
-
-            // Если в ServiceLocator есть IBuffSystem, регистрировать себя не требуется,
-            // Unit будет запрашивать множители при обновлениях.
         }
 
         public void SetBrainCoordinator(UnitBrains.Player.IPlayerUnitsCoordinator coordinator)
@@ -50,51 +52,22 @@ namespace Model.Runtime
         {
             if (IsDead)
                 return;
-            
+
             if (_nextBrainUpdateTime < time)
             {
                 _nextBrainUpdateTime = time + Config.BrainUpdateInterval;
                 _brain.Update(deltaTime, time);
             }
-            
+
             if (_nextMoveTime < time)
             {
-                // учитываем баффы/дебаффы на скорость передвижения
-                var moveMultiplier = 1f;
-
-                var ibuffType = Type.GetType("Utilities.IBuffSystem");
-                if (ibuffType != null && ServiceLocator.TryGet(ibuffType, out var ibuffObj) && ibuffObj != null)
-                {
-                    var method = ibuffType.GetMethod("GetMovementMultiplier");
-                    if (method != null)
-                    {
-                        var res = method.Invoke(ibuffObj, new object[] { this });
-                        if (res is float f)
-                            moveMultiplier = f;
-                    }
-                }
-
-                _nextMoveTime = time + Config.MoveDelay * moveMultiplier;
+                _nextMoveTime = time + GetMoveDelay();
                 Move();
             }
-            
+
             if (_nextAttackTime < time && Attack())
             {
-                var attackMultiplier = 1f;
-
-                var ibuffType = Type.GetType("Utilities.IBuffSystem");
-                if (ibuffType != null && ServiceLocator.TryGet(ibuffType, out var ibuffObj) && ibuffObj != null)
-                {
-                    var method = ibuffType.GetMethod("GetAttackMultiplier");
-                    if (method != null)
-                    {
-                        var res = method.Invoke(ibuffObj, new object[] { this });
-                        if (res is float f)
-                            attackMultiplier = f;
-                    }
-                }
-
-                _nextAttackTime = time + Config.AttackDelay * attackMultiplier;
+                _nextAttackTime = time + GetAttackDelay();
             }
         }
 
@@ -103,7 +76,7 @@ namespace Model.Runtime
             var projectiles = _brain.GetProjectiles();
             if (projectiles == null || projectiles.Count == 0)
                 return false;
-            
+
             _pendingProjectiles.AddRange(projectiles);
             return true;
         }
@@ -123,7 +96,7 @@ namespace Model.Runtime
             {
                 return;
             }
-            
+
             Pos = targetPos;
         }
 
@@ -136,5 +109,30 @@ namespace Model.Runtime
         {
             Health -= projectileDamage;
         }
+
+        public void SetMoveDelayMultiplier(float mult)
+        {
+            _moveDelayMultiplier = mult;
+        }
+
+        public void SetAttackDelayMultiplier(float mult)
+        {
+            _attackDelayMultiplier = mult;
+        }
+
+        public void SetAttackRangeMultiplier(float mult)
+        {
+            _attackRangeMultiplier = mult;
+        }
+
+        public void SetExtraShots(int extra)
+        {
+            _extraShots = extra;
+        }
+
+        public float GetMoveDelay() => Config.MoveDelay * _moveDelayMultiplier;
+        public float GetAttackDelay() => Config.AttackDelay * _attackDelayMultiplier;
+        public float GetAttackRange() => Config.AttackRange * _attackRangeMultiplier;
+        public int GetShotsCount() => Math.Max(1, 1 + _extraShots);
     }
 }

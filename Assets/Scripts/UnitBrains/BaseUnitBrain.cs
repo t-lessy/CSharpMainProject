@@ -82,7 +82,9 @@ namespace UnitBrains
 
         protected virtual void GenerateProjectiles(Vector2Int forTarget, List<BaseProjectile> intoList)
         {
-            AddProjectileToList(CreateProjectile(forTarget), intoList);
+            int shots = unit.GetShotsCount();
+            for (int i = 0; i < shots; i++)
+                AddProjectileToList(CreateProjectile(forTarget), intoList);
         }
 
         // Изменено: учитываем рекомендацию координатора.
@@ -101,7 +103,7 @@ namespace UnitBrains
             if (recUnit != null)
             {
                 var diff = recUnit.Pos - unit.Pos;
-                var allowedRange = unit.Config.AttackRange * 2f;
+                var allowedRange = unit.GetAttackRange() * 2f;
                 if (diff.sqrMagnitude <= allowedRange * allowedRange)
                 {
                     if (!result.Contains(recUnit.Pos))
@@ -149,7 +151,7 @@ namespace UnitBrains
 
         protected bool HasTargetsInRange()
         {
-            var attackRangeSqr = unit.Config.AttackRange * unit.Config.AttackRange;
+            var attackRangeSqr = unit.GetAttackRange() * unit.GetAttackRange();
             foreach (var possibleTarget in GetAllTargets())
             {
                 var diff = possibleTarget - unit.Pos;
@@ -176,7 +178,7 @@ namespace UnitBrains
 
         protected bool IsTargetInRange(Vector2Int targetPos)
         {
-            var attackRangeSqr = unit.Config.AttackRange * unit.Config.AttackRange;
+            var attackRangeSqr = unit.GetAttackRange() * unit.GetAttackRange();
             var diff = targetPos - unit.Pos;
             return diff.sqrMagnitude <= attackRangeSqr;
         }
@@ -184,7 +186,7 @@ namespace UnitBrains
         protected List<Vector2Int> GetReachableTargets()
         {
             var result = new List<Vector2Int>();
-            var attackRangeSqr = unit.Config.AttackRange * unit.Config.AttackRange;
+            var attackRangeSqr = unit.GetAttackRange() * unit.GetAttackRange();
             foreach (var possibleTarget in GetAllTargets())
             {
                 if (!IsTargetInRange(possibleTarget))

@@ -1,4 +1,5 @@
-using System;
+﻿using System;
+using UnitBrains;
 using Model.Runtime;
 
 namespace Utilities
@@ -31,21 +32,27 @@ namespace Utilities
 
         public bool IsExpired => RemainingTime <= 0f;
 
-        void IBuff.ApplyTo(Unit unit)
+        public bool CanApplyTo(Unit unit)
+        {
+            if (unit is TUnit tu)
+                return CanApplyTo(tu);
+            return false;
+        }
+
+        public void ApplyTo(Unit unit)
         {
             if (unit is TUnit tu)
                 Apply(tu);
         }
 
-        void IBuff.RemoveFrom(Unit unit)
+        public void RemoveFrom(Unit unit)
         {
             if (unit is TUnit tu)
                 Remove(tu);
         }
 
-        bool IBuff.CanApplyTo(Unit unit) => CanApplyTo(unit as TUnit);
-
         protected virtual bool CanApplyTo(TUnit unit) => true;
+        bool IBuff.CanApplyTo(Unit unit) => CanApplyTo(unit as TUnit);
 
         protected abstract void Apply(TUnit unit);
         protected abstract void Remove(TUnit unit);
