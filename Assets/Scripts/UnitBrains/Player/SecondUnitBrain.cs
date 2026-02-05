@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Model;
 using Model.Runtime.Projectiles;
 using UnityEngine;
+using Utilities;
 
 namespace UnitBrains.Player
 {
@@ -13,6 +15,7 @@ namespace UnitBrains.Player
         private float _temperature = 0f;
         private float _cooldownTime = 0f;
         private bool _overheated;
+        private List<Vector2Int> _unreacheableTargets = new();
         
         protected override void GenerateProjectiles(Vector2Int forTarget, List<BaseProjectile> intoList)
         {
@@ -41,7 +44,11 @@ namespace UnitBrains.Player
 
         public override Vector2Int GetNextStep()
         {
-            return base.GetNextStep();
+            if (_unreacheableTargets.Count > 0)
+            {
+                return unit.Pos.CalcNextStepTowards(_unreacheableTargets.First());
+            }
+            return unit.Pos;
         }
 
         protected override List<Vector2Int> SelectTargets()
@@ -49,16 +56,26 @@ namespace UnitBrains.Player
             ///////////////////////////////////////
             // Homework 1.4 (1st block, 4rd module)
             ///////////////////////////////////////
-            List<Vector2Int> result = GetReachableTargets();
+            IEnumerable<Vector2Int> allTargets = GetAllTargets();
+            List<Vector2Int> result = new List<Vector2Int>();
             
-            if (result.Count > 0)
+            if (allTargets.Any())
             {
-                result = new List<Vector2Int>
+                Vector2Int mostDangerousTarget = allTargets
+                    .OrderBy(DistanceToOwnBase)
+                    .First();
+                if (IsTargetInRange(mostDangerousTarget))
                 {
-                    result
-                        .OrderBy(DistanceToOwnBase)
-                        .First()
-                };
+                    result.Add(mostDangerousTarget);
+                }
+                else
+                {
+                    _unreacheableTargets.Add(mostDangerousTarget);
+                }
+            }
+            else
+            {
+                result.Add(runtimeModel.RoMap.Bases[RuntimeModel.BotPlayerId]);
             }
 
             return result;
