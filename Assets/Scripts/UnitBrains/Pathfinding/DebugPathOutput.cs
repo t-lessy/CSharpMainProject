@@ -32,26 +32,6 @@ namespace UnitBrains.Pathfinding
 
         private IEnumerator HighlightCoroutine(BaseUnitPath path)
         {
-            // TODO Implement me
-            yield break;
-        }
-
-        private void CreateHighlight(Vector2Int atCell)
-        {
-            var pos = Gameplay3dView.ToWorldPosition(atCell, 1f);
-            var highlight = Instantiate(cellHighlightPrefab, pos, Quaternion.identity);
-            highlight.transform.SetParent(transform);
-            allHighlights.Add(highlight);
-        }
-
-        private void DestroyHighlight(int index)
-        {
-            Destroy(allHighlights[index]);
-            allHighlights.RemoveAt(index);
-        }
-
-        private IEnumerator HighlightCoroutine(BaseUnitPath path)
-        {
             // небольшая задержка, чтобы визуально было видно "прокладку"
             var delay = new WaitForSeconds(0.03f);
 
@@ -68,6 +48,20 @@ namespace UnitBrains.Pathfinding
                 // подсветка "по кадрам" с небольшой задержкой
                 yield return delay;
             }
+        }
+
+        private void CreateHighlight(Vector2Int atCell)
+        {
+            var pos = Gameplay3dView.ToWorldPosition(atCell, 1f);
+            var highlight = Instantiate(cellHighlightPrefab, pos, Quaternion.identity);
+            highlight.transform.SetParent(transform);
+            allHighlights.Add(highlight);
+        }
+
+        private void DestroyHighlight(int index)
+        {
+            Destroy(allHighlights[index]);
+            allHighlights.RemoveAt(index);
         }
     }
 }
