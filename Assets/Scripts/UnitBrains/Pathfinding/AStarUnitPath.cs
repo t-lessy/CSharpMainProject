@@ -25,7 +25,7 @@ namespace UnitBrains.Pathfinding
         {
             var goal = ResolveGoal(endPoint);
 
-            if (!IsWalkableOrGoal(startPoint, goal))
+            if (startPoint == goal)
             {
                 path = new[] { startPoint };
                 return;
@@ -48,6 +48,8 @@ namespace UnitBrains.Pathfinding
 
             const int MAX_ITERS = 20000;
             var iters = 0;
+            var bestSoFar = startPoint;
+            var bestSoFarH = Heuristic(startPoint, goal);
 
             while (open.Count > 0)
             {
@@ -59,6 +61,12 @@ namespace UnitBrains.Pathfinding
                 }
 
                 var current = SelectBest(open, fScore, goal);
+                var currentH = Heuristic(current, goal);
+                if (currentH < bestSoFarH)
+                {
+                    bestSoFarH = currentH;
+                    bestSoFar = current;
+                }
 
                 if (current == goal)
                 {
@@ -99,7 +107,20 @@ namespace UnitBrains.Pathfinding
                 }
             }
 
-            path = new[] { startPoint };
+            if (bestSoFar != startPoint)
+                path = ReconstructPath(cameFrom, bestSoFar).ToArray();
+            else
+                path = new[] { startPoint };
+        }
+
+        private bool IsOccupiedByUnit(Vector2Int cell)
+        {
+            foreach (var u in runtimeModel.RoUnits)
+            {
+                if (u.Pos == cell)
+                    return true;
+            }
+            return false;
         }
 
         private Vector2Int ResolveGoal(Vector2Int desired)
@@ -107,32 +128,50 @@ namespace UnitBrains.Pathfinding
             if (runtimeModel.IsTileWalkable(desired))
                 return desired;
 
-            Vector2Int best = startPoint;
-            var found = false;
-            var bestH = int.MaxValue;
+            var visited = new HashSet<Vector2Int>();
+            var q = new Queue<Vector2Int>();
 
+            // стартуем не с desired (он непроходим), а с его соседей
             foreach (var dir in Directions)
             {
-                var candidate = desired + dir;
-                if (!runtimeModel.IsTileWalkable(candidate))
-                    continue;
+                var n = desired + dir;
+                if (visited.Add(n))
+                    q.Enqueue(n);
+            }
 
-                var h = Heuristic(startPoint, candidate);
-                if (h < bestH)
+            const int MAX_NODES = 5000; // защита
+            var processed = 0;
+
+            while (q.Count > 0 && processed++ < MAX_NODES)
+            {
+                var cur = q.Dequeue();
+                if (runtimeModel.IsTileWalkable(cur))
+                    return cur;
+
+                foreach (var dir in Directions)
                 {
-                    bestH = h;
-                    best = candidate;
-                    found = true;
+                    var n = cur + dir;
+                    if (visited.Add(n))
+                        q.Enqueue(n);
                 }
             }
 
-            return found ? best : startPoint;
+            // если совсем нет проходимых — возвращаем старт (пути нет)
+            return startPoint;
         }
 
         private bool IsWalkableOrGoal(Vector2Int cell, Vector2Int goal)
         {
+            if (cell == startPoint) return true;
             if (cell == goal) return true;
-            return runtimeModel.IsTileWalkable(cell);
+
+            if (!runtimeModel.IsTileWalkable(cell))
+                return false;
+
+            if (IsOccupiedByUnit(cell))
+                return false;
+
+            return true;
         }
 
         private static int Heuristic(Vector2Int a, Vector2Int b)
