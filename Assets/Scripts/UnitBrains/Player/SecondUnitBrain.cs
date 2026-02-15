@@ -19,6 +19,9 @@ namespace UnitBrains.Player
         private float _cooldownTime = 0f;
         private bool _overheated;
         private List<Vector2Int> UnreachableTargets = new List<Vector2Int>();
+        private static int count = 0;
+        private int UnitNumber = count++;
+        private const int MaxTargets = 3;
         
         protected override void GenerateProjectiles(Vector2Int forTarget, List<BaseProjectile> intoList)
         {
@@ -57,32 +60,28 @@ namespace UnitBrains.Player
             ///////////////////////////////////////
             UnreachableTargets.Clear();
             List<Vector2Int> result = GetAllTargets().ToList();
+            SortByDistanceToOwnBase(result);
+            Vector2Int mainresult = new Vector2Int();
             if (result.Count > 1)
-            {
-                float min = float.MaxValue;
-                Vector2Int minresult = new Vector2Int();
-                foreach (Vector2Int r in result)
+                for (int i = 0; i <= result.Count; i++)
                 {
-                    if (DistanceToOwnBase(r) < min)
-                    {
-                        min = DistanceToOwnBase(r); //Ближайшее расстояние от цели до базы
-                        minresult = r; //Координаты ближайшей до базы цели
-                    }
+                    Debug.Log(UnitNumber);
+                    int index;
+                    if (result.Count > MaxTargets)
+                        index = UnitNumber % MaxTargets;
+                    else
+                        index = UnitNumber % result.Count;
+                    mainresult = result[index];
 
                 }
-                result.Clear();
-                UnreachableTargets.Add(minresult);
-                if (GetReachableTargets().Contains(minresult))
-                    result.Add(minresult);
-            }
             else
-            {
-                result.Clear();
-                var enemyBase = runtimeModel.RoMap.Bases[IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId];
-                UnreachableTargets.Add(enemyBase);
-                result.Add(enemyBase);
-            }
-                return result;
+                mainresult = runtimeModel.RoMap.Bases[IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId];
+            result.Clear();
+            if (IsTargetInRange(mainresult))
+                result.Add(mainresult);
+            else
+                UnreachableTargets.Add(mainresult);
+            return result;
             ///////////////////////////////////////
         }
 
