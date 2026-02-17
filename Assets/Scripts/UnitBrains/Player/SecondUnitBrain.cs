@@ -1,6 +1,9 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
+using Model;
 using Model.Runtime.Projectiles;
 using UnityEngine;
+using Utilities;
 
 namespace UnitBrains.Player
 {
@@ -12,6 +15,15 @@ namespace UnitBrains.Player
         private float _temperature = 0f;
         private float _cooldownTime = 0f;
         private bool _overheated;
+        private int Unit;
+        private static int UnitPlus = 0;
+        private const int MaxUnit = 2;
+        Vector2Int Arack;
+        public SecondUnitBrain()
+        {
+            Unit = UnitPlus;
+            UnitPlus++;
+        }
 
         protected override void GenerateProjectiles(Vector2Int forTarget, List<BaseProjectile> intoList)
         {
@@ -39,7 +51,13 @@ namespace UnitBrains.Player
         public override Vector2Int GetNextStep()
         {
 
-            return base.GetNextStep();
+             if (Arack == default)
+                return unit.Pos;            
+            if (GetReachableTargets().Contains(Arack))
+                return unit.Pos;
+
+            
+            return unit.Pos.CalcNextStepTowards(Arack);
 
         }
 
@@ -49,27 +67,29 @@ namespace UnitBrains.Player
             // Homework 1.4 (1st block, 4rd module)
             ///////////////////////////////////////
             List<Vector2Int> result = GetReachableTargets();
-            while (result.Count > 1)
+            var Alter = GetAllTargets().ToList();
+            if (Alter.Any())
             {
-                result.RemoveAt(result.Count - 1);
+                var sort = Alter.OrderBy(DistanceToOwnBase).ToList();
+                int Res = Unit % MaxUnit;
+                Arack = Res < sort.Count() ? sort[Res] : sort.Last();
             }
-            float minDistance = float.MaxValue;
-            Vector2Int criticalTarget = Vector2Int.zero;
-            foreach (Vector2Int target in result)
+            else
             {
-                if (minDistance > DistanceToOwnBase(target))
-                {
-                    criticalTarget = target;
-                    minDistance = DistanceToOwnBase(target);
-                }
+                Arack = runtimeModel.RoMap.Bases[RuntimeModel.BotPlayerId];
             }
 
-            result.Clear();
-            if (minDistance != float.MaxValue)
-                result.Add(criticalTarget);
+
+            if (IsTargetInRange(Arack))
+            {
+                result.Add(Arack);
+            }
             return result;
-            ///////////////////////////////////////
         }
+
+            
+            ///////////////////////////////////////
+        
 
         public override void Update(float deltaTime, float time)
         {
