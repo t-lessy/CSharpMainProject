@@ -13,6 +13,7 @@ namespace UnitBrains.Player
         private BrainMode _mode = BrainMode.Move;
         private BrainMode _pendingMode = BrainMode.Move;
         private float _switchTimer = 0f;
+		private bool hasTargets = false;
         
         private void BeginSwitch(BrainMode to)
         {
@@ -36,8 +37,7 @@ namespace UnitBrains.Player
                 return;
             }
             
-            bool hasTargetsInRange = HasTargetsInRange();
-            var desired = hasTargetsInRange ? BrainMode.Attack : BrainMode.Move;
+            var desired = hasTargets ? BrainMode.Attack : BrainMode.Move;
             
             if (_mode != desired)
             {
@@ -47,10 +47,12 @@ namespace UnitBrains.Player
         
         protected override List<Vector2Int> SelectTargets()
         {
+            var result = base.SelectTargets();
+            hasTargets = result.Count > 0;
             if (_mode != BrainMode.Attack)
-                return new List<Vector2Int>();
+                result.Clear();
             
-            return base.SelectTargets();
+            return result;
         }
         
         public override Vector2Int GetNextStep()
