@@ -17,9 +17,10 @@ namespace UnitBrains.Player
         {
             float overheatTemperature = OverheatTemperature;
             ///////////////////////////////////////
-       IncreaseTemperature();
-if (GetTemperature() >= overheatTemperature) return;
-        for (int i = 0; i <= GetTemperature(); i++) ;
+      int t = GetTemperature();
+ if (t >= overheatTemperature) { return; }
+ IncreaseTemperature();
+ for (int i = 0; i <= t; i++) ;
             ///////////////////////////////////////           
             var projectile = CreateProjectile(forTarget);
             AddProjectileToList(projectile, intoList);
@@ -74,3 +75,4 @@ if (GetTemperature() >= overheatTemperature) return;
     }
 
 }
+
