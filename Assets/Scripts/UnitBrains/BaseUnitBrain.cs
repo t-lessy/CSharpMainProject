@@ -15,6 +15,7 @@ namespace UnitBrains
         public virtual string TargetUnitName => string.Empty;
         public virtual bool IsPlayerUnitBrain => true;
         public virtual BaseUnitPath ActivePath => _activePath;
+        protected Commander commander => Commander.GetInstance();
 
         protected Unit unit { get; private set; }
         protected IReadOnlyRuntimeModel runtimeModel => ServiceLocator.Get<IReadOnlyRuntimeModel>();
@@ -41,6 +42,7 @@ namespace UnitBrains
 
             _activePath = new AStarUnitPath(runtimeModel, unit.Pos, target);
             return _activePath.GetNextStepFrom(unit.Pos);
+
         }
 
         public List<BaseProjectile> GetProjectiles()
@@ -63,6 +65,7 @@ namespace UnitBrains
         public void SetUnit(Unit unit)
         {
             this.unit = unit;
+           
         }
 
         public virtual void Update(float deltaTime, float time)
@@ -77,6 +80,7 @@ namespace UnitBrains
         protected virtual List<Vector2Int> SelectTargets()
         {
             var result = GetReachableTargets();
+            result = FilterTargetsByCommander(result);
             while (result.Count > 1)
                 result.RemoveAt(result.Count - 1);
             return result;
@@ -162,6 +166,31 @@ namespace UnitBrains
             }
 
             return result;
+        }
+        
+        protected List<Vector2Int> FilterTargetsByCommander(List<Vector2Int> targets)
+        {
+            
+            if (commander == null) return targets;
+
+            var recommendTarget = commander.RecommendTarget;
+            if (!recommendTarget.HasValue) return targets;
+
+           
+            Vector2Int recommendedPos = new Vector2Int(
+                Mathf.RoundToInt(recommendTarget.Value.x),
+                Mathf.RoundToInt(recommendTarget.Value.y)
+            );
+
+           
+            if (targets.Contains(recommendedPos))
+            {
+               
+                return new List<Vector2Int> { recommendedPos };
+            }
+
+           
+            return targets;
         }
     }
 }
