@@ -1,8 +1,11 @@
 ﻿using GluonGui.Dialog;
+using Model;
 using Model.Runtime.Projectiles;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.UIElements;
+using Utilities;
 using static Unity.IO.LowLevel.Unsafe.AsyncReadManagerMetrics;
 
 namespace UnitBrains.Player
@@ -15,7 +18,7 @@ namespace UnitBrains.Player
         private float _temperature = 0f;
         private float _cooldownTime = 0f;
         private bool _overheated;
-        
+        private List<Vector2Int> _moveTargets = new();
         protected override void GenerateProjectiles(Vector2Int forTarget, List<BaseProjectile> intoList)
         {
             float overheatTemperature = OverheatTemperature;
@@ -34,22 +37,39 @@ namespace UnitBrains.Player
 
         public override Vector2Int GetNextStep()
         {
-            return base.GetNextStep();
+            if (_moveTargets.Count == 0)
+                return unit.Pos;
+
+            Vector2Int target = _moveTargets[0];
+
+            if (IsTargetInRange(target))
+                return unit.Pos;
+
+            Vector2Int nextPosition = unit.Pos.CalcNextStepTowards(target);
+            return nextPosition;
         }
+
 
         protected override List<Vector2Int> SelectTargets()
         {
-            List<Vector2Int> result = GetReachableTargets();
+            List<Vector2Int> result = new();
+            _moveTargets.Clear();
 
-            if (result.Count == 0)
+            List<Vector2Int> allTargets = GetAllTargets().ToList();
+
+            if (allTargets.Count == 0)
                 return result;
 
-            Vector2Int closestTarget = result[0];
-            float minDistance = DistanceToOwnBase(closestTarget);
+            Vector2Int ownBase = runtimeModel.RoMap.Bases[
+                IsPlayerUnitBrain ? RuntimeModel.PlayerId : RuntimeModel.BotPlayerId
+            ];
 
-            foreach (var target in result)
+            Vector2Int closestTarget = allTargets[0];
+            float minDistance = (closestTarget - ownBase).sqrMagnitude;
+
+            foreach (var target in allTargets)
             {
-                float distance = DistanceToOwnBase(target);
+                float distance = (target - ownBase).sqrMagnitude;
 
                 if (distance < minDistance)
                 {
@@ -58,11 +78,14 @@ namespace UnitBrains.Player
                 }
             }
 
-            result.Clear();
-            result.Add(closestTarget);
+            if (IsTargetInRange(closestTarget))
+                result.Add(closestTarget);
+            else
+                _moveTargets.Add(closestTarget);
 
             return result;
         }
+
 
 
         public override void Update(float deltaTime, float time)
