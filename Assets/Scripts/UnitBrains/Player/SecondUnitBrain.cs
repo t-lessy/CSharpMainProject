@@ -1,7 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using Model;
 using Model.Runtime.Projectiles;
 using PlasticPipe.PlasticProtocol.Messages;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
+using Utilities;
 
 namespace UnitBrains.Player
 {
@@ -38,47 +41,68 @@ namespace UnitBrains.Player
             ///////////////////////////////////////
         }
 
+        List<Vector2Int> NextEnemyUnderDistance = new List<Vector2Int>();
         public override Vector2Int GetNextStep()
         {
-            return base.GetNextStep();
-        }
+            if (NextEnemyUnderDistance.Count > 0 )
+            {
+                var target = NextEnemyUnderDistance[0];
+                return unit.Pos.CalcNextStepTowards(target);
 
+
+            }
+            else
+            {
+                return unit.Pos;
+            }
+
+            //return base.GetNextStep();
+
+        }
         protected override List<Vector2Int> SelectTargets()
         {
             ///////////////////////////////////////
             // Homework 1.4 (1st block, 4rd module)
             /*/
-            Честно говоря, не сразу понял как это реализовать. Так что я делал заметки для себя что и как работает, чтобы лучше разобраться. Надеюсь понял правильно)
+            Куча текста режeт глаза. 
             /*/
-            List<Vector2Int> result = GetReachableTargets(); //получаем список возможных противников?
-            while (result.Count > 1) //Пока есть какие-то противники выполняем код:
+
+            List<Vector2Int> result = new List<Vector2Int>();
+
+            Vector2Int Enemy = runtimeModel.RoMap.Bases[IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId];
+
+            IEnumerable<Vector2Int> possibleTarget = GetAllTargets(); 
+            Vector2Int NearEnemy = Enemy;
+
+            if (possibleTarget.Count() != 0)
             {
-                if (result.Count == 0) 
-                {
-                    return result; //Здесь, если мы не получаем противников, то возвращаем код на исходную
-                }
+                float NearestEnemyToOwnBase = float.MaxValue;
 
-                var nearEnemy = float.MaxValue; // Ставим бесконечно огромное значение, чтобы узнать дейстительно меньшее
-                var EnemyTarget = result[0]; // Выставляем целью первого попавшего противника, на случай если он окажется действительно ближайшим
-
-                foreach (var target in result) //Выполняем код для каждого противника из полученного ранее списка
+                foreach (var targets in possibleTarget)
                 {
-                    var DistanceEnemyToBase = DistanceToOwnBase(target); //Применяем данный нам в ТЗ метод, для получения информации о ближайшем противнике
-                    if (nearEnemy < DistanceEnemyToBase) //Сверяем нашу дистанцию с расчитаной
+                    var DistanceEnemyToOwnBase = DistanceToOwnBase(targets);
+                    if (DistanceEnemyToOwnBase < NearestEnemyToOwnBase)
                     {
-
-                        nearEnemy = DistanceEnemyToBase; //В случае, если наша дистанция больше расчётной - принимает новое значение
-                        EnemyTarget = target; //И тут же назначаем нашего ближайшего противника - целью
-
+                        NearestEnemyToOwnBase = DistanceEnemyToOwnBase;
+                        NearEnemy = targets;
                     }
                 }
-                result.Clear(); //Здесь мы очищаем список, ибо мы нашли нашего ближайшего противника.
-                result.Add(EnemyTarget); //Здесь поставляется в очищенный список противник, которого надо атаковать.
+                Enemy = NearEnemy;
             }
+            if (GetReachableTargets().Contains(Enemy))
+            {
+                result.Add(Enemy);
+            }
+            else
+            {
+                NextEnemyUnderDistance.Clear();
+                NextEnemyUnderDistance.Add(Enemy);
+            }
+
             return result;
+
             /*/
-            Долго пытался понять, что конкретно делает код. Оказывается, изначально у нас был список на всех противников и мы атаковали кого попало.
-            Сейчас мы заставляем думать наших юнитов думать, что есть только один противник - ближайший к нашей базе. А затем по новой получаем данные о противнике и т.д. 
+            Гы. Я учусь на XYZ!!!!
             /*/
         }
 
