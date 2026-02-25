@@ -16,7 +16,7 @@ public class MyFirstScript : MonoBehaviour
         List<string> fruits = new List<string> { "Banana", "Alpple", "Dragonfruit", "Grabe" };
         fruits.Add("Pineapple");
         fruits.Add("Orange");
-        fruits.Remove("Dragonfruit");
+      
         fruits.Sort();
        
        
