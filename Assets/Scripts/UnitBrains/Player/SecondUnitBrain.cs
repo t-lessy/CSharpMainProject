@@ -22,10 +22,13 @@ namespace UnitBrains.Player
         
 
             int temp = GetTemperature();
-            {
+            
                if (temp >= overheatTemperature)
-                    return;
+            {
+                return;
             }
+                
+            
 
             //////////////////////////////////////
 
