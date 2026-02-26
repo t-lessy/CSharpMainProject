@@ -12,7 +12,7 @@ public class ThirdUnitBrain : DefaultPlayerUnitBrain
 
     private bool isAttackMode = false;
     private bool isMoveMode = true;
-    private const float switchTime = 1.0f;
+    private const float switchTime = 0.1f;
     private float switchTimer = 0f;
 
     protected override List<Vector2Int> SelectTargets()
@@ -26,6 +26,7 @@ public class ThirdUnitBrain : DefaultPlayerUnitBrain
 
     public override Vector2Int GetNextStep()
     {
+        base.GetNextStep();
         if (isMoveMode && switchTimer <= 0)
         {
             return base.GetNextStep();
