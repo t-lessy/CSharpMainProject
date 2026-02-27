@@ -20,38 +20,22 @@ namespace UnitBrains.Player
             ///////////////////////////////////////
             // Homework 1.3 (1st block, 3rd module)
         
-
             int temp = GetTemperature();
             
-               if (temp >= overheatTemperature)
+            if (temp >= overheatTemperature) 
             {
                 return;
             }
-                
-            
-
-            //////////////////////////////////////
-
+ 
             IncreaseTemperature();
-
             int CurrentTemp = GetTemperature();
-                for (int i = 0; i <= CurrentTemp; i++)
+            for (int i = 0; i <= CurrentTemp; i++)
             {
                 var projectile = CreateProjectile(forTarget);
                 AddProjectileToList(projectile, intoList);
             }
-        } 
-        
-
-
-              
-        
-
+        }
                 ///////////////////////////////////////
-            
-        
-        
-
         public override Vector2Int GetNextStep()
         {
             return base.GetNextStep();
