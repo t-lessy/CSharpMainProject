@@ -4,15 +4,19 @@ using UnityEngine;
 
 namespace Model.Runtime
 {
-    public abstract class Buff
+    // Интерфейс для хранения баффов в коллекциях (нединамический)
+    public interface IBuff
     {
-        // Оставшаяся длительность эффекта в секундах
-        public float Duration { get; set; }
+        float Duration { get; set; }
+        bool CanApply(Unit unit);
+        void ApplyNonGeneric(Unit unit);
+        void RemoveNonGeneric(Unit unit);
+        string GetDescription();
+    }
 
-        // пример модифи\катора скорости/урона
-        // 0.5f
-        // 1.0f = нормальная скорость(без эффекта)
-        // 2.0f
+    public abstract class Buff<T> : IBuff where T : Unit
+    {
+        public float Duration { get; set; }
         public float Modifier { get; set; }
 
         protected Buff(float duration, float modifier)
@@ -21,6 +25,27 @@ namespace Model.Runtime
             Modifier = modifier;
         }
 
+        // Можно ли применить этот бафф к конкретному юниту?
+        public virtual bool CanApply(Unit unit) => unit is T;
+
+        // Нединамические методы для вызова через интерфейс
+        public void ApplyNonGeneric(Unit unit)
+        {
+            if (unit is T typedUnit)
+                Apply(typedUnit);
+        }
+
+        public void RemoveNonGeneric(Unit unit)
+        {
+            if (unit is T typedUnit)
+                Remove(typedUnit);
+        }
+
+        // Применить эффект (вызывает публичный метод юнита)
+        public abstract void Apply(T unit);
+
+        // Снять эффект (откатить изменения)
+        public abstract void Remove(T unit);
         public abstract string GetDescription();
     }
 }

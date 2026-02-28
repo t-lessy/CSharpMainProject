@@ -1,68 +1,47 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using System.Collections.Generic;
-using UnityEngine;
-//
+
 namespace Model.Runtime
 {
     public class BuffSystem
     {
-        private readonly Dictionary<Unit, List<Buff>> _unitBuffs = new();
+        private readonly Dictionary<Unit, List<IBuff>> _unitBuffs = new();
 
-        public void AddBuff(Unit unit, Buff buff)
+        public void AddBuff(Unit unit, IBuff buff)
         {
+            if (!buff.CanApply(unit))
+                return;
+
             if (!_unitBuffs.ContainsKey(unit))
-            {
-                _unitBuffs[unit] = new List<Buff>();
-            }
+                _unitBuffs[unit] = new List<IBuff>();
 
             _unitBuffs[unit].Add(buff);
-            Debug.Log($"[BuffSystem] Бафнут {unit.Config.Name}: {buff.GetDescription()}");
+            buff.ApplyNonGeneric(unit);
+            Debug.Log($"[BuffSystem] Баффнут {unit.Config.Name}: {buff.GetDescription()}");
         }
 
         public void RemoveUnit(Unit unit)
         {
-            if (_unitBuffs.ContainsKey(unit))
+            if (_unitBuffs.TryGetValue(unit, out var buffs))
             {
+                foreach (var buff in buffs)
+                    buff.RemoveNonGeneric(unit);
+
                 _unitBuffs.Remove(unit);
             }
         }
 
-        public float GetMovementSpeedModifier(Unit unit)
+        // Проверить, есть ли у юнита активный бафф конкретного типа
+        public bool HasActiveBuff<TBuff>(Unit unit) where TBuff : IBuff
         {
-            if (!_unitBuffs.ContainsKey(unit) || _unitBuffs[unit].Count == 0)
-                return 1f;
+            if (!_unitBuffs.TryGetValue(unit, out var buffs))
+                return false;
 
-            float totalModifier = 1f;
+            foreach (var buff in buffs)
+                if (buff is TBuff)
+                    return true;
 
-            foreach (var buff in _unitBuffs[unit])
-            {
-                if (buff is MovementSpeedBuff or MovementSlowDebuff)
-                {
-                    totalModifier *= buff.Modifier;
-                }
-            }
-
-            return totalModifier;
-        }
-
-        public float GetAttackSpeedModifier(Unit unit)
-        {
-            if (!_unitBuffs.ContainsKey(unit) || _unitBuffs[unit].Count == 0)
-                return 1f;
-
-            float totalModifier = 1f;
-
-            foreach (var buff in _unitBuffs[unit])
-            {
-                if (buff is AttackSpeedBuff or AttackSlowDebuff)
-                {
-                    totalModifier *= buff.Modifier;
-                }
-            }
-
-            return totalModifier;
+            return false;
         }
 
         public void Update(float deltaTime)
@@ -73,39 +52,36 @@ namespace Model.Runtime
             {
                 var unit = kvp.Key;
                 var buffs = kvp.Value;
-
-                var buffsToRemove = new List<Buff>();
+                var buffsToRemove = new List<IBuff>();
 
                 foreach (var buff in buffs)
                 {
                     buff.Duration -= deltaTime;
-
                     if (buff.Duration <= 0)
-                    {
                         buffsToRemove.Add(buff);
-                    }
                 }
 
                 foreach (var buff in buffsToRemove)
                 {
+                    buff.RemoveNonGeneric(unit);
                     buffs.Remove(buff);
                     Debug.Log($"[BuffSystem] Убран бафф {unit.Config.Name}: {buff.GetDescription()}");
                 }
 
                 if (buffs.Count == 0)
-                {
                     unitsToClean.Add(unit);
-                }
             }
 
             foreach (var unit in unitsToClean)
-            {
                 _unitBuffs.Remove(unit);
-            }
         }
 
         public void Clear()
         {
+            foreach (var kvp in _unitBuffs)
+                foreach (var buff in kvp.Value)
+                    buff.RemoveNonGeneric(kvp.Key);
+
             _unitBuffs.Clear();
         }
     }

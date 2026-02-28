@@ -96,54 +96,25 @@ public class BufferUnitBrain : BaseUnitBrain
 
         foreach (var otherUnit in runtimeModel.RoUnits)
         {
-            // Пропускаем себя
-            if (otherUnit == unit)
-            {
-                Debug.Log($"[BufferUnit] Пропуск себя: {unit.Config.Name}");
-                continue;
-            }
-
-            // Пропускаем других баферов
-            if (otherUnit.Config.Name == "BufferUnit")
-            {
-                Debug.Log($"[BufferUnit] Пропуск другого баффера: {otherUnit.Config.Name}");
-                continue;
-            }
-
-            // Проверка на собзника
-            if (otherUnit.Config.IsPlayerUnit != unit.Config.IsPlayerUnit)
-            {
-                Debug.Log($"[BufferUnit] Пропуск врага: {otherUnit.Config.Name}");
-                continue;
-            }
-
+            if (otherUnit == unit) continue;
+            if (otherUnit.Config.Name == "BufferUnit") continue;
+            if (otherUnit.Config.IsPlayerUnit != unit.Config.IsPlayerUnit) continue;
 
             var diff = otherUnit.Pos - unit.Pos;
-            if (diff.sqrMagnitude > attackRangeSqr)
-            {
-                Debug.Log($"[BufferUnit] {otherUnit.Config.Name} слишком далеко");
-                continue;
-            }
+            if (diff.sqrMagnitude > attackRangeSqr) continue;
 
             var allyUnit = otherUnit as Unit;
-            if (allyUnit == null)
-            {
-                Debug.Log($"[BufferUnit] {otherUnit.Config.Name} не Unit");
-                continue;
-            }
-             
-            // Проверка, нет ли баффа
-            var currentModifier = buffSystem.GetAttackSpeedModifier(allyUnit);
-            Debug.Log($"[BufferUnit] {allyUnit.Config.Name} имеет модификатор: {currentModifier}");
+            if (allyUnit == null) continue;
 
-            if (Mathf.Approximately(currentModifier, 1f))
+            // Проверка — нет ли уже активного баффа атаки
+            if (!buffSystem.HasActiveBuff<AttackSpeedBuff<Unit>>(allyUnit))
             {
                 Debug.Log($"[BufferUnit] цель баффа: {allyUnit.Config.Name}");
                 return allyUnit;
             }
         }
 
-        Debug.Log("[BufferUnit] некого бафать");
+        Debug.Log("[BufferUnit] некого баффать");
         return null;
     }
 
@@ -153,15 +124,12 @@ public class BufferUnitBrain : BaseUnitBrain
             return;
 
         var buffSystem = ServiceLocator.Get<BuffSystem>();
-        var buff = new AttackSpeedBuff(5f, 1.5f);
+        var buff = new AttackSpeedBuff<Unit>(5f, 1.5f); // <-- указан тип <Unit>
         buffSystem.AddBuff(_targetAlly, buff);
 
-        //эффект
         var vfxView = Object.FindObjectOfType<VFXView>();
         if (vfxView != null)
-        {
             vfxView.PlayVFX(_targetAlly.Pos, VFXView.VFXType.BuffApplied);
-        }
 
         Debug.Log($"[BufferUnit] бафнул {_targetAlly.Config.Name}");
     }

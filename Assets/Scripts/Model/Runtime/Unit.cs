@@ -29,7 +29,12 @@ namespace Model.Runtime
         private float _nextBrainUpdateTime = 0f;
         private float _nextMoveTime = 0f;
         private float _nextAttackTime = 0f;
-        
+        private float _moveSpeedModifier = 1f;
+        private float _attackSpeedModifier = 1f;
+
+        public void SetMoveSpeedModifier(float modifier) => _moveSpeedModifier = modifier;
+        public void SetAttackSpeedModifier(float modifier) => _attackSpeedModifier = modifier;
+
         public Unit(UnitConfig config, Vector2Int startPos)
         {
             Config = config;
@@ -53,18 +58,14 @@ namespace Model.Runtime
 
             if (_nextMoveTime < time)
             {
-                var buffSystem = ServiceLocator.Get<BuffSystem>();
-                var movementModifier = buffSystem.GetMovementSpeedModifier(this);
-                var adjustedMoveDelay = Config.MoveDelay / movementModifier;
+                var adjustedMoveDelay = Config.MoveDelay / _moveSpeedModifier;
                 _nextMoveTime = time + adjustedMoveDelay;
                 Move();
             }
 
             if (_nextAttackTime < time && Attack())
             {
-                var buffSystem = ServiceLocator.Get<BuffSystem>();
-                var attackModifier = buffSystem.GetAttackSpeedModifier(this);
-                var adjustedAttackDelay = Config.AttackDelay / attackModifier;
+                var adjustedAttackDelay = Config.AttackDelay / _attackSpeedModifier;
                 _nextAttackTime = time + adjustedAttackDelay;
             }
         }
