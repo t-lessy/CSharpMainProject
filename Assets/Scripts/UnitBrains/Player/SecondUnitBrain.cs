@@ -29,18 +29,22 @@ namespace UnitBrains.Player
 
         protected override void GenerateProjectiles(Vector2Int forTarget, List<BaseProjectile> intoList)
         {
-            float overheatTemperature = OverheatTemperature;
-            if (!IsTargetInRange(forTarget)) 
-                return;
-            if (GetTemperature() >= overheatTemperature)
-            {
-                return;
-            }
+            if (!IsTargetInRange(forTarget)) return;
+            if (GetTemperature() >= OverheatTemperature) return;
+
             for (int i = 0; i <= GetTemperature(); i++)
             {
                 var projectile = CreateProjectile(forTarget);
                 AddProjectileToList(projectile, intoList);
             }
+
+            // Двойной выстрел — если бафф активен, дублируем все снаряды
+            if (unit.DoubleShot)
+            {
+                var extra = CreateProjectile(forTarget);
+                AddProjectileToList(extra, intoList);
+            }
+
             IncreaseTemperature();
         }
 

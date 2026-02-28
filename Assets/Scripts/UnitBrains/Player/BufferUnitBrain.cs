@@ -120,17 +120,24 @@ public class BufferUnitBrain : BaseUnitBrain
 
     private void ApplyBuffToTarget()
     {
-        if (_targetAlly == null)
-            return;
+        if (_targetAlly == null) return;
 
         var buffSystem = ServiceLocator.Get<BuffSystem>();
-        var buff = new AttackSpeedBuff<Unit>(5f, 1.5f); // <-- указан тип <Unit>
+
+        IBuff buff;
+        if (_targetAlly.Config.Name == "Cobra Commando")
+            buff = new DoubleShotBuff<Unit>(5f);
+        else if (_targetAlly.Config.Name == "Ironclad Behemoth")
+            buff = new AttackRangeBuff<Unit>(5f, 2f);
+        else
+            buff = new AttackSpeedBuff<Unit>(5f, 1.5f);
+
         buffSystem.AddBuff(_targetAlly, buff);
 
         var vfxView = Object.FindObjectOfType<VFXView>();
         if (vfxView != null)
             vfxView.PlayVFX(_targetAlly.Pos, VFXView.VFXType.BuffApplied);
 
-        Debug.Log($"[BufferUnit] бафнул {_targetAlly.Config.Name}");
+        Debug.Log($"[BufferUnit] бафнул {_targetAlly.Config.Name}: {buff.GetDescription()}");
     }
 }

@@ -49,4 +49,27 @@ namespace Model.Runtime
         public override string GetDescription() =>
             $"Attack Slow: x{Modifier} дл€ {Duration:F1}s";
     }
+
+    public class DoubleShotBuff<T> : Buff<T> where T : Unit
+    {
+        public DoubleShotBuff(float duration) : base(duration, 1f) { }
+
+        public override void Apply(T unit) => unit.SetDoubleShot(true);
+        public override void Remove(T unit) => unit.SetDoubleShot(false);
+
+        public override string GetDescription() =>
+            $"Double Shot дл€ {Duration:F1}s";
+    }
+
+    // ”величение радиуса Ч только дл€ ThirdUnitBrain (Ironclad Behemoth)
+    public class AttackRangeBuff<T> : Buff<T> where T : Unit
+    {
+        public AttackRangeBuff(float duration, float modifier) : base(duration, modifier) { }
+
+        public override void Apply(T unit) => unit.SetAttackRangeModifier(Modifier);
+        public override void Remove(T unit) => unit.SetAttackRangeModifier(1f);
+
+        public override string GetDescription() =>
+            $"Attack Range Buff: x{Modifier} дл€ {Duration:F1}s";
+    }
 }

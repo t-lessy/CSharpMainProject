@@ -32,8 +32,17 @@ namespace Model.Runtime
         private float _moveSpeedModifier = 1f;
         private float _attackSpeedModifier = 1f;
 
+        private bool _doubleShot = false;
+        private float _attackRangeModifier = 1f;
+
+        public bool DoubleShot => _doubleShot;
+        public float AttackRangeModifier => _attackRangeModifier;
+
         public void SetMoveSpeedModifier(float modifier) => _moveSpeedModifier = modifier;
         public void SetAttackSpeedModifier(float modifier) => _attackSpeedModifier = modifier;
+
+        public void SetDoubleShot(bool value) => _doubleShot = value;
+        public void SetAttackRangeModifier(float modifier) => _attackRangeModifier = modifier;
 
         public Unit(UnitConfig config, Vector2Int startPos)
         {
