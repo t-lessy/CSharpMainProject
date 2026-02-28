@@ -107,7 +107,7 @@ public class BufferUnitBrain : BaseUnitBrain
             if (allyUnit == null) continue;
 
             // Проверка — нет ли уже активного баффа атаки
-            if (!buffSystem.HasActiveBuff<AttackSpeedBuff<Unit>>(allyUnit))
+            if (!buffSystem.HasActiveBuff<IBuff>(allyUnit))
             {
                 Debug.Log($"[BufferUnit] цель баффа: {allyUnit.Config.Name}");
                 return allyUnit;
