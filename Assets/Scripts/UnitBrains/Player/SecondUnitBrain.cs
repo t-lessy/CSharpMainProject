@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Runtime.InteropServices.WindowsRuntime;
+using Codice.Client.BaseCommands;
+using Codice.CM.WorkspaceServer.Tree.GameUI.HeadTree;
 using Model.Runtime.Projectiles;
 using UnityEngine;
 
@@ -45,15 +47,33 @@ namespace UnitBrains.Player
         {
             ///////////////////////////////////////
             // Homework 1.4 (1st block, 4rd module)
-
-
             ///////////////////////////////////////
             List<Vector2Int> result = GetReachableTargets();
-            while (result.Count > 1)
+
+            if (result.Count == 0) { return result; }
+
+            float minDistance = float.MaxValue;
+            Vector2Int nearestTarget = result[0];
+
+            foreach (var target in result)
+
             {
-                result.RemoveAt(result.Count - 1);
+                float distance = DistanceToOwnBase(nearestTarget);
+
+                if (distance < minDistance)
+                {
+                    minDistance = distance;
+                    nearestTarget = target;
+                }
+
             }
+            result.Clear();
+            result.Add(nearestTarget);
             return result;
+
+        
+
+
             ///////////////////////////////////////
         }
 
