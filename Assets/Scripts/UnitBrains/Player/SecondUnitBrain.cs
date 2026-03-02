@@ -86,10 +86,10 @@ namespace UnitBrains.Player
                 mainResult = result[index];
             }
             result.Clear();
-
+            UnreachableTargets.Clear();
             if (GetReachableTargets().Contains(mainResult))
                 result.Add(mainResult);
-            else 
+            else if (!UnreachableTargets.Contains(mainResult))
                 UnreachableTargets.Add(mainResult);
 
                 return result;
