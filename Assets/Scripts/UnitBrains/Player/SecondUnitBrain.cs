@@ -18,7 +18,8 @@ namespace UnitBrains.Player
         private int Unit;
         private static int UnitPlus = 0;
         private const int MaxUnit = 2;
-        Vector2Int Arack;
+        private Vector2Int Arack;
+
         public SecondUnitBrain()
         {
             Unit = UnitPlus;
@@ -33,52 +34,40 @@ namespace UnitBrains.Player
             {
                 return;
             }
-            for (int i = 0; i <= temperature; i++)
+            for (int i = 0; i < temperature; i++)  // исправлено: i < temperature, чтобы цикл был корректным
             {
                 var projectile = CreateProjectile(forTarget);
                 AddProjectileToList(projectile, intoList);
-
             }
 
             IncreaseTemperature();
-            ///////////////////////////////////////
-            // Homework 1.3 (1st block, 3rd module)
-            ///////////////////////////////////////           
-
-            ///////////////////////////////////////
         }
-    
+
         public override Vector2Int GetNextStep()
         {
-
-             if (Arack == default)
-                return unit.Pos;            
+            if (Arack == default)
+                return unit.Pos;
             if (GetReachableTargets().Contains(Arack))
                 return unit.Pos;
 
-            
             return unit.Pos.CalcNextStepTowards(Arack);
-
         }
 
         protected override List<Vector2Int> SelectTargets()
         {
-            ///////////////////////////////////////
-            // Homework 1.4 (1st block, 4rd module)
-            ///////////////////////////////////////
-            List<Vector2Int> result = GetReachableTargets();
-            var Alter = GetAllTargets().ToList();
-            if (Alter.Any())
+            var result = GetReachableTargets();
+            var allTargets = GetAllTargets().ToList();
+
+            if (allTargets.Any())
             {
-                var sort = Alter.OrderBy(DistanceToOwnBase).ToList();
-                int Res = Unit % MaxUnit;
-                Arack = Res < sort.Count() ? sort[Res] : sort.Last();
+                var sorted = allTargets.OrderBy(DistanceToOwnBase).ToList();
+                int res = Unit % MaxUnit;
+                Arack = res < sorted.Count ? sorted[res] : sorted.Last();
             }
             else
             {
                 Arack = runtimeModel.RoMap.Bases[RuntimeModel.BotPlayerId];
             }
-
 
             if (IsTargetInRange(Arack))
             {
@@ -87,21 +76,18 @@ namespace UnitBrains.Player
             return result;
         }
 
-            
-            ///////////////////////////////////////
-        
-
         public override void Update(float deltaTime, float time)
         {
             if (_overheated)
             {
-                _cooldownTime += Time.deltaTime;
-                float t = _cooldownTime / (OverheatCooldown / 10);
+                _cooldownTime += deltaTime;
+                float t = _cooldownTime / OverheatCooldown;
                 _temperature = Mathf.Lerp(OverheatTemperature, 0, t);
                 if (t >= 1)
                 {
                     _cooldownTime = 0;
                     _overheated = false;
+                    _temperature = 0f;
                 }
             }
         }
@@ -115,7 +101,10 @@ namespace UnitBrains.Player
         private void IncreaseTemperature()
         {
             _temperature += 1f;
-            if (_temperature >= OverheatTemperature) _overheated = true;
+            if (_temperature >= OverheatTemperature)
+                _overheated = true;
         }
     }
 }
+
+//дите, чтобы методы, которые переопределяете, существовал
