@@ -1,8 +1,10 @@
 ﻿using GluonGui.Dialog;
 using Model;
 using Model.Runtime.Projectiles;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
 using Utilities;
@@ -17,6 +19,10 @@ namespace UnitBrains.Player
         private const float OverheatCooldown = 2f;
         private float _temperature = 0f;
         private float _cooldownTime = 0f;
+        static int Numbers = 0;
+        int UnitNumber = -1;
+        const int MaxTargets = 3;
+
         private bool _overheated;
         private List<Vector2Int> _moveTargets = new();
         protected override void GenerateProjectiles(Vector2Int forTarget, List<BaseProjectile> intoList)
@@ -37,6 +43,7 @@ namespace UnitBrains.Player
 
         public override Vector2Int GetNextStep()
         {
+ 
             if (_moveTargets.Count == 0)
                 return unit.Pos;
 
@@ -52,36 +59,37 @@ namespace UnitBrains.Player
 
         protected override List<Vector2Int> SelectTargets()
         {
+            if (UnitNumber == -1)
+            {
+                UnitNumber = Numbers;
+                Numbers++;
+            }
+
             List<Vector2Int> result = new();
             _moveTargets.Clear();
 
             List<Vector2Int> allTargets = GetAllTargets().ToList();
 
             if (allTargets.Count == 0)
-                return result;
-
-            Vector2Int ownBase = runtimeModel.RoMap.Bases[
-                IsPlayerUnitBrain ? RuntimeModel.PlayerId : RuntimeModel.BotPlayerId
-            ];
-
-            Vector2Int closestTarget = allTargets[0];
-            float minDistance = (closestTarget - ownBase).sqrMagnitude;
-
-            foreach (var target in allTargets)
             {
-                float distance = (target - ownBase).sqrMagnitude;
-
-                if (distance < minDistance)
-                {
-                    minDistance = distance;
-                    closestTarget = target;
-                }
+                Vector2Int enemyBase = runtimeModel.RoMap.Bases[
+                    IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId
+                ];
+                allTargets.Add(enemyBase);
             }
 
-            if (IsTargetInRange(closestTarget))
-                result.Add(closestTarget);
+            SortByDistanceToOwnBase(allTargets);
+
+            int availableTargets = allTargets.Count < MaxTargets ? allTargets.Count : MaxTargets;
+
+            int targetIndex = UnitNumber % availableTargets;
+
+            Vector2Int selectedTarget = allTargets[targetIndex];
+
+            if (IsTargetInRange(selectedTarget))
+                result.Add(selectedTarget);
             else
-                _moveTargets.Add(closestTarget);
+                _moveTargets.Add(selectedTarget);
 
             return result;
         }
