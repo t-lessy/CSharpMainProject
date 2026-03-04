@@ -15,11 +15,17 @@ namespace UnitBrains
         public virtual string TargetUnitName => string.Empty;
         public virtual bool IsPlayerUnitBrain => true;
         public virtual BaseUnitPath ActivePath => _activePath;
+
+        protected bool flag = false;
         
         protected Unit unit { get; private set; }
         protected IReadOnlyRuntimeModel runtimeModel => ServiceLocator.Get<IReadOnlyRuntimeModel>();
         private BaseUnitPath _activePath = null;
-        
+
+        /// <summary>
+        protected bool _actionSwitched = false;
+        /// </summary>
+
         private readonly Vector2[] _projectileShifts = new Vector2[]
         {
             new (0f, 0f),
@@ -33,9 +39,11 @@ namespace UnitBrains
 
         public virtual Vector2Int GetNextStep()
         {
-            if (HasTargetsInRange())
+            if (HasTargetsInRange() || flag)
+            {
                 return unit.Pos;
-
+            }
+                _actionSwitched = true;
             var target = runtimeModel.RoMap.Bases[
                 IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId];
 
