@@ -26,13 +26,21 @@ namespace UnitBrains.Player
                 {
                     _switchTimer = 0f;
                     _isSwitching = false;
+
+                    // переключаем режим
                     _isMoving = !_isMoving;
                 }
+            }
+            else
+            {
+                // начинаем переключение режима
+                _isSwitching = true;
             }
         }
 
         protected override List<Vector2Int> SelectTargets()
         {
+            // если юнит едет или переключается — стрелять нельзя
             if (_isMoving || _isSwitching)
                 return new List<Vector2Int>();
 
@@ -41,6 +49,7 @@ namespace UnitBrains.Player
 
         public override Vector2Int GetNextStep()
         {
+            // если юнит стреляет или переключается — двигаться нельзя
             if (!_isMoving || _isSwitching)
                 return unit.Pos;
 
