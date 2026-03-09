@@ -60,7 +60,7 @@ namespace UnitBrains
             return result;
         }
 
-        public void SetUnit(Unit unit)
+        public virtual void SetUnit(Unit unit)
         {
             this.unit = unit;
         }

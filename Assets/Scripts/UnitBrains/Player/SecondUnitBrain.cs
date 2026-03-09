@@ -1,6 +1,9 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Model.Runtime.Projectiles;
 using UnityEngine;
+using Model.Runtime;
+
 
 namespace UnitBrains.Player
 {
@@ -13,7 +16,7 @@ namespace UnitBrains.Player
         private const int MaxSmartTargets = 3;
 
         private List<Vector2Int> _targetsToMove = new List<Vector2Int>();
-
+        
         public override string TargetUnitName => "Cobra Commando";
 
         private const float OverheatTemperature = 3f;
@@ -24,9 +27,9 @@ namespace UnitBrains.Player
         private bool _overheated;
 
         // ====== Инициализация номера юнита ======
-        protected override void OnEnable()
+        public override void SetUnit(Unit unit)
         {
-            base.OnEnable();
+            base.SetUnit(unit);
 
             _unitNumber = _unitCounter;
             _unitCounter++;
@@ -38,16 +41,26 @@ namespace UnitBrains.Player
             var result = new List<Vector2Int>();
             _targetsToMove.Clear();
 
-            var allTargets = GetAllTargets();
+            var allTargets = GetAllTargets().ToList();
 
             // Если врагов нет — идем на базу
+            // if (allTargets.Count == 0)
+            // {
+            //     var enemyBase = runtimeModel.RoMap.Bases[
+            //         IsPlayerUnitBrain ? runtimeModel.BotPlayerId : runtimeModel.PlayerId
+            //     ];
+            //
+            //     allTargets.Add(enemyBase);
+            // }
+            // if (allTargets.Count == 0)
+            // {
+            //     return result;
+            // }
+            
             if (allTargets.Count == 0)
             {
-                var enemyBase = runtimeModel.RoMap.Bases[
-                    IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerID
-                ];
-
-                allTargets.Add(enemyBase.Position);
+                var enemyBase = runtimeModel.RoMap.Bases.First();
+                allTargets.Add(enemyBase);
             }
 
             // Сортируем по расстоянию до своей базы
@@ -63,7 +76,7 @@ namespace UnitBrains.Player
 
             _targetsToMove.Add(selectedTarget);
 
-            if (IsTargetReachable(selectedTarget))
+            if (IsTargetInRange(selectedTarget))
                 result.Add(selectedTarget);
 
             return result;
@@ -73,14 +86,19 @@ namespace UnitBrains.Player
         public override Vector2Int GetNextStep()
         {
             if (_targetsToMove.Count == 0)
-                return Position;
+                return unit.Pos;
 
             var target = _targetsToMove[0];
 
-            if (IsTargetReachable(target))
-                return Position;
+            if (IsTargetInRange(target))
+                return unit.Pos;
 
-            return Position.CalcNextStepTowards(target);
+            var dir = target - unit.Pos;
+
+            return new Vector2Int(
+                unit.Pos.x + Mathf.Clamp(dir.x, -1, 1),
+                unit.Pos.y + Mathf.Clamp(dir.y, -1, 1)
+            );
         }
 
         // ====== Стрельба ======
