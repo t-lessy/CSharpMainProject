@@ -16,7 +16,6 @@ namespace UnitBrains
         public virtual bool IsPlayerUnitBrain => true;
         public virtual BaseUnitPath ActivePath => _activePath;
 
-        protected bool flag = false;
         
         protected Unit unit { get; private set; }
         protected IReadOnlyRuntimeModel runtimeModel => ServiceLocator.Get<IReadOnlyRuntimeModel>();
@@ -39,10 +38,6 @@ namespace UnitBrains
 
         public virtual Vector2Int GetNextStep()
         {
-            if (HasTargetsInRange() || flag)
-            {
-                return unit.Pos;
-            }
                 _actionSwitched = true;
             var target = runtimeModel.RoMap.Bases[
                 IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId];

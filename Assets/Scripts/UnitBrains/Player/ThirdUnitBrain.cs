@@ -17,6 +17,7 @@ public class ThirdUnitScript : DefaultPlayerUnitBrain
     private static int idCounter = -1;
     private int id = idCounter++;
     private int MaxCount = 3;
+    private BaseUnitPath _activePath = null;
 
     private float _switchCooldown = 2f; //1 second
     private float _switchTime = 0f;
@@ -43,5 +44,18 @@ public class ThirdUnitScript : DefaultPlayerUnitBrain
         }
 
     }
-    
+    public override Vector2Int GetNextStep()
+    {
+        if (HasTargetsInRange() || flag)
+        {
+            return unit.Pos;
+        }
+        _actionSwitched = true;
+        var target = runtimeModel.RoMap.Bases[
+            IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId];
+
+        _activePath = new DummyUnitPath(runtimeModel, unit.Pos, target);
+        return _activePath.GetNextStepFrom(unit.Pos);
+    }
+
 }
