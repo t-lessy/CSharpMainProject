@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using Utilities;
+using static UnityEngine.GraphicsBuffer;
 
 namespace UnitBrains.Player
 {
@@ -35,21 +36,17 @@ namespace UnitBrains.Player
                     var projectile = CreateProjectile(forTarget);
                     AddProjectileToList(projectile, intoList);
                 }
-
             }
-
-            ///////////////////////////////////////
         }
 
         List<Vector2Int> NextEnemyUnderDistance = new List<Vector2Int>();
+
         public override Vector2Int GetNextStep()
         {
             if (NextEnemyUnderDistance.Count > 0 )
             {
                 var target = NextEnemyUnderDistance[0];
                 return unit.Pos.CalcNextStepTowards(target);
-
-
             }
             else
             {
@@ -59,6 +56,11 @@ namespace UnitBrains.Player
             //return base.GetNextStep();
 
         }
+
+        List<int> EnemyIDs = new List<int>();
+        private static int unitID = 0;
+        private int maxEnemyCount = 3;
+
         protected override List<Vector2Int> SelectTargets()
         {
             ///////////////////////////////////////
@@ -69,34 +71,53 @@ namespace UnitBrains.Player
 
             List<Vector2Int> result = new List<Vector2Int>();
 
-            Vector2Int Enemy = runtimeModel.RoMap.Bases[IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId];
+            Vector2Int enemyBase = runtimeModel.RoMap.Bases[IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId];
+            Vector2Int mainTarget = new Vector2Int();
 
-            IEnumerable<Vector2Int> possibleTarget = GetAllTargets(); 
-            Vector2Int NearEnemy = Enemy;
+            IEnumerable<Vector2Int> possibleTarget = GetAllTargets();
+
+            result.Clear();
 
             if (possibleTarget.Count() != 0)
             {
-                float NearestEnemyToOwnBase = float.MaxValue;
-
-                foreach (var targets in possibleTarget)
+                foreach (var target in possibleTarget)
                 {
-                    var DistanceEnemyToOwnBase = DistanceToOwnBase(targets);
-                    if (DistanceEnemyToOwnBase < NearestEnemyToOwnBase)
-                    {
-                        NearestEnemyToOwnBase = DistanceEnemyToOwnBase;
-                        NearEnemy = targets;
-                    }
+                    result.Add(target);
                 }
-                Enemy = NearEnemy;
             }
-            if (GetReachableTargets().Contains(Enemy))
+            else
             {
-                result.Add(Enemy);
+                result.Add(enemyBase);
+                return result;
+            }
+
+            SortByDistanceToOwnBase(result);
+
+            foreach (var target in result)
+            {
+                unitID++;
+                EnemyIDs.Add(unitID);
+                int index;
+                if (result.Count > maxEnemyCount)
+                {
+                    index = EnemyIDs.Count % maxEnemyCount;
+                }
+                else
+                {
+                    index = EnemyIDs.Count % result.Count;
+                }
+                mainTarget = result[index];                
+            }
+            result.Clear();
+
+            if (GetReachableTargets().Contains(mainTarget))
+            {
+                result.Add(mainTarget);
             }
             else
             {
                 NextEnemyUnderDistance.Clear();
-                NextEnemyUnderDistance.Add(Enemy);
+                NextEnemyUnderDistance.Add(mainTarget);
             }
 
             return result;
