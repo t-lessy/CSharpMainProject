@@ -13,12 +13,12 @@ namespace UnitBrains
     public abstract class BaseUnitBrain
     {
         public virtual string TargetUnitName => string.Empty;
-        public virtual bool IsPlayerUnitBrain => true;
-        public virtual BaseUnitPath ActivePath => _activePath;
+        public virtual bool IsPlayerUnitBrain => true;// пренадлежит литюнит игроку 
+        public virtual BaseUnitPath ActivePath => _activePath; // активный путь по которому идет юнит
         
         protected Unit unit { get; private set; }
-        protected IReadOnlyRuntimeModel runtimeModel => ServiceLocator.Get<IReadOnlyRuntimeModel>();
-        private BaseUnitPath _activePath = null;
+        protected IReadOnlyRuntimeModel runtimeModel => ServiceLocator.Get<IReadOnlyRuntimeModel>();// все даны по игровой сесии
+        private BaseUnitPath _activePath = null;// путь равен нал
         
         private readonly Vector2[] _projectileShifts = new Vector2[]
         {
@@ -31,19 +31,19 @@ namespace UnitBrains
             new (-0.15f, -0.15f),
         };
 
-        public virtual Vector2Int GetNextStep()
+        public virtual Vector2Int GetNextStep()/// -
         {
-            if (HasTargetsInRange())
+            if (HasTargetsInRange())// если целей нет ходить ни куда не нужно 
                 return unit.Pos;
 
             var target = runtimeModel.RoMap.Bases[
-                IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId];
+                IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId];// если целей нет берем базу
 
             _activePath = new DummyUnitPath(runtimeModel, unit.Pos, target);
-            return _activePath.GetNextStepFrom(unit.Pos);
+            return _activePath.GetNextStepFrom(unit.Pos);// передаеться позиция юнита и залаеться куда идти 
         }
 
-        public List<BaseProjectile> GetProjectiles()
+        public List<BaseProjectile> GetProjectiles()/// --
         {
             List<BaseProjectile> result = new ();
             foreach (var target in SelectTargets())

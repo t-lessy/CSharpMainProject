@@ -1,16 +1,15 @@
 ﻿<Properties StartupConfiguration="{802CDF90-C5C6-7CA9-F8EE-EA14FE645CAC}|">
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/UnitBrains/Player/ThirdUnitBrain.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/UnitBrains/Player/SecondUnitBrain.cs">
     <Files>
-      <File FileName="Assets/Scripts/UnitBrains/Player/ThirdUnitBrain.cs" Line="81" Column="2" />
-      <File FileName="Assets/Scripts/UnitBrains/Player/SecondUnitBrain.cs" />
-      <File FileName="Assets/Scripts/UnitBrains/Player/DefaultPlayerUnitBrain.cs" />
-      <File FileName="Assets/Scripts/UnitBrains/Pathfinding/BaseUnitPath.cs" />
+      <File FileName="Assets/Scripts/UnitBrains/BaseUnitBrain.cs" Line="36" Column="41" />
+      <File FileName="Assets/Scripts/UnitBrains/Player/DefaultPlayerUnitBrain.cs" Line="11" Column="33" />
+      <File FileName="Assets/Scripts/UnitBrains/Player/SecondUnitBrain.cs" Line="24" Column="10" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State name="__root__">
           <Node name="XYx" expanded="True">
-            <Node name="Assets" expanded="True" selected="True">
+            <Node name="Assets" expanded="True">
               <Node name="Scripts" expanded="True">
                 <Node name="Model" expanded="True">
                   <Node name="Runtime" expanded="True">
@@ -20,7 +19,9 @@
                 </Node>
                 <Node name="UnitBrains" expanded="True">
                   <Node name="Pathfinding" expanded="True" />
-                  <Node name="Player" expanded="True" />
+                  <Node name="Player" expanded="True">
+                    <Node name="SecondUnitBrain.cs" selected="True" />
+                  </Node>
                 </Node>
                 <Node name="View" expanded="True" />
               </Node>
@@ -32,7 +33,7 @@
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="a3186ccd-de53-4fa7-9e42-1e3509ece62c" />
+  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="e8c0281f-b8d5-4457-9b64-47a08d1c2776" />
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
