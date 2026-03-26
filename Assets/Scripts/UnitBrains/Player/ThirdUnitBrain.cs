@@ -46,7 +46,7 @@ public class ThirdUnitScript : DefaultPlayerUnitBrain
     }
     public override Vector2Int GetNextStep()
     {
-        if (HasTargetsInRange() || flag)
+        if (HasTargetsInRange())
         {
             return unit.Pos;
         }
