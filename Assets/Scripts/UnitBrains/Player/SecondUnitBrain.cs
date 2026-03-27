@@ -1,4 +1,5 @@
 ﻿using Model.Runtime.Projectiles;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -15,6 +16,9 @@ namespace UnitBrains.Player
         private float _cooldownTime = 0f;
         private bool _overheated;
         private List<Vector2Int> UnreachableTargets = new List<Vector2Int>();
+        private static int CounterID = 0;
+        private int UnitID;
+        private const int MaxID = 3;
 
         protected override void GenerateProjectiles(Vector2Int forTarget, List<BaseProjectile> intoList)
         {
@@ -53,40 +57,50 @@ namespace UnitBrains.Player
 
         protected override List<Vector2Int> SelectTargets()
         {
-            ///////////////////////////////////////
-            // Homework 1.4 (1st block, 4rd module)
-            ///////////////////////////////////////
-            List<Vector2Int> result = GetAllTargets().ToList();
             UnreachableTargets.Clear();
+            List<Vector2Int> result = GetAllTargets().ToList();
+
+            SortByDistanceToOwnBase(result);
+
+            Vector2Int NearestTarget = new Vector2Int();
+
+            UnitID = CounterID;
+            CounterID++;
+            Debug.Log(result.Count);
 
             if (result.Count >= 1)
             {
-                float MinRangeToBase = float.MaxValue;
-                Vector2Int NearestTarget = result[0];
                 foreach (var target in result)
                 {
-                    if (DistanceToOwnBase(target) < MinRangeToBase)
+                    int ID;
+                    if (result.Count > MaxID)
                     {
-                        MinRangeToBase = DistanceToOwnBase(target);
-                        NearestTarget = target;
+                        ID = UnitID % MaxID;
                     }
+                    else
+                    {
+                        ID = UnitID % result.Count;
+                    }
+                    NearestTarget = result[ID];
                 }
                 result.Clear();
                 UnreachableTargets.Add(NearestTarget);
                 if (GetReachableTargets().Contains(NearestTarget))
+                {
                     result.Add(NearestTarget);
+                }
             }
 
-            if (result.Count == 0)
-            {
-                var enemyBase = runtimeModel.RoMap.Bases[1];
-                result.Clear();
-                if (GetReachableTargets().Contains(enemyBase))
-                    result.Add(enemyBase);
-                else UnreachableTargets.Add(enemyBase);
-            }
+            //if (result.Count == 0)
+            //{
+            //    var enemyBase = runtimeModel.RoMap.Bases[1];
+            //    result.Clear();
+            //    if (GetReachableTargets().Contains(enemyBase))
+            //        result.Add(enemyBase);
+            //    else UnreachableTargets.Add(enemyBase);
+            //}
+
             return result;
-            ///////////////////////////////////////
         }
 
         public override void Update(float deltaTime, float time)
