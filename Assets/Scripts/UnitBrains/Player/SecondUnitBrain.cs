@@ -1,9 +1,14 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using Codice.Client.BaseCommands;
 using Codice.CM.WorkspaceServer.Tree.GameUI.HeadTree;
+using Model;
 using Model.Runtime.Projectiles;
+using PlasticGui.WorkspaceWindow.Diff;
+using UnitBrains.Pathfinding;
 using UnityEngine;
+using Utilities;
 
 namespace UnitBrains.Player
 {
@@ -39,23 +44,47 @@ namespace UnitBrains.Player
         }
                 ///////////////////////////////////////
         public override Vector2Int GetNextStep()
+            
         {
-            return base.GetNextStep();
-        }
+            if (GetAllTargets().Any())
+            {
+                return unit.Pos;
+            }
+ 
+            
+            if (targetsOutOfRange.Count > 0)
+            {
+                Vector2Int position = Vector2Int.zero;
+                Vector2Int nextPoition = Vector2Int.right;
+                position = position.CalcNextStepTowards(nextPoition);
+                return position.CalcNextStepTowards (targetsOutOfRange);
+            }
+             return unit.Pos;
+        
+        }    
 
         protected override List<Vector2Int> SelectTargets()
         {
             ///////////////////////////////////////
             // Homework 1.4 (1st block, 4rd module)
             ///////////////////////////////////////
-            List<Vector2Int> result = GetReachableTargets();
+            List<Vector2Int> result = new List<Vector2Int>();
+            targetsOutOfRange.Clear();
 
-            if (result.Count == 0) { return result; }
+            List<Vector2Int> allTargets = GetAllTargets().ToList(); 
+         
+
+            if (allTargets.Count == 0)
+            {
+                int enemyId = IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.BotPlayerId;
+                allTargets.Add(runtimeModel.RoMap.Bases[enemyId]);
+
+            }
 
             float minDistance = float.MaxValue;
-            Vector2Int nearestTarget = result[0];
+            Vector2Int nearestTarget = allTargets[0];
 
-            foreach (var target in result)
+            foreach (var target in allTargets)
 
             {
                 float distance = DistanceToOwnBase(nearestTarget);
@@ -67,15 +96,28 @@ namespace UnitBrains.Player
                 }
 
             }
-            result.Clear();
-            result.Add(nearestTarget);
+            if (IsPlayerUnitBrain)
+            {
+                result .Add(nearestTarget);
+            }
+            else
+            {
+                targetsOutOfRange.Add(nearestTarget);
+            }
+            
             return result;
-
+            ///////////////////////////////////////
+     
+        }
+        private List<Vector2Int> targetsOutOfRange = new List<Vector2Int>();
+        private List<Vector2Int> targetsInfRange = new List<Vector2Int>();
         
 
-
-            ///////////////////////////////////////
-        }
+       
+        
+        
+            
+        
 
         public override void Update(float deltaTime, float time)
         {
@@ -91,7 +133,6 @@ namespace UnitBrains.Player
                 }
             }
         }
-
         private int GetTemperature()
         {
             if(_overheated) return (int) OverheatTemperature;
