@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace UnitBrains.Pathfinding
 {
-    public abstract class BaseUnitPath
+    public abstract class BaseUnitPath 
     {
         public Vector2Int StartPoint => startPoint;
         public Vector2Int EndPoint => endPoint;

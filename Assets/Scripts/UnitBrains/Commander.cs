@@ -12,28 +12,21 @@ public class Commander : MonoBehaviour
     public Vector2? RecommendTarget;
     public Vector2? RecommendPoint;
 
-    private static Commander _instance;
 
     public void Init(IReadOnlyRuntimeModel model)
     {
         _runtimeModel = model;
     }
+    public Commander() { }
 
-    private Commander() { }
-
-    public static Commander GetInstance()
-    {
-        if (_instance == null)
-        {
-            _instance = new Commander();
-        }
-        return _instance;
-
-    }
+   
 
     private void Update()
     {
-        if (_runtimeModel == null) return;
+        if (_runtimeModel == null ||
+           _runtimeModel.RoMap == null ||
+           _runtimeModel.RoMap.Bases == null)
+            return;
 
         Vector2 basePos = _runtimeModel.RoMap.Bases[RuntimeModel.PlayerId];
 

@@ -12,6 +12,7 @@ namespace Model.Runtime
 {
     public class Unit : IReadOnlyUnit
     {
+        private Commander _commander;
         public UnitConfig Config { get; }
         public Vector2Int Pos { get; private set; }
         public int Health { get; private set; }
@@ -26,34 +27,45 @@ namespace Model.Runtime
         private float _nextBrainUpdateTime = 0f;
         private float _nextMoveTime = 0f;
         private float _nextAttackTime = 0f;
-        
-        public Unit(UnitConfig config, Vector2Int startPos)
+        private EffectSystem _effectSystem;
+
+        public Unit(UnitConfig config, Vector2Int startPos, Commander commander)
         {
             Config = config;
             Pos = startPos;
             Health = config.MaxHealth;
+            _commander = commander;
             _brain = UnitBrainProvider.GetBrain(config);
             _brain.SetUnit(this);
             _runtimeModel = ServiceLocator.Get<IReadOnlyRuntimeModel>();
+            _effectSystem = ServiceLocator.Get<EffectSystem>();
         }
-
+        public Commander GetCommander()
+        {
+            return _commander;
+        }
         public void Update(float deltaTime, float time)
         {
+            float moveFactor = _effectSystem.GetMoveSpeedFactor(this);
+            float attackFactor = _effectSystem.GetAttackSpeedFactor(this);
+
+            float actualMoveDelay = Config.MoveDelay / moveFactor;
+            float actualAttackDelay = Config.AttackDelay / attackFactor;
             if (IsDead)
                 return;
-            
+
             if (_nextBrainUpdateTime < time)
             {
                 _nextBrainUpdateTime = time + Config.BrainUpdateInterval;
                 _brain.Update(deltaTime, time);
             }
-            
+
             if (_nextMoveTime < time)
             {
                 _nextMoveTime = time + Config.MoveDelay;
                 Move();
             }
-            
+
             if (_nextAttackTime < time && Attack())
             {
                 _nextAttackTime = time + Config.AttackDelay;
@@ -65,7 +77,7 @@ namespace Model.Runtime
             var projectiles = _brain.GetProjectiles();
             if (projectiles == null || projectiles.Count == 0)
                 return false;
-            
+
             _pendingProjectiles.AddRange(projectiles);
             return true;
         }
@@ -85,7 +97,7 @@ namespace Model.Runtime
             {
                 return;
             }
-            
+
             Pos = targetPos;
         }
 

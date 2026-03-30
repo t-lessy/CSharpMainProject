@@ -10,12 +10,12 @@ using Unit = Model.Runtime.Unit;
 
 namespace UnitBrains
 {
-    public abstract class BaseUnitBrain
+    public abstract class BaseUnitBrain 
     {
         public virtual string TargetUnitName => string.Empty;
         public virtual bool IsPlayerUnitBrain => true;
         public virtual BaseUnitPath ActivePath => _activePath;
-        protected Commander commander => Commander.GetInstance();
+        protected Commander commander => unit?.GetCommander();
 
         protected Unit unit { get; private set; }
         protected IReadOnlyRuntimeModel runtimeModel => ServiceLocator.Get<IReadOnlyRuntimeModel>();
@@ -42,7 +42,6 @@ namespace UnitBrains
 
             _activePath = new AStarUnitPath(runtimeModel, unit.Pos, target);
             return _activePath.GetNextStepFrom(unit.Pos);
-
         }
 
         public List<BaseProjectile> GetProjectiles()
@@ -65,7 +64,6 @@ namespace UnitBrains
         public void SetUnit(Unit unit)
         {
             this.unit = unit;
-           
         }
 
         public virtual void Update(float deltaTime, float time)
@@ -167,29 +165,28 @@ namespace UnitBrains
 
             return result;
         }
-        
         protected List<Vector2Int> FilterTargetsByCommander(List<Vector2Int> targets)
         {
-            
+
             if (commander == null) return targets;
 
             var recommendTarget = commander.RecommendTarget;
             if (!recommendTarget.HasValue) return targets;
 
-           
+
             Vector2Int recommendedPos = new Vector2Int(
                 Mathf.RoundToInt(recommendTarget.Value.x),
                 Mathf.RoundToInt(recommendTarget.Value.y)
             );
 
-           
+
             if (targets.Contains(recommendedPos))
             {
-               
+
                 return new List<Vector2Int> { recommendedPos };
             }
 
-           
+
             return targets;
         }
     }
