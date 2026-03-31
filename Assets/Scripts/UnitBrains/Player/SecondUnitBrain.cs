@@ -66,7 +66,6 @@ namespace UnitBrains.Player
 
             UnitID = CounterID;
             CounterID++;
-            Debug.Log(result.Count);
 
             if (result.Count >= 1)
             {
@@ -91,14 +90,14 @@ namespace UnitBrains.Player
                 }
             }
 
-            //if (result.Count == 0)
-            //{
-            //    var enemyBase = runtimeModel.RoMap.Bases[1];
-            //    result.Clear();
-            //    if (GetReachableTargets().Contains(enemyBase))
-            //        result.Add(enemyBase);
-            //    else UnreachableTargets.Add(enemyBase);
-            //}
+            if (result.Count == 0)
+            {
+                var enemyBase = runtimeModel.RoMap.Bases[1];
+                result.Clear();
+                if (GetReachableTargets().Contains(enemyBase))
+                    result.Add(enemyBase);
+                else UnreachableTargets.Add(enemyBase);
+            }
 
             return result;
         }
