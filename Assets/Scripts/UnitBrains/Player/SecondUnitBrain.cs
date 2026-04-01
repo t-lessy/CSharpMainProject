@@ -16,7 +16,7 @@ namespace UnitBrains.Player
         private const int MaxSmartTargets = 3;
 
         private List<Vector2Int> _targetsToMove = new List<Vector2Int>();
-        
+
         public override string TargetUnitName => "Cobra Commando";
 
         private const float OverheatTemperature = 3f;
@@ -25,6 +25,13 @@ namespace UnitBrains.Player
         private float _temperature = 0f;
         private float _cooldownTime = 0f;
         private bool _overheated;
+
+        // Small per-unit offsets to prevent all units stacking on the same tile
+        private static readonly Vector2Int[] _unitOffsets =
+        {
+            new(0, 0), new(1, 0), new(-1, 0),
+            new(0, 1), new(0, -1), new(1, 1), new(-1, -1),
+        };
 
         // ====== Инициализация номера юнита ======
         public override void SetUnit(Unit unit)
@@ -41,22 +48,25 @@ namespace UnitBrains.Player
             var result = new List<Vector2Int>();
             _targetsToMove.Clear();
 
+            // Use the coordinator's recommended target if it's within 2x attack range
+            var coordinator = UnitCoordinator.Instance;
+            var coordinatorTarget = coordinator.GetRecommendedTarget();
+
+            if (coordinatorTarget != null)
+            {
+                var distToTarget = Vector2Int.Distance(unit.Pos, coordinatorTarget.Pos);
+                if (distToTarget <= unit.Config.AttackRange * 2f)
+                {
+                    _targetsToMove.Add(coordinatorTarget.Pos);
+                    if (IsTargetInRange(coordinatorTarget.Pos))
+                        result.Add(coordinatorTarget.Pos);
+                    return result;
+                }
+            }
+
+            // Fall back to individual target selection
             var allTargets = GetAllTargets().ToList();
 
-            // Если врагов нет — идем на базу
-            // if (allTargets.Count == 0)
-            // {
-            //     var enemyBase = runtimeModel.RoMap.Bases[
-            //         IsPlayerUnitBrain ? runtimeModel.BotPlayerId : runtimeModel.PlayerId
-            //     ];
-            //
-            //     allTargets.Add(enemyBase);
-            // }
-            // if (allTargets.Count == 0)
-            // {
-            //     return result;
-            // }
-            
             if (allTargets.Count == 0)
             {
                 var enemyBase = runtimeModel.RoMap.Bases.First();
@@ -85,15 +95,18 @@ namespace UnitBrains.Player
         // ====== Движение ======
         public override Vector2Int GetNextStep()
         {
-            if (_targetsToMove.Count == 0)
+            // Stay put if there's a target already in attack range
+            if (HasTargetsInRange())
                 return unit.Pos;
 
-            var target = _targetsToMove[0];
+            // Move toward the coordinator's recommended position, offset per unit to avoid stacking
+            var coordinator = UnitCoordinator.Instance;
+            var offset = _unitOffsets[_unitNumber % _unitOffsets.Length];
+            var targetPos = coordinator.GetRecommendedPosition() + offset;
 
-            if (IsTargetInRange(target))
+            var dir = targetPos - unit.Pos;
+            if (dir == Vector2Int.zero)
                 return unit.Pos;
-
-            var dir = target - unit.Pos;
 
             return new Vector2Int(
                 unit.Pos.x + Mathf.Clamp(dir.x, -1, 1),
