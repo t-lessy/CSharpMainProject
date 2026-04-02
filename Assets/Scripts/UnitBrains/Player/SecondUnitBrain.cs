@@ -57,7 +57,7 @@ namespace UnitBrains.Player
                 Vector2Int position = Vector2Int.zero;
                 Vector2Int nextPoition = Vector2Int.right;
                 position = position.CalcNextStepTowards(nextPoition);
-                return position.CalcNextStepTowards (targetsOutOfRange);
+                return position.CalcNextStepTowards(targetsOutOfRange[0]);
             }
              return unit.Pos;
         
