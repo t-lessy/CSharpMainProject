@@ -46,13 +46,19 @@ namespace Model.Runtime
         }
         public void Update(float deltaTime, float time)
         {
+            
+            if (IsDead)
+                return;
+
             float moveFactor = _effectSystem.GetMoveSpeedFactor(this);
             float attackFactor = _effectSystem.GetAttackSpeedFactor(this);
 
+            moveFactor = Mathf.Max(0.01f, moveFactor);
+            attackFactor = Mathf.Max(0.01f, attackFactor);
+
             float actualMoveDelay = Config.MoveDelay / moveFactor;
             float actualAttackDelay = Config.AttackDelay / attackFactor;
-            if (IsDead)
-                return;
+
 
             if (_nextBrainUpdateTime < time)
             {
@@ -62,13 +68,13 @@ namespace Model.Runtime
 
             if (_nextMoveTime < time)
             {
-                _nextMoveTime = time + Config.MoveDelay;
+                _nextMoveTime = time + actualMoveDelay;
                 Move();
             }
 
             if (_nextAttackTime < time && Attack())
             {
-                _nextAttackTime = time + Config.AttackDelay;
+                _nextAttackTime = time + actualAttackDelay;
             }
         }
 
