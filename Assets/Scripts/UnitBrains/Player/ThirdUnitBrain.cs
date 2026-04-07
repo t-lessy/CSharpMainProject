@@ -1,6 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
-using Model;
 using UnityEngine;
 
 namespace UnitBrains.Player
@@ -9,72 +7,59 @@ namespace UnitBrains.Player
     {
         public override string TargetUnitName => "Ironclad Behemoth";
 
-        private enum UnitState
-        {
-            Moving,
-            Attacking,
-            Switching
-        }
-
-        private UnitState _currentState = UnitState.Moving;
-        private UnitState _nextState;
-        private float _switchTimer;
+        private enum BrainMode { Move, Attack, Switching }
 
         private const float SwitchDuration = 1f;
+        private BrainMode _mode = BrainMode.Move;
+        private BrainMode _pendingMode = BrainMode.Move;
+        private float _switchTimer = 0f;
+        private bool hasTargets = false;
+
+        private void BeginSwitch(BrainMode to)
+        {
+            _pendingMode = to;
+            _mode = BrainMode.Switching;
+            _switchTimer = SwitchDuration;
+        }
 
         public override void Update(float deltaTime, float time)
         {
             base.Update(deltaTime, time);
 
-      
-            bool canAttack = base.SelectTargets().Any();
-
-            UnitState desiredState = canAttack
-                ? UnitState.Attacking
-                : UnitState.Moving;
-
-            if (_currentState != desiredState && _currentState != UnitState.Switching)
+            if (_mode == BrainMode.Switching)
             {
-                Debug.Log($"k: {_currentState} -> {desiredState}");
-                _currentState = UnitState.Switching;
-                _nextState = desiredState;
-                _switchTimer = 0.5f;
+                _switchTimer -= deltaTime;
+                if (_switchTimer <= 0f)
+                {
+                    _mode = _pendingMode;
+                    _switchTimer = 0f;
+                }
+                return;
             }
 
-            if (_currentState == UnitState.Switching)
-            {
-                _switchTimer += deltaTime;
-                Debug.Log($"IN {_switchTimer:F2}/{SwitchDuration}");
+            var desired = hasTargets ? BrainMode.Attack : BrainMode.Move;
 
-                if (_switchTimer >= SwitchDuration)
-                {
-                    _currentState = _nextState;
-                    Debug.Log($" S: {_currentState}");
-                }
+            if (_mode != desired)
+            {
+                BeginSwitch(desired);
             }
         }
 
         protected override List<Vector2Int> SelectTargets()
         {
-            if (_currentState != UnitState.Attacking)
-            {
-                Debug.Log($"ATTACK BLOCKED= {_currentState}");
-                return new List<Vector2Int>();
-            }
+            var result = base.SelectTargets();
+            hasTargets = result.Count > 0;
+            if (_mode != BrainMode.Attack)
+                result.Clear();
 
-            Debug.Log("[j");
-            return base.SelectTargets();
+            return result;
         }
 
         public override Vector2Int GetNextStep()
         {
-            if (_currentState != UnitState.Moving)
-            {
-                Debug.Log($"[e = {_currentState}");
+            if (_mode != BrainMode.Move)
                 return unit.Pos;
-            }
 
-            Debug.Log("D");
             return base.GetNextStep();
         }
     }

@@ -1,9 +1,10 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
-using Model;
 using Model.Runtime.Projectiles;
 using UnityEngine;
-using Utilities;
+using System.Linq;
+using Model;                    // чтобы видеть RuntimeModel.PlayerId / BotPlayerId
+using UnitBrains.Pathfinding;
+using System.Collections.Generic;
 
 namespace UnitBrains.Player
 {
@@ -15,67 +16,76 @@ namespace UnitBrains.Player
         private float _temperature = 0f;
         private float _cooldownTime = 0f;
         private bool _overheated;
-        private int Unit;
-        private static int UnitPlus = 0;
-        private const int MaxUnit = 2;
-        private Vector2Int Arack;
+        private static int s_unitCounter = 0;
+        private int _unitNumber;
+        private const int MAX_SMART_TARGETS = 3;
 
-        public SecondUnitBrain()
+        //private readonly System.Collections.Generic.List<Vector2Int> _pendingTargets = new System.Collections.Generic.List<Vector2Int>();
+        private readonly List<Vector2Int> _pendingTargets = new List<Vector2Int>();
+        private Vector2Int? _currentObjective;
+
+        public SecondUnitBrain() { _unitNumber = s_unitCounter++; }
+
+        private void SortByDistanceToOwnBase(List<Vector2Int> list)
         {
-            Unit = UnitPlus;
-            UnitPlus++;
+            var myBase = runtimeModel.RoMap.Bases[IsPlayerUnitBrain ? RuntimeModel.PlayerId : RuntimeModel.BotPlayerId];
+            list.Sort((a, b) => ((a - myBase).sqrMagnitude).CompareTo((b - myBase).sqrMagnitude));
         }
 
         protected override void GenerateProjectiles(Vector2Int forTarget, List<BaseProjectile> intoList)
         {
             float overheatTemperature = OverheatTemperature;
-            float temperature = GetTemperature();
-            if (temperature >= overheatTemperature)
+     
+
+            float currentTemperature = GetTemperature();
+            if (currentTemperature >= overheatTemperature) { return; }
+
+            for (float i = -1; i < currentTemperature; i++)
             {
-                return;
-            }
-            for (int i = 0; i < temperature; i++)  // исправлено: i < temperature, чтобы цикл был корректным
-            {
+                ///////////////////////////////////////
+                // Homework 1.3 (1st block, 3rd module)
+                ///////////////////////////////////////      
                 var projectile = CreateProjectile(forTarget);
                 AddProjectileToList(projectile, intoList);
+                ///////////////////////////////////////
             }
-
             IncreaseTemperature();
         }
 
         public override Vector2Int GetNextStep()
         {
-            if (Arack == default)
-                return unit.Pos;
-            if (GetReachableTargets().Contains(Arack))
-                return unit.Pos;
-
-            return unit.Pos.CalcNextStepTowards(Arack);
+            
+            if (_currentObjective == null && _pendingTargets.Count > 0) _currentObjective = _pendingTargets[0];
+            if (_currentObjective == null) return unit.Pos;
+            if (IsTargetInRange(_currentObjective.Value)) return unit.Pos;
+            var path = new DummyUnitPath(runtimeModel, unit.Pos, _currentObjective.Value);
+            return path.GetNextStepFrom(unit.Pos);
         }
 
         protected override List<Vector2Int> SelectTargets()
         {
-            var result = GetReachableTargets();
-            var allTargets = GetAllTargets().ToList();
-
-            if (allTargets.Any())
+            ///////////////////////////////////////
+            // Homework 1.4 (1st block, 4rd module)
+            ///////////////////////////////////////
+                _pendingTargets.Clear();
+            var goals = new List<Vector2Int>();
+            foreach (var t in GetAllTargets()) goals.Add(t);
+            if (goals.Count == 0)
             {
-                var sorted = allTargets.OrderBy(DistanceToOwnBase).ToList();
-                int res = Unit % MaxUnit;
-                Arack = res < sorted.Count ? sorted[res] : sorted.Last();
+          
+                var enemyBase = runtimeModel.RoMap.Bases[IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId];
+                goals.Add(enemyBase);
             }
-            else
-            {
-                Arack = runtimeModel.RoMap.Bases[RuntimeModel.BotPlayerId];
-            }
-
-            if (IsTargetInRange(Arack))
-            {
-                result.Add(Arack);
-            }
+            SortByDistanceToOwnBase(goals);
+            int idx = _unitNumber % MAX_SMART_TARGETS;
+            if (idx >= goals.Count) idx = 0;
+            var chosen = goals[idx];
+            _currentObjective = chosen;
+            var result = new List<Vector2Int>();
+            if (IsTargetInRange(chosen)) result.Add(chosen); else _pendingTargets.Add(chosen);
             return result;
+            ///////////////////////////////////////
         }
-
         public override void Update(float deltaTime, float time)
         {
             if (_overheated)
