@@ -2,6 +2,7 @@
 using Model.Runtime.Projectiles;
 using System.Collections.Generic;
 using System.Linq;
+using UnitBrains.Pathfinding;
 using UnityEngine;
 using Utilities;
 
@@ -13,12 +14,15 @@ namespace UnitBrains.Player
 
         private const float OverheatTemperature = 3f;
         private const float OverheatCooldown = 2f;
+        private const int MaxTargetsToConsider = 3;
+
+        private static int _unitCounter = 0;
+        private int _unitIndex = _unitCounter++;
 
         private float _temperature = 0f;
         private float _cooldownTime = 0f;
         private bool _overheated;
 
-        // Цели, к которым нужно двигаться
         private readonly List<Vector2Int> _targetsToMove = new();
 
         protected override void GenerateProjectiles(Vector2Int forTarget, List<BaseProjectile> intoList)
@@ -34,11 +38,9 @@ namespace UnitBrains.Player
 
             Vector2Int target = _targetsToMove[0];
 
-            // Если цель уже в зоне атаки — стоим
             if (IsTargetInRange(target))
                 return unit.Pos;
 
-            // Иначе идём к цели
             return unit.Pos.CalcNextStepTowards(target);
         }
 
@@ -47,51 +49,35 @@ namespace UnitBrains.Player
             List<Vector2Int> result = new();
             _targetsToMove.Clear();
 
-            // Получаем все цели
             List<Vector2Int> allTargets = GetAllTargets().ToList();
 
-            // База противника уже входит в GetAllTargets(),
-            // но по заданию её надо атаковать только если врагов нет
             Vector2Int enemyBase = runtimeModel.RoMap.Bases[
                 IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId
             ];
 
             allTargets.Remove(enemyBase);
 
-            if (allTargets.Count > 0)
+            if (allTargets.Count == 0)
             {
-                // Ищем самую опасную цель — ближайшую к нашей базе
-                Vector2Int myBase = runtimeModel.RoMap.Bases[
-                    IsPlayerUnitBrain ? RuntimeModel.PlayerId : RuntimeModel.BotPlayerId
-                ];
-
-                Vector2Int mostDangerous = allTargets[0];
-                int minDist = Distance(myBase, mostDangerous);
-
-                for (int i = 1; i < allTargets.Count; i++)
-                {
-                    int dist = Distance(myBase, allTargets[i]);
-
-                    if (dist < minDist)
-                    {
-                        minDist = dist;
-                        mostDangerous = allTargets[i];
-                    }
-                }
-
-                _targetsToMove.Add(mostDangerous);
-
-                if (IsTargetInRange(mostDangerous))
-                    result.Add(mostDangerous);
-            }
-            else
-            {
-                // Если врагов нет — идём к базе противника
                 _targetsToMove.Add(enemyBase);
 
                 if (IsTargetInRange(enemyBase))
                     result.Add(enemyBase);
+
+                return result;
             }
+
+            SortByDistanceToOwnBase(allTargets);
+
+            int targetsCount = Mathf.Min(MaxTargetsToConsider, allTargets.Count);
+            int targetIndex = _unitIndex % targetsCount;
+
+            Vector2Int selectedTarget = allTargets[targetIndex];
+
+            _targetsToMove.Add(selectedTarget);
+
+            if (IsTargetInRange(selectedTarget))
+                result.Add(selectedTarget);
 
             return result;
         }
@@ -114,10 +100,7 @@ namespace UnitBrains.Player
 
         private int GetTemperature()
         {
-            if (_overheated)
-                return (int)OverheatTemperature;
-
-            return (int)_temperature;
+            return _overheated ? (int)OverheatTemperature : (int)_temperature;
         }
 
         private void IncreaseTemperature()
@@ -126,11 +109,6 @@ namespace UnitBrains.Player
 
             if (_temperature >= OverheatTemperature)
                 _overheated = true;
-        }
-
-        private int Distance(Vector2Int a, Vector2Int b)
-        {
-            return Mathf.Abs(a.x - b.x) + Mathf.Abs(a.y - b.y);
         }
     }
 }
