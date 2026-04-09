@@ -17,7 +17,7 @@ public class EnterPoint : MonoBehaviour
     *моя радостно 
     /*/
     
-    private float _timeScale = 1;
+    private float _timeScale = 5;
     
     void Start()
     {
