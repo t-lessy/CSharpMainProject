@@ -96,18 +96,18 @@ namespace UnitBrains.Player
                 }
 
             }
-            if (IsPlayerUnitBrain)
+            if (IsTargetInRange(nearestTarget))
             {
-                result .Add(nearestTarget);
+                result.Add(nearestTarget);
             }
             else
             {
                 targetsOutOfRange.Add(nearestTarget);
             }
-            
             return result;
             ///////////////////////////////////////
-     
+
+
         }
         private List<Vector2Int> targetsOutOfRange = new List<Vector2Int>();
         private List<Vector2Int> targetsInfRange = new List<Vector2Int>();
