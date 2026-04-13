@@ -46,7 +46,7 @@ namespace UnitBrains.Player
         public override Vector2Int GetNextStep()
             
         {
-            if (GetAllTargets().Any())
+            if (SelectTargets().Any())
             {
                 return unit.Pos;
             }
@@ -54,13 +54,10 @@ namespace UnitBrains.Player
             
             if (targetsOutOfRange.Count > 0)
             {
-                Vector2Int position = Vector2Int.zero;
-                Vector2Int nextPoition = Vector2Int.right;
-                position = position.CalcNextStepTowards(nextPoition);
-                return position.CalcNextStepTowards(targetsOutOfRange[0]);
+              
+                return unit.Pos.CalcNextStepTowards(targetsOutOfRange[0]);
             }
-             return unit.Pos;
-        
+            return unit.Pos;
         }    
 
         protected override List<Vector2Int> SelectTargets()
@@ -87,7 +84,7 @@ namespace UnitBrains.Player
             foreach (var target in allTargets)
 
             {
-                float distance = DistanceToOwnBase(nearestTarget);
+                float distance = DistanceToOwnBase(target);
 
                 if (distance < minDistance)
                 {
