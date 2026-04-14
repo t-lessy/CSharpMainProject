@@ -14,12 +14,40 @@ public class ThirdUnitBrain : DefaultPlayerUnitBrain
     private bool isMoveMode = true;
     private const float switchTime = 0.1f;
     private float switchTimer = 0f;
+    private float _currentRangeMultiplier = 1f;
+
+    public void ModifyAttackRange(float multiplier)
+    {
+        _currentRangeMultiplier = multiplier;
+       
+    }
+    private float GetCurrentAttackRange()
+    {
+        return unit.Config.AttackRange * _currentRangeMultiplier;
+    }
+
+
 
     protected override List<Vector2Int> SelectTargets()
     {
         if (isAttackMode && switchTimer <= 0)
         {
-            return base.SelectTargets();
+            float range = GetCurrentAttackRange();
+
+            var allTargets = GetAllTargets();
+            var targetsInRange = new List<Vector2Int>();
+
+            foreach (var target in allTargets)
+            {
+                float distance = Vector2Int.Distance(target, unit.Pos);
+                if (distance <= range)
+                {
+                    targetsInRange.Add(target);
+                }
+            }
+
+            if (targetsInRange.Count > 0)
+                return new List<Vector2Int> { targetsInRange[0] };
         }
         return new List<Vector2Int>();
     }

@@ -45,6 +45,7 @@ namespace UnitBrains
         }
 
         public List<BaseProjectile> GetProjectiles()
+
         {
             List<BaseProjectile> result = new();
             foreach (var target in SelectTargets())

@@ -128,24 +128,32 @@ namespace UnitBrains.Player
 
         private bool HasActiveBuff(IReadOnlyUnit ally)
         {
-           
-            float moveFactor = _effectSystem.GetMoveSpeedFactor(ally);
-            float attackFactor = _effectSystem.GetAttackSpeedFactor(ally);
+            Unit targetUnit = ally as Unit;
+            if (targetUnit == null) return false;
 
-            
-            return moveFactor != 1f || attackFactor != 1f;
+            return _effectSystem.HasActiveBuff(targetUnit);
         }
 
         private void ApplyBuffToAlly(IReadOnlyUnit ally)
         {
-            
-            var speedBuff = new MovementEffect(4f, 1.3f);
-           
-            var attackBuff = new AttackRateEffect(4f, 1.2f);
 
-            _effectSystem.AddEffect(ally, speedBuff);
-            _effectSystem.AddEffect(ally, attackBuff);
+            Unit targetUnit = ally as Unit;
+            if (targetUnit == null) return;
+            var speedBuff = new SpeedBuff(4f, 1.3f);
+            var attackBuff = new AttackRateBuff(4f, 1.2f);
 
+            _effectSystem.AddEffect(targetUnit, speedBuff);
+            _effectSystem.AddEffect(targetUnit, attackBuff);
+            if (targetUnit.GetBrain() is SecondUnitBrain secondBrain)
+            {
+                var doubleShotBuff = new DoubleShotBuff(4f);
+                _effectSystem.AddEffect(targetUnit, doubleShotBuff);
+            }
+            if (targetUnit.GetBrain() is ThirdUnitBrain)
+            {
+                var rangeBuff = new RangeBuff(4f, 1.5f);  
+                _effectSystem.AddEffect(targetUnit, rangeBuff);
+            }
         }
 
         private void ShowBuffEffect(Vector2Int position)

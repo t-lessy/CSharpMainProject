@@ -27,7 +27,16 @@ namespace Model.Runtime
         private float _nextBrainUpdateTime = 0f;
         private float _nextMoveTime = 0f;
         private float _nextAttackTime = 0f;
-        private EffectSystem _effectSystem;
+
+        private float _baseMoveDelay;
+        private float _baseAttackDelay;
+        private float _baseAttackRange;
+
+        private float _currentMoveDelay;
+        private float _currentAttackDelay;
+        private float _currentAttackRange;
+
+        public float CurrentAttackRange => _currentAttackRange;
 
         public Unit(UnitConfig config, Vector2Int startPos, Commander commander)
         {
@@ -38,7 +47,32 @@ namespace Model.Runtime
             _brain = UnitBrainProvider.GetBrain(config);
             _brain.SetUnit(this);
             _runtimeModel = ServiceLocator.Get<IReadOnlyRuntimeModel>();
-            _effectSystem = ServiceLocator.Get<EffectSystem>();
+           
+            _baseMoveDelay = config.MoveDelay;
+            _baseAttackDelay = config.AttackDelay;
+            _baseAttackRange = config.AttackRange;
+
+            _currentMoveDelay = _baseMoveDelay;
+            _currentAttackDelay = _baseAttackDelay;
+            _currentAttackRange = _baseAttackRange;
+        }
+        public BaseUnitBrain GetBrain()
+        {
+            return _brain;
+        }
+        public void ModifyMoveSpeed(float multiplier)
+        {
+            _currentMoveDelay = _baseMoveDelay / multiplier;
+        }
+
+        public void ModifyAttackSpeed(float multiplier)
+        {
+            _currentAttackDelay = _baseAttackDelay / multiplier;
+        }
+
+        public void ModifyAttackRange(float multiplier)
+        {
+            _currentAttackRange = _baseAttackRange * multiplier;
         }
         public Commander GetCommander()
         {
@@ -50,16 +84,6 @@ namespace Model.Runtime
             if (IsDead)
                 return;
 
-            float moveFactor = _effectSystem.GetMoveSpeedFactor(this);
-            float attackFactor = _effectSystem.GetAttackSpeedFactor(this);
-
-            moveFactor = Mathf.Max(0.01f, moveFactor);
-            attackFactor = Mathf.Max(0.01f, attackFactor);
-
-            float actualMoveDelay = Config.MoveDelay / moveFactor;
-            float actualAttackDelay = Config.AttackDelay / attackFactor;
-
-
             if (_nextBrainUpdateTime < time)
             {
                 _nextBrainUpdateTime = time + Config.BrainUpdateInterval;
@@ -68,13 +92,13 @@ namespace Model.Runtime
 
             if (_nextMoveTime < time)
             {
-                _nextMoveTime = time + actualMoveDelay;
+                _nextMoveTime = time + _currentMoveDelay;
                 Move();
             }
 
             if (_nextAttackTime < time && Attack())
             {
-                _nextAttackTime = time + actualAttackDelay;
+                _nextAttackTime = time + _currentAttackDelay;
             }
         }
 
@@ -94,7 +118,6 @@ namespace Model.Runtime
             var delta = targetPos - Pos;
             if (delta.sqrMagnitude > 2)
             {
-                Debug.LogError($"Brain for unit {Config.Name} returned invalid move: {delta}");
                 return;
             }
 

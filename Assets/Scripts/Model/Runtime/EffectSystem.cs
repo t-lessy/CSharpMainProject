@@ -8,8 +8,8 @@ namespace Model.Runtime
 {
     public class EffectSystem : MonoBehaviour
     {
-       
-        private readonly Dictionary<IReadOnlyUnit, List<GameEffect>> _effects = new();
+
+        private readonly Dictionary<Unit, List<IBuff>> _activeBuffs = new();
         private readonly TimeUtil _timeUtil;
 
         public EffectSystem()
@@ -23,92 +23,69 @@ namespace Model.Runtime
             _timeUtil.RemoveUpdateAction(OnUpdate);
         }
 
-        public void AddEffect(IReadOnlyUnit unit, GameEffect effect)
+        public void AddEffect(Unit target, IBuff buff)
         {
-            if (!_effects.ContainsKey(unit))
+            buff.Apply(target);
+
+            if (!_activeBuffs.ContainsKey(target))
             {
-                _effects[unit] = new List<GameEffect>();
+                _activeBuffs[target] = new List<IBuff>();
             }
-            _effects[unit].Add(effect);
+            _activeBuffs[target].Add(buff);
         }
 
-        public float GetMoveSpeedFactor(IReadOnlyUnit unit)
+        public void RemoveEffect(Unit target, IBuff buff)
         {
-            float factor = 1f;
-            if (_effects.TryGetValue(unit, out var effects))
+            if (_activeBuffs.ContainsKey(target))
             {
-                foreach (var effect in effects)
+                List<IBuff> buffs = _activeBuffs[target];
+                buff.Remove(target);
+                buffs.Remove(buff);
+
+                if (buffs.Count == 0)
                 {
-                    if (effect is MovementEffect moveEffect)
-                    {
-                        factor *= moveEffect.SpeedMultiplier;
-                    }
+                    _activeBuffs.Remove(target);
                 }
             }
-            return factor;
         }
 
-        public float GetAttackSpeedFactor(IReadOnlyUnit unit)
-        {
-            float factor = 1f;
-            if (_effects.TryGetValue(unit, out var effects))
-            {
-                foreach (var effect in effects)
-                {
-                    if (effect is AttackRateEffect attackEffect)
-                    {
-                        factor *= attackEffect.RateMultiplier;
-                    }
-                }
-            }
-            return factor;
-        }
 
         private void OnUpdate(float deltaTime)
         {
-            foreach (var unitEffects in _effects.Values)
+            List<Unit> unitsToRemove = new List<Unit>();
+            foreach (Unit unit in _activeBuffs.Keys)
             {
-                for (int i = unitEffects.Count - 1; i >= 0; i--)
+                List<IBuff> buffs = _activeBuffs[unit];
+
+                for (int i = 0; i < buffs.Count; i++)
                 {
-                    var effect = unitEffects[i];
-                    effect.TimeLeft -= deltaTime;
-                    if (effect.TimeLeft <= 0)
+                    IBuff buff = buffs[i];
+                    buff.TimeLeft -= deltaTime;
+
+                    if (buff.TimeLeft <= 0)
                     {
-                        unitEffects.RemoveAt(i);
+                        buff.Remove(unit);
+                        buffs.RemoveAt(i);
+                        i--;
                     }
                 }
+
+                if (buffs.Count == 0)
+                {
+                    unitsToRemove.Add(unit);
+                }
+            }
+            foreach (Unit unit in unitsToRemove)
+            {
+                _activeBuffs.Remove(unit);
             }
         }
-    }
 
-    public abstract class GameEffect
-    {
-        public float TimeLeft { get; set; }
-
-        public GameEffect(float duration)
+        public bool HasActiveBuff(Unit target)
         {
-            TimeLeft = duration;
+            return _activeBuffs.ContainsKey(target) && _activeBuffs[target].Count > 0;
         }
     }
 
-    public class MovementEffect : GameEffect
-    {
-        public float SpeedMultiplier { get; }
-
-        public MovementEffect(float duration, float multiplier) : base(duration)
-        {
-            SpeedMultiplier = multiplier;
-        }
     }
-
-    public class AttackRateEffect : GameEffect
-    {
-        public float RateMultiplier { get; }
-
-        public AttackRateEffect(float duration, float multiplier) : base(duration)
-        {
-            RateMultiplier = multiplier;
-        }
-    }
-}
    

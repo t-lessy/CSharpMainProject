@@ -25,14 +25,28 @@ namespace UnitBrains.Player
         private static int _count = 0;
         private int UnitId;
         private const int MaxTarget = 3;
+        private bool _isDoubleShotEnabled = false;
 
-        
-
-        
+        public void EnableDoubleShot()
+        {
+            _isDoubleShotEnabled = true;    
+        }
+        public void DisableDoubleShot()
+        {
+            _isDoubleShotEnabled = false;
            
+        }
 
         protected override void GenerateProjectiles(Vector2Int forTarget, List<BaseProjectile> intoList)
         {
+            if (_isDoubleShotEnabled) 
+            {
+                var projectile1 = CreateProjectile(forTarget);
+                var projectile2 = CreateProjectile(forTarget);
+                AddProjectileToList(projectile1, intoList);
+                AddProjectileToList(projectile2, intoList);
+                return; 
+            }
             float overheatTemperature = OverheatTemperature;
             if (GetTemperature() < overheatTemperature)
             {
@@ -57,8 +71,6 @@ namespace UnitBrains.Player
             
             return IsTargetInRange(target) ? unit.Pos : unit.Pos.CalcNextStepTowards(target);
         }
-
-
 
         protected override List<Vector2Int> SelectTargets()
         {
