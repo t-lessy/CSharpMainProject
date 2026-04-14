@@ -1,7 +1,9 @@
-﻿using Model.Runtime.Projectiles;
+﻿using Model;
+using Model.Runtime.Projectiles;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using UnitBrains.Pathfinding;
 using UnityEngine;
 using Utilities;
 
@@ -20,13 +22,12 @@ namespace UnitBrains.Player
         private int UnitID;
         private const int MaxID = 3;
 
+        private BaseUnitPath _activePath = null;
+        public override BaseUnitPath ActivePath => _activePath;
+
         protected override void GenerateProjectiles(Vector2Int forTarget, List<BaseProjectile> intoList)
         {
             float overheatTemperature = OverheatTemperature;
-            ///////////////////////////////////////
-            // Homework 1.3 (1st block, 3rd module)
-            ///////////////////////////////////////
-
             if (GetTemperature() < overheatTemperature)
             {
                 if (GetTemperature() == 0)
@@ -44,7 +45,6 @@ namespace UnitBrains.Player
                 }
                 IncreaseTemperature();
             }
-            ///////////////////////////////////////
         }
 
         public override Vector2Int GetNextStep()
@@ -52,7 +52,11 @@ namespace UnitBrains.Player
             if (UnreachableTargets.Count == 0 || GetReachableTargets().Contains(UnreachableTargets[0]))
                 return unit.Pos;
             else
-                return unit.Pos.CalcNextStepTowards(UnreachableTargets[0]);
+            {
+                var target = UnreachableTargets[0];
+                _activePath = new NewUnitPath(runtimeModel, unit.Pos, target);
+                return _activePath.GetNextStepFrom(unit.Pos);
+            }
         }
 
         protected override List<Vector2Int> SelectTargets()
