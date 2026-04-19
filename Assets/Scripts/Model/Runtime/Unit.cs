@@ -55,6 +55,7 @@ namespace Model.Runtime
             _currentMoveDelay = _baseMoveDelay;
             _currentAttackDelay = _baseAttackDelay;
             _currentAttackRange = _baseAttackRange;
+            Debug.Log($"<color=cyan>[Unit] {Config.Name} создан. MoveDelay: {_currentMoveDelay}, AttackDelay: {_currentAttackDelay}</color>");
         }
         public BaseUnitBrain GetBrain()
         {
@@ -83,7 +84,8 @@ namespace Model.Runtime
             
             if (IsDead)
                 return;
-
+            if (_currentMoveDelay <= 0) _currentMoveDelay = _baseMoveDelay;
+            if (_currentAttackDelay <= 0) _currentAttackDelay = _baseAttackDelay;
             if (_nextBrainUpdateTime < time)
             {
                 _nextBrainUpdateTime = time + Config.BrainUpdateInterval;
@@ -92,6 +94,7 @@ namespace Model.Runtime
 
             if (_nextMoveTime < time)
             {
+                Debug.Log($"[Unit] {Config.Name} движение. Задержка: {_currentMoveDelay}, Время: {time}");
                 _nextMoveTime = time + _currentMoveDelay;
                 Move();
             }
@@ -116,6 +119,7 @@ namespace Model.Runtime
         {
             var targetPos = _brain.GetNextStep();
             var delta = targetPos - Pos;
+            Debug.Log($"[Unit] {Config.Name} пытается двигаться с {Pos} на {targetPos}");
             if (delta.sqrMagnitude > 2)
             {
                 return;
@@ -128,6 +132,7 @@ namespace Model.Runtime
             }
 
             Pos = targetPos;
+            Debug.Log($"<color=green>[Unit] {Config.Name} переместился на {Pos}</color>");
         }
 
         public void ClearPendingProjectiles()
@@ -140,4 +145,5 @@ namespace Model.Runtime
             Health -= projectileDamage;
         }
     }
-}
+    
+  }
