@@ -1,9 +1,18 @@
+using Model;
+using Utilities;
+
 namespace UnitBrains
 {
     public class ArmyBrain
     {
+        private readonly TimeUtil _timeUtil;
+        private readonly IReadOnlyRuntimeModel _runtimeModel;
+        
         private static ArmyBrain _instance;
-        private ArmyBrain() {}
+        private ArmyBrain() {
+            _timeUtil = ServiceLocator.Get<TimeUtil>();
+            _runtimeModel = ServiceLocator.Get<IReadOnlyRuntimeModel>();
+        }
 
         public static ArmyBrain GetInstance()
         {
