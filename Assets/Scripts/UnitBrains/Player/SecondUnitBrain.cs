@@ -1,6 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using Model;
 using Model.Runtime.Projectiles;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
+using UnityEngine.UIElements;
+using Utilities;
 
 namespace UnitBrains.Player
 {
@@ -37,7 +41,13 @@ namespace UnitBrains.Player
 
         public override Vector2Int GetNextStep()
         {
-            return base.GetNextStep();
+            Vector2Int position = unit.Pos;
+            Vector2Int nextPosition = GetAllTargets().ToList()[0];
+            if (IsTargetInRange(nextPosition))
+            {
+                return position;
+            }
+            return position.CalcNextStepTowards(nextPosition);
         }
 
         protected override List<Vector2Int> SelectTargets()
@@ -45,23 +55,38 @@ namespace UnitBrains.Player
             ///////////////////////////////////////
             // Homework 1.4 (1st block, 4rd module)
             ///////////////////////////////////////
-            List<Vector2Int> result = GetReachableTargets();
+            List<Vector2Int> result = GetAllTargets().ToList();
+            List<Vector2Int> BodiesNotInRange = new List<Vector2Int>();
+
             float minima = float.MaxValue;
-            if (result.Count == 0)
+
+
+            if (result.Count() == 0)
             {
+                int enemyId = IsPlayerUnitBrain ? RuntimeModel.PlayerId : RuntimeModel.BotPlayerId;
+                result.Clear();
+                result.Add(runtimeModel.RoMap.Bases[RuntimeModel.PlayerId]);
                 return result;
             }
-            Vector2Int MinBody = result[0];
-            foreach (Vector2Int Body in result)
+            if (result.Count > 0)
             {
-                if (DistanceToOwnBase(Body) < minima)
+                Vector2Int MinBody = result[0];
+                foreach (Vector2Int Body in result)
                 {
-                    MinBody = Body;
-                    minima = DistanceToOwnBase(Body);
+                    if (!IsTargetInRange(Body))
+                    {
+                        BodiesNotInRange.Add(Body);
+                    }
+                    if (IsTargetInRange(Body) && DistanceToOwnBase(Body) < minima)
+                    {
+                        MinBody = Body;
+                        minima = DistanceToOwnBase(Body);
+                    }
                 }
+                result.Clear();
+                result.Add(MinBody);
+
             }
-            result.Clear();
-            result.Add(MinBody);
             return result;
             ///////////////////////////////////////
         }
