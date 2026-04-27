@@ -4,6 +4,7 @@ using Model.Runtime.Projectiles;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using UnitBrains.Pathfinding;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -43,17 +44,17 @@ namespace UnitBrains.Player
 
         public override Vector2Int GetNextStep()
         {
- 
             if (_moveTargets.Count == 0)
-                return unit.Pos;
+                return base.GetNextStep(); 
 
             Vector2Int target = _moveTargets[0];
 
             if (IsTargetInRange(target))
                 return unit.Pos;
 
-            Vector2Int nextPosition = unit.Pos.CalcNextStepTowards(target);
-            return nextPosition;
+            _activePath = new SmartPath(runtimeModel, unit.Pos, target);
+            return _activePath.GetNextStepFrom(unit.Pos);
+
         }
 
 
