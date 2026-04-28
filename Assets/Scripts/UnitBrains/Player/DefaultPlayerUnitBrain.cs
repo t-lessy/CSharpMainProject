@@ -24,7 +24,7 @@ namespace UnitBrains.Player
             if (HasTargetsInRange())
                 return unit.Pos;
 
-            var target = SingletonCoordinator.GetInstance().GetRecomendedPos(IsPlayerUnitBrain);
+            var target = unitCoordinator.GetRecomendedPos(IsPlayerUnitBrain);
 
             _activePath = new NewUnitPath(runtimeModel, unit.Pos, target);
             return _activePath.GetNextStepFrom(unit.Pos);
@@ -34,7 +34,7 @@ namespace UnitBrains.Player
         {
             var result = new List<Vector2Int>();
             var attackRangeX2 = this.unit.Config.AttackRange * 2;
-            var target = SingletonCoordinator.GetInstance().GetRecomendedTarget(IsPlayerUnitBrain);
+            var target = unitCoordinator.GetRecomendedTarget(IsPlayerUnitBrain);
             if (GetUnitsInRadius(attackRangeX2, true).Contains(target))
             {
                 result.Add(target.Pos);

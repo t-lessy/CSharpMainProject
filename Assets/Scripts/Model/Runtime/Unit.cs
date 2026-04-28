@@ -7,6 +7,8 @@ using UnitBrains;
 using UnitBrains.Pathfinding;
 using UnityEngine;
 using Utilities;
+using Controller;
+using BuffSystem;
 
 namespace Model.Runtime
 {
@@ -16,25 +18,29 @@ namespace Model.Runtime
         public Vector2Int Pos { get; private set; }
         public int Health { get; private set; }
         public bool IsDead => Health <= 0;
+
+        public IBuffSystem _buffManager;
+
         public BaseUnitPath ActivePath => _brain?.ActivePath;
         public IReadOnlyList<BaseProjectile> PendingProjectiles => _pendingProjectiles;
 
         private readonly List<BaseProjectile> _pendingProjectiles = new();
         private IReadOnlyRuntimeModel _runtimeModel;
         private BaseUnitBrain _brain;
-
         private float _nextBrainUpdateTime = 0f;
         private float _nextMoveTime = 0f;
         private float _nextAttackTime = 0f;
         
-        public Unit(UnitConfig config, Vector2Int startPos)
+        public Unit(UnitConfig config, Vector2Int startPos, UnitCoordinator unitCoordinator)
         {
             Config = config;
             Pos = startPos;
             Health = config.MaxHealth;
             _brain = UnitBrainProvider.GetBrain(config);
             _brain.SetUnit(this);
+            _brain.SetSingletonCoordinator(unitCoordinator);
             _runtimeModel = ServiceLocator.Get<IReadOnlyRuntimeModel>();
+            _buffManager = ServiceLocator.Get<IBuffSystem>();
         }
 
         public void Update(float deltaTime, float time)
@@ -50,14 +56,36 @@ namespace Model.Runtime
             
             if (_nextMoveTime < time)
             {
-                _nextMoveTime = time + Config.MoveDelay;
+                //_nextMoveTime = time + Config.MoveDelay; // стандартный старый код
+                _nextMoveTime = time + GetMoveDelay();
                 Move();
             }
             
             if (_nextAttackTime < time && Attack())
             {
-                _nextAttackTime = time + Config.AttackDelay;
+                //_nextAttackTime = time + Config.AttackDelay; // стандартный старый код
+                _nextAttackTime = time + GetAttackDelay();
             }
+        }
+
+        private float GetMoveDelay()
+        {
+            return Config.MoveDelay + GetBuffModifier(BuffType.MoveSpeed);
+        }
+
+        private float GetAttackDelay()
+        {
+            return Config.AttackDelay + GetBuffModifier(BuffType.AttackSpeed);
+        }
+
+        private float GetBuffModifier(BuffType type)
+        {
+            var buff = _buffManager.GetBuff(this, type);
+            if (buff == null)
+            {
+                return 0f;
+            }
+            return buff.Modifier;
         }
 
         private bool Attack()

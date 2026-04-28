@@ -1,3 +1,4 @@
+using BuffSystem;
 using Model;
 using Model.Runtime.Projectiles;
 using System.Collections;
@@ -33,6 +34,8 @@ namespace UnitBrains.Player
                 if ((Time.time - _Pause_FixedTime) >= _Pause_OneSecond)
                 {
                     _Pause = false;
+                    unit._buffManager.AddBuff(this.unit, BuffType.MoveSpeed, 1f, -0.15f);
+                    unit._buffManager.AddBuff(this.unit, BuffType.AttackSpeed, 1f, -0.05f);
                 }
                 else
                 {
