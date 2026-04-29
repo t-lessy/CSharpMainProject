@@ -1,27 +1,60 @@
 ﻿<Properties StartupConfiguration="{802CDF90-C5C6-7CA9-F8EE-EA14FE645CAC}|">
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/EnterPoint.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/UnityTechnologies/TowerDefenseTemplate/Scripts/TowerDefense/Nodes/RandomNodeSelector.cs">
     <Files>
-      <File FileName="Assets/Scripts/UnitBrains/BaseUnitBrain.cs" Line="42" Column="44" />
+      <File FileName="Assets/Scripts/UnitBrains/BaseUnitBrain.cs" Line="41" Column="1" />
       <File FileName="Assets/Scripts/UnitBrains/Player/DefaultPlayerUnitBrain.cs" />
-      <File FileName="Assets/Scripts/UnitBrains/Player/SecondUnitBrain.cs" Line="40" Column="27" />
-      <File FileName="Assets/Scripts/Model/Runtime/Projectiles/ArchToTileProjectile.cs" Line="32" Column="12" />
-      <File FileName="Assets/Scripts/UnitBrains/Player/AStarUnitPath.cs" Line="141" Column="34" />
-      <File FileName="Assets/Scripts/UnitBrains/Pathfinding/DebugPathOutput.cs" Line="35" Column="13" />
-      <File FileName="Assets/Scripts/UnitBrains/Player/ThirdUnitBrain.cs" Line="63" Column="39" />
-      <File FileName="Assets/Scripts/EnterPoint.cs" Line="13" Column="33" />
-      <File FileName="Assets/Scripts/UnitBrains/Pathfinding/BaseUnitPath.cs" Line="49" Column="1" />
+      <File FileName="Assets/Scripts/UnitBrains/Player/SecondUnitBrain.cs" />
+      <File FileName="Assets/Scripts/Model/Runtime/Projectiles/ArchToTileProjectile.cs" />
+      <File FileName="Assets/Scripts/UnitBrains/Pathfinding/DebugPathOutput.cs" />
+      <File FileName="Assets/Scripts/UnitBrains/Player/ThirdUnitBrain.cs" />
+      <File FileName="Assets/Scripts/EnterPoint.cs" />
+      <File FileName="Assets/Scripts/UnitBrains/Pathfinding/BaseUnitPath.cs" />
+      <File FileName="Assets/UnityTechnologies/TowerDefenseTemplate/Scripts/TowerDefense/Nodes/Node.cs" />
+      <File FileName="Assets/UnityTechnologies/TowerDefenseTemplate/Scripts/TowerDefense/Level/Wave.cs" />
+      <File FileName="Assets/UnityTechnologies/TowerDefenseTemplate/Scripts/TowerDefense/Nodes/NodeSelector.cs" />
+      <File FileName="Assets/UnityTechnologies/TowerDefenseTemplate/Scripts/TowerDefense/Nodes/RandomNodeSelector.cs" Line="1" Column="1" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State name="__root__">
-          <Node name="XYx" expanded="True" selected="True" />
+          <Node name="XYx" expanded="True">
+            <Node name="Assets" expanded="True">
+              <Node name="Scripts" expanded="True">
+                <Node name="Model" expanded="True">
+                  <Node name="Runtime" expanded="True">
+                    <Node name="Projectiles" expanded="True" />
+                  </Node>
+                </Node>
+                <Node name="UnitBrains" expanded="True">
+                  <Node name="Pathfinding" expanded="True" />
+                  <Node name="Player" expanded="True" />
+                  <Node name="BaseUnitBrain.cs" selected="True" />
+                </Node>
+              </Node>
+              <Node name="UnityTechnologies" expanded="True">
+                <Node name="TowerDefenseTemplate" expanded="True">
+                  <Node name="Scripts" expanded="True">
+                    <Node name="TowerDefense" expanded="True">
+                      <Node name="Level" expanded="True" />
+                      <Node name="Nodes" expanded="True" />
+                    </Node>
+                  </Node>
+                </Node>
+              </Node>
+            </Node>
+          </Node>
+        </State>
+      </Pad>
+      <Pad Id="MonoDevelop.UnitTesting.TestPad">
+        <State name="__root__">
+          <Node name="Unity" expanded="True" selected="True" />
         </State>
       </Pad>
     </Pads>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="d88b0e6d-b225-4fd4-a009-42d62dfa9bb9" />
+  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="4827bd72-6274-4d96-8ed0-ab7142c48091" />
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService.Breakpoints>

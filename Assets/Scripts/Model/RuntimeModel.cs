@@ -11,7 +11,7 @@ namespace Model
     {
         public const int PlayerId = 0;
         public const int BotPlayerId = 1;
-        
+
         public IReadOnlyMap RoMap => Map;
         public IReadOnlyDictionary<int, int> RoMoney => Money;
 
@@ -39,8 +39,7 @@ namespace Model
             { PlayerId, 0 },
             { BotPlayerId, 0 }
         };
-        public static int PlayerID { get; internal set; }
-
+        
         private readonly List<List<Unit>> _playersUnits = new()
         {
             new (), new ()

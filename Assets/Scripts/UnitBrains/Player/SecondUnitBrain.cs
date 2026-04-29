@@ -1,10 +1,15 @@
-﻿using System.Collections.Generic;
+﻿using GluonGui.Dialog;
+using Model;
 using Model.Runtime.Projectiles;
-using UnityEngine;
-using System.Linq;
-using Model;                    // чтобы видеть RuntimeModel.PlayerId / BotPlayerId
-using UnitBrains.Pathfinding;
+using System;
 using System.Collections.Generic;
+using System.Linq;
+using UnitBrains.Pathfinding;
+using UnityEditor;
+using UnityEngine;
+using UnityEngine.UIElements;
+using Utilities;
+using static Unity.IO.LowLevel.Unsafe.AsyncReadManagerMetrics;
 
 namespace UnitBrains.Player
 {
@@ -15,106 +20,111 @@ namespace UnitBrains.Player
         private const float OverheatCooldown = 2f;
         private float _temperature = 0f;
         private float _cooldownTime = 0f;
+        static int Numbers = 0;
+        int UnitNumber = -1;
+        const int MaxTargets = 3;
+
         private bool _overheated;
-        private static int s_unitCounter = 0;
-        private int _unitNumber;
-        private const int MAX_SMART_TARGETS = 3;
-
-        //private readonly System.Collections.Generic.List<Vector2Int> _pendingTargets = new System.Collections.Generic.List<Vector2Int>();
-        private readonly List<Vector2Int> _pendingTargets = new List<Vector2Int>();
-        private Vector2Int? _currentObjective;
-
-        public SecondUnitBrain() { _unitNumber = s_unitCounter++; }
-
-        private void SortByDistanceToOwnBase(List<Vector2Int> list)
-        {
-            var myBase = runtimeModel.RoMap.Bases[IsPlayerUnitBrain ? RuntimeModel.PlayerId : RuntimeModel.BotPlayerId];
-            list.Sort((a, b) => ((a - myBase).sqrMagnitude).CompareTo((b - myBase).sqrMagnitude));
-        }
-
+        private List<Vector2Int> _moveTargets = new();
         protected override void GenerateProjectiles(Vector2Int forTarget, List<BaseProjectile> intoList)
         {
             float overheatTemperature = OverheatTemperature;
-     
-
-            float currentTemperature = GetTemperature();
-            if (currentTemperature >= overheatTemperature) { return; }
-
-            for (float i = -1; i < currentTemperature; i++)
+            if (GetTemperature() >= OverheatTemperature)
+                return;
+            
+            IncreaseTemperature();
+            
+            int projectileCount = GetTemperature();
+            for (int i = 0; i < projectileCount; i++)
             {
-                ///////////////////////////////////////
-                // Homework 1.3 (1st block, 3rd module)
-                ///////////////////////////////////////      
                 var projectile = CreateProjectile(forTarget);
                 AddProjectileToList(projectile, intoList);
-                ///////////////////////////////////////
             }
-            IncreaseTemperature();
         }
 
         public override Vector2Int GetNextStep()
         {
-            
-            if (_currentObjective == null && _pendingTargets.Count > 0) _currentObjective = _pendingTargets[0];
-            if (_currentObjective == null) return unit.Pos;
-            if (IsTargetInRange(_currentObjective.Value)) return unit.Pos;
-            var path = new DummyUnitPath(runtimeModel, unit.Pos, _currentObjective.Value);
-            return path.GetNextStepFrom(unit.Pos);
+            if (_moveTargets.Count == 0)
+                return base.GetNextStep(); 
+
+            Vector2Int target = _moveTargets[0];
+
+            if (IsTargetInRange(target))
+                return unit.Pos;
+
+            _activePath = new SmartPath(runtimeModel, unit.Pos, target);
+            return _activePath.GetNextStepFrom(unit.Pos);
+
         }
+
 
         protected override List<Vector2Int> SelectTargets()
         {
-            ///////////////////////////////////////
-            // Homework 1.4 (1st block, 4rd module)
-            ///////////////////////////////////////
-                _pendingTargets.Clear();
-            var goals = new List<Vector2Int>();
-            foreach (var t in GetAllTargets()) goals.Add(t);
-            if (goals.Count == 0)
+            if (UnitNumber == -1)
             {
-          
-                var enemyBase = runtimeModel.RoMap.Bases[IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId];
-                goals.Add(enemyBase);
+                UnitNumber = Numbers;
+                Numbers++;
             }
-            SortByDistanceToOwnBase(goals);
-            int idx = _unitNumber % MAX_SMART_TARGETS;
-            if (idx >= goals.Count) idx = 0;
-            var chosen = goals[idx];
-            _currentObjective = chosen;
-            var result = new List<Vector2Int>();
-            if (IsTargetInRange(chosen)) result.Add(chosen); else _pendingTargets.Add(chosen);
+
+            List<Vector2Int> result = new();
+            _moveTargets.Clear();
+
+            List<Vector2Int> allTargets = GetAllTargets().ToList();
+
+            if (allTargets.Count == 0)
+            {
+                Vector2Int enemyBase = runtimeModel.RoMap.Bases[
+                    IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId
+                ];
+                allTargets.Add(enemyBase);
+            }
+
+            SortByDistanceToOwnBase(allTargets);
+
+            int availableTargets = allTargets.Count < MaxTargets ? allTargets.Count : MaxTargets;
+
+            int targetIndex = UnitNumber % availableTargets;
+
+            Vector2Int selectedTarget = allTargets[targetIndex];
+
+            if (IsTargetInRange(selectedTarget))
+                result.Add(selectedTarget);
+            else
+                _moveTargets.Add(selectedTarget);
+
             return result;
-            ///////////////////////////////////////
         }
+
+
+
         public override void Update(float deltaTime, float time)
         {
             if (_overheated)
-            {
-                _cooldownTime += deltaTime;
-                float t = _cooldownTime / OverheatCooldown;
+            {              
+                _cooldownTime += Time.deltaTime;
+                float t = _cooldownTime / (OverheatCooldown/10);
                 _temperature = Mathf.Lerp(OverheatTemperature, 0, t);
                 if (t >= 1)
                 {
                     _cooldownTime = 0;
                     _overheated = false;
-                    _temperature = 0f;
                 }
             }
         }
 
         private int GetTemperature()
         {
-            if (_overheated) return (int)OverheatTemperature;
-            else return (int)_temperature;
+            if(_overheated) 
+                return (int) OverheatTemperature;
+            else 
+                return (int)_temperature;
         }
 
         private void IncreaseTemperature()
         {
             _temperature += 1f;
-            if (_temperature >= OverheatTemperature)
+            if (_temperature >= OverheatTemperature) 
                 _overheated = true;
         }
     }
 }
-
-//дите, чтобы методы, которые переопределяете, существовал

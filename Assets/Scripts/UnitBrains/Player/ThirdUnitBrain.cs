@@ -1,66 +1,70 @@
+using Model;
+using Model.Runtime.Projectiles;
+using System.Collections;
 using System.Collections.Generic;
+using UnitBrains.Pathfinding;
+using UnitBrains.Player;
 using UnityEngine;
+using Utilities;
 
-namespace UnitBrains.Player
+
+public enum UnitState
 {
-    public class ThirdUnitBrain : DefaultPlayerUnitBrain
+    Moving,
+    Attacking,
+    Switching
+}
+
+public class ThirdUnitBrain : DefaultPlayerUnitBrain
+{
+    private UnitState _state = UnitState.Moving;
+    private float _switchTimer = 0f;
+    private UnitState _nextState;
+    private UnitState desiredState;
+    public override string TargetUnitName => "Ironclad Behemoth";
+
+    public override void Update(float deltaTime, float time)
     {
-        public override string TargetUnitName => "Ironclad Behemoth";
 
-        private enum BrainMode { Move, Attack, Switching }
-
-        private const float SwitchDuration = 1f;
-        private BrainMode _mode = BrainMode.Move;
-        private BrainMode _pendingMode = BrainMode.Move;
-        private float _switchTimer = 0f;
-        private bool hasTargets = false;
-
-        private void BeginSwitch(BrainMode to)
+        if (_state == UnitState.Switching)
         {
-            _pendingMode = to;
-            _mode = BrainMode.Switching;
-            _switchTimer = SwitchDuration;
-        }
+            _switchTimer += deltaTime;
 
-        public override void Update(float deltaTime, float time)
-        {
-            base.Update(deltaTime, time);
-
-            if (_mode == BrainMode.Switching)
+            if (_switchTimer >= 1f)
             {
-                _switchTimer -= deltaTime;
-                if (_switchTimer <= 0f)
-                {
-                    _mode = _pendingMode;
-                    _switchTimer = 0f;
-                }
-                return;
+                _state = _nextState;
+                _switchTimer = 0f;
             }
-
-            var desired = hasTargets ? BrainMode.Attack : BrainMode.Move;
-
-            if (_mode != desired)
-            {
-                BeginSwitch(desired);
-            }
-        }
-
-        protected override List<Vector2Int> SelectTargets()
-        {
-            var result = base.SelectTargets();
-            hasTargets = result.Count > 0;
-            if (_mode != BrainMode.Attack)
-                result.Clear();
-
-            return result;
-        }
-
-        public override Vector2Int GetNextStep()
-        {
-            if (_mode != BrainMode.Move)
-                return unit.Pos;
-
-            return base.GetNextStep();
         }
     }
+    public override Vector2Int GetNextStep()
+    {
+        desiredState = HasTargetsInRange()
+            ? UnitState.Attacking
+            : UnitState.Moving;
+
+        if (_state != desiredState && _state != UnitState.Switching)
+        {
+            _nextState = desiredState;
+            _state = UnitState.Switching;
+            _switchTimer = 0f;
+        }
+        if (_state != UnitState.Moving)
+            return unit.Pos;
+
+            var target = runtimeModel.RoMap.Bases[
+                IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId];
+
+        _activePath = new DummyUnitPath(runtimeModel, unit.Pos, target);
+        return _activePath.GetNextStepFrom(unit.Pos);
+    }
+
+    protected override void GenerateProjectiles(Vector2Int forTarget, List<BaseProjectile> intoList)
+    {
+        if (_state != UnitState.Attacking)
+            return;
+        AddProjectileToList(CreateProjectile(forTarget), intoList);
+    }
 }
+
+

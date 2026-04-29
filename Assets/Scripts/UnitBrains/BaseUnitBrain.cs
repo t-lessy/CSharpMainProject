@@ -1,11 +1,12 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using Model;
+﻿using Model;
 using Model.Runtime.Projectiles;
 using Model.Runtime.ReadOnly;
+using System.Collections.Generic;
+using System.Linq;
 using UnitBrains.Pathfinding;
 using UnityEngine;
 using Utilities;
+using static UnityEngine.GraphicsBuffer;
 using Unit = Model.Runtime.Unit;
 
 namespace UnitBrains
@@ -13,12 +14,12 @@ namespace UnitBrains
     public abstract class BaseUnitBrain
     {
         public virtual string TargetUnitName => string.Empty;
-        public virtual bool IsPlayerUnitBrain => true;// пренадлежит литюнит игроку 
-        public virtual BaseUnitPath ActivePath => _activePath; // активный путь по которому идет юнит
-        
+        public virtual bool IsPlayerUnitBrain => true;
+        public virtual BaseUnitPath ActivePath { get; protected set; }
+
         protected Unit unit { get; private set; }
-        protected IReadOnlyRuntimeModel runtimeModel => ServiceLocator.Get<IReadOnlyRuntimeModel>();// все даны по игровой сесии
-        private BaseUnitPath _activePath = null;// путь равен нал
+        protected IReadOnlyRuntimeModel runtimeModel => ServiceLocator.Get<IReadOnlyRuntimeModel>();
+        protected BaseUnitPath _activePath = null;
         
         private readonly Vector2[] _projectileShifts = new Vector2[]
         {
@@ -31,19 +32,21 @@ namespace UnitBrains
             new (-0.15f, -0.15f),
         };
 
-        public virtual Vector2Int GetNextStep()/// -
+        public virtual Vector2Int GetNextStep()
         {
-            if (HasTargetsInRange())// если целей нет ходить ни куда не нужно 
+
+            if (HasTargetsInRange())
                 return unit.Pos;
 
             var target = runtimeModel.RoMap.Bases[
-                IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId];// если целей нет берем базу
+                IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId];
 
-            _activePath = new AStarUnitPath(runtimeModel, unit.Pos, target);
-            return _activePath.GetNextStepFrom(unit.Pos);// передаеться позиция юнита и залаеться куда идти 
+
+            _activePath = new SmartPath(runtimeModel, unit.Pos, target);
+            return _activePath.GetNextStepFrom(unit.Pos);
         }
 
-        public List<BaseProjectile> GetProjectiles()/// --
+        public List<BaseProjectile> GetProjectiles()
         {
             List<BaseProjectile> result = new ();
             foreach (var target in SelectTargets())

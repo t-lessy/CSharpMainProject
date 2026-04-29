@@ -21,7 +21,7 @@ namespace UnitBrains.Pathfinding
             {
                 DestroyHighlight(0);
             }
-            
+
             if (highlightCoroutine != null)
             {
                 StopCoroutine(highlightCoroutine);
@@ -32,25 +32,20 @@ namespace UnitBrains.Pathfinding
 
         private IEnumerator HighlightCoroutine(BaseUnitPath path)
         {
-            
-            // небольшая задержка, чтобы визуально было видно "прокладку"
             var delay = new WaitForSeconds(0.03f);
 
             foreach (var cell in path.GetPath())
             {
                 CreateHighlight(cell);
 
-                // ограничиваем количество подсветок
                 while (allHighlights.Count > maxHighlights)
                 {
                     DestroyHighlight(0);
                 }
 
-                // подсветка "по кадрам" с небольшой задержкой
                 yield return delay;
             }
         }
-
         private void CreateHighlight(Vector2Int atCell)
         {
             var pos = Gameplay3dView.ToWorldPosition(atCell, 1f);
