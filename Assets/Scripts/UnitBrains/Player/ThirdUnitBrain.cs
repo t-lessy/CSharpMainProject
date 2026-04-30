@@ -15,7 +15,10 @@ namespace UnitBrains.Player
         private BrainMode _pendingMode = BrainMode.Move;
         private float _switchTimer = 0f;
 		private bool hasTargets = false;
-        
+        private ArmyBrain _armyBrain;
+
+        public override void SetArmyBrain(ArmyBrain armyBrain) => _armyBrain = armyBrain;
+
         private void BeginSwitch(BrainMode to)
         {
             _pendingMode = to;
@@ -48,8 +51,7 @@ namespace UnitBrains.Player
         
         protected override List<Vector2Int> SelectTargets()
         {
-            var coordinator = ArmyBrain.GetInstance();
-            var recommended = coordinator.GetRecommendedTarget();
+            var recommended = _armyBrain?.GetRecommendedTarget();
 
             if (recommended != null)
             {
@@ -75,7 +77,7 @@ namespace UnitBrains.Player
             if (_mode != BrainMode.Move)
                 return unit.Pos;
 
-            var target = ArmyBrain.GetInstance().GetRecommendedPoint();
+            var target = _armyBrain?.GetRecommendedPoint() ?? unit.Pos;
             if (target == unit.Pos)
                 return unit.Pos;
 

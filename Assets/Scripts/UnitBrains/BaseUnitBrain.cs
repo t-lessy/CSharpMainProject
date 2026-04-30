@@ -65,6 +65,8 @@ namespace UnitBrains
             this.unit = unit;
         }
 
+        public virtual void SetArmyBrain(ArmyBrain armyBrain) { }
+
         public virtual void Update(float deltaTime, float time)
         {
         }
