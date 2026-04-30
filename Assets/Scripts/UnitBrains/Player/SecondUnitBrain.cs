@@ -65,26 +65,31 @@ namespace UnitBrains.Player
             {
                 int enemyId = IsPlayerUnitBrain ? RuntimeModel.PlayerId : RuntimeModel.BotPlayerId;
                 result.Clear();
-                result.Add(runtimeModel.RoMap.Bases[RuntimeModel.PlayerId]);
+                if (IsTargetInRange(runtimeModel.RoMap.Bases[enemyId]))
+                    result.Add(runtimeModel.RoMap.Bases[enemyId]);
                 return result;
             }
-            if (result.Count > 0)
+            else
             {
-                Vector2Int MinBody = result[0];
+                Vector2Int MinBody = new Vector2Int();
                 foreach (Vector2Int Body in result)
                 {
                     if (!IsTargetInRange(Body))
                     {
                         BodiesNotInRange.Add(Body);
                     }
-                    if (IsTargetInRange(Body) && DistanceToOwnBase(Body) < minima)
+                    if (IsTargetInRange(Body) && (DistanceToOwnBase(Body) < minima || MinBody == new Vector2Int()))
                     {
                         MinBody = Body;
                         minima = DistanceToOwnBase(Body);
                     }
                 }
                 result.Clear();
-                result.Add(MinBody);
+                if (MinBody != new Vector2Int())
+                {
+                    result.Add(MinBody);
+                }
+                
 
             }
             return result;
