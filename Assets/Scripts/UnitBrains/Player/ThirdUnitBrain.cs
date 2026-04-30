@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using UnitBrains.Pathfinding;
 using UnityEngine;
 
 namespace UnitBrains.Player
@@ -47,20 +48,39 @@ namespace UnitBrains.Player
         
         protected override List<Vector2Int> SelectTargets()
         {
+            var coordinator = ArmyBrain.GetInstance();
+            var recommended = coordinator.GetRecommendedTarget();
+
+            if (recommended != null)
+            {
+                float twoRanges = unit.Config.AttackRange * 2f;
+                float dist = Vector2Int.Distance(unit.Pos, recommended.Pos);
+                if (dist <= twoRanges && IsTargetInRange(recommended.Pos))
+                {
+                    hasTargets = true;
+                    return new List<Vector2Int> { recommended.Pos };
+                }
+            }
+
             var result = base.SelectTargets();
             hasTargets = result.Count > 0;
             if (_mode != BrainMode.Attack)
                 result.Clear();
-            
+
             return result;
         }
-        
+
         public override Vector2Int GetNextStep()
         {
             if (_mode != BrainMode.Move)
                 return unit.Pos;
-            
-            return base.GetNextStep();
+
+            var target = ArmyBrain.GetInstance().GetRecommendedPoint();
+            if (target == unit.Pos)
+                return unit.Pos;
+
+            var path = new DummyUnitPath(runtimeModel, unit.Pos, target);
+            return path.GetNextStepFrom(unit.Pos);
         }
     }
 }
