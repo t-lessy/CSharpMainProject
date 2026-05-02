@@ -4,6 +4,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace BuffSystem
 {
@@ -12,6 +13,7 @@ namespace BuffSystem
         void AddBuff(Unit unit, BuffType type, float duration, float modifier);
         Buff GetBuff(Unit unit, BuffType type);
         void RemoveBuff(Unit unit, BuffType type);
+        bool HasAnyBuff(Unit unit);
     }
 
     public class BuffManager : IBuffSystem
@@ -54,6 +56,12 @@ namespace BuffSystem
             var buffToRemove = _unitBuffs[unit].Find(b => b.Type == type);
             if (buffToRemove != null)
                 _unitBuffs[unit].Remove(buffToRemove);
+        }
+
+        public bool HasAnyBuff(Unit unit)
+        {
+            return _unitBuffs.ContainsKey(unit) &&
+                   _unitBuffs[unit].Count > 0;
         }
 
         private IEnumerator UpdateBuffs()

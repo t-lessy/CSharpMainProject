@@ -68,9 +68,9 @@ namespace UnitBrains
             return result;
         }
 
-        public void SetSingletonCoordinator(UnitCoordinator singletonCoordinator)
+        public void SetCoordinator(UnitCoordinator coordinator)
         {
-            this.unitCoordinator = singletonCoordinator;
+            this.unitCoordinator = coordinator;
         }
 
         public void SetUnit(Unit unit)
@@ -96,7 +96,7 @@ namespace UnitBrains
             var result = new List<Vector2Int>();
             var attackRangeX2 = this.unit.Config.AttackRange * 2;
             var target = unitCoordinator.GetRecomendedTarget(IsPlayerUnitBrain);
-            if (GetUnitsInRadius(attackRangeX2, true).Contains(target))
+            if (GetUnitsInRadius(attackRangeX2, false).Contains(target))
             {
                 result.Add(target.Pos);
                 return result;

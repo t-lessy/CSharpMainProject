@@ -43,8 +43,8 @@ namespace UnitBrains.Player
                         var projectile = CreateProjectile(forTarget);
                         AddProjectileToList(projectile, intoList);
 
-                        if (T >= 2f)
-                            unit._buffManager.AddBuff(this.unit, BuffType.AttackSpeed, 1f, -0.25f);
+                        //if (T >= 2f)
+                        //    unit._buffManager.AddBuff(this.unit, BuffType.AttackSpeed, 1f, -0.25f);
                     }
                 }
                 IncreaseTemperature();

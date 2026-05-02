@@ -38,7 +38,7 @@ namespace Model.Runtime
             Health = config.MaxHealth;
             _brain = UnitBrainProvider.GetBrain(config);
             _brain.SetUnit(this);
-            _brain.SetSingletonCoordinator(unitCoordinator);
+            _brain.SetCoordinator(unitCoordinator);
             _runtimeModel = ServiceLocator.Get<IReadOnlyRuntimeModel>();
             _buffManager = ServiceLocator.Get<IBuffSystem>();
         }
@@ -115,6 +115,18 @@ namespace Model.Runtime
             }
             
             Pos = targetPos;
+        }
+
+        public Unit FindUnitByPosition(Vector2Int position)
+        {
+            foreach (var unit in _runtimeModel.RoUnits)
+            {
+                if (unit is Unit gameUnit && gameUnit.Pos == position)
+                {
+                    return gameUnit;
+                }
+            }
+            return null;
         }
 
         public void ClearPendingProjectiles()
