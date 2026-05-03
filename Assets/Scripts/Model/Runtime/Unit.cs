@@ -117,9 +117,13 @@ namespace Model.Runtime
             Pos = targetPos;
         }
 
-        public Unit FindUnitByPosition(Vector2Int position)
+        public Unit FindUnitByPosition(Vector2Int position, bool isPlayerUnit)
         {
-            foreach (var unit in _runtimeModel.RoUnits)
+            var unitsToSearch = isPlayerUnit
+                ? _runtimeModel.RoPlayerUnits
+                : _runtimeModel.RoBotUnits;
+
+            foreach (var unit in unitsToSearch)
             {
                 if (unit is Unit gameUnit && gameUnit.Pos == position)
                 {

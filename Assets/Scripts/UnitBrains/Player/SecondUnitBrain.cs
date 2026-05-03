@@ -24,7 +24,7 @@ namespace UnitBrains.Player
         private const int MaxID = 3;
 
         private BaseUnitPath _activePath = null;
-        //public override BaseUnitPath ActivePath => _activePath;
+        //public override BaseUnitPath ActivePath => _activePath; //закоментировать чтобы убрать отображение пути для юнита
 
         protected override void GenerateProjectiles(Vector2Int forTarget, List<BaseProjectile> intoList)
         {
@@ -42,9 +42,6 @@ namespace UnitBrains.Player
                     {
                         var projectile = CreateProjectile(forTarget);
                         AddProjectileToList(projectile, intoList);
-
-                        //if (T >= 2f)
-                        //    unit._buffManager.AddBuff(this.unit, BuffType.AttackSpeed, 1f, -0.25f);
                     }
                 }
                 IncreaseTemperature();

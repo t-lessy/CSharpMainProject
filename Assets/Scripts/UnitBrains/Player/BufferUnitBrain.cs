@@ -5,6 +5,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using Utilities;
+using View;
 using static UnityEngine.GraphicsBuffer;
 
 namespace UnitBrains.Player
@@ -15,6 +17,7 @@ namespace UnitBrains.Player
         private bool _Pause = false;
         private float _Pause_HalfASecond = 0.5f;
         private float _Pause_FixedTime = 0f;
+        private VFXView _vfxView = ServiceLocator.Get<VFXView>();
 
         protected void Pause()
         {
@@ -35,11 +38,12 @@ namespace UnitBrains.Player
                     return;
                 }
             }
-            var targetToBuff = this.unit.FindUnitByPosition(SelectTargetToBuff()[0]);
+            var targetToBuff = this.unit.FindUnitByPosition(SelectTargetToBuff()[0], IsPlayerUnitBrain);
             if (targetToBuff != null && _Pause != true)
             {
                 this.unit._buffManager.AddBuff(targetToBuff, BuffType.MoveSpeed, 10f, -0.1f);
                 this.unit._buffManager.AddBuff(targetToBuff, BuffType.AttackSpeed, 10f, -0.1f);
+                _vfxView.PlayVFX(targetToBuff.Pos, VFXView.VFXType.BuffApplied);
                 Pause();
             }
         }
@@ -64,7 +68,11 @@ namespace UnitBrains.Player
 
                 foreach (var unit in sortedUnits)
                 {
-                    var target = this.unit.FindUnitByPosition(unit.Pos);
+                    if (unit == this.unit) //чтобы сам себя не выбирал в цель для бафа
+                    {
+                        continue;
+                    }
+                    var target = this.unit.FindUnitByPosition(unit.Pos, unit.Config.IsPlayerUnit);
                     if (this.unit._buffManager.HasAnyBuff(target) == false)
                     {
                         return new List<Vector2Int> { unit.Pos };

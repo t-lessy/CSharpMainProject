@@ -34,8 +34,8 @@ namespace UnitBrains.Player
                 if ((Time.time - _Pause_FixedTime) >= _Pause_OneSecond)
                 {
                     _Pause = false;
-                    unit._buffManager.AddBuff(this.unit, BuffType.MoveSpeed, 1f, -0.15f);
-                    unit._buffManager.AddBuff(this.unit, BuffType.AttackSpeed, 1f, -0.05f);
+                    //unit._buffManager.AddBuff(this.unit, BuffType.MoveSpeed, 1f, -0.15f); //это я проверял, что юнит может сам себя бафать при опр. логике
+                    //unit._buffManager.AddBuff(this.unit, BuffType.AttackSpeed, 1f, -0.05f);
                 }
                 else
                 {

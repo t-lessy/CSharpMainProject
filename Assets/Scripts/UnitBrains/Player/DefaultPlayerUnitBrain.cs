@@ -35,7 +35,7 @@ namespace UnitBrains.Player
             var result = new List<Vector2Int>();
             var attackRangeX2 = this.unit.Config.AttackRange * 2;
             var target = unitCoordinator.GetRecomendedTarget(IsPlayerUnitBrain);
-            if (GetUnitsInRadius(attackRangeX2, false).Contains(target))
+            if (GetUnitsInRadius(attackRangeX2, true).Contains(target))
             {
                 result.Add(target.Pos);
                 return result;

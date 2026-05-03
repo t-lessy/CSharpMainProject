@@ -34,6 +34,7 @@ namespace UnitBrains
 
         public virtual Vector2Int GetNextStep()
         {
+            // Старый код
             //if (HasTargetsInRange())
             //    return unit.Pos;
 
@@ -42,6 +43,7 @@ namespace UnitBrains
 
             //_activePath = new NewUnitPath(runtimeModel, unit.Pos, target);
             //return _activePath.GetNextStepFrom(unit.Pos);
+            //
             if (HasTargetsInRange())
                 return unit.Pos;
 
@@ -89,14 +91,16 @@ namespace UnitBrains
 
         protected virtual List<Vector2Int> SelectTargets()
         {
+            // старый код
             //var result = GetReachableTargets();
             //while (result.Count > 1)
             //    result.RemoveAt(result.Count - 1);
             //return result;
+            //
             var result = new List<Vector2Int>();
             var attackRangeX2 = this.unit.Config.AttackRange * 2;
             var target = unitCoordinator.GetRecomendedTarget(IsPlayerUnitBrain);
-            if (GetUnitsInRadius(attackRangeX2, false).Contains(target))
+            if (GetUnitsInRadius(attackRangeX2, true).Contains(target))
             {
                 result.Add(target.Pos);
                 return result;
