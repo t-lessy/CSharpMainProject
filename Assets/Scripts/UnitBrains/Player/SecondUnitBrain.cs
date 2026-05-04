@@ -9,6 +9,8 @@ namespace UnitBrains.Player
     public class SecondUnitBrain : DefaultPlayerUnitBrain
     {
         public override string TargetUnitName => "Cobra Commando";
+        protected override Vector2Int RecommendedPointOffset => Vector2Int.right;
+
         private const float OverheatTemperature = 3f;
         private const float OverheatCooldown = 2f;
         private float _temperature = 0f;
@@ -51,7 +53,9 @@ namespace UnitBrains.Player
 
         protected override List<Vector2Int> SelectTargets()
         {
-        
+            if (TryGetRecommendedTarget(out var recommendedTarget))
+                return new List<Vector2Int> { recommendedTarget };
+
         ///////////////////////////////////////
         // Homework 1.4 (1st block, 4rd module)
         ///////////////////////////////////////
