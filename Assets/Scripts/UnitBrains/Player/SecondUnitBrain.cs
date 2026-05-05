@@ -16,6 +16,8 @@ namespace UnitBrains.Player
         private float _temperature = 0f;
         private float _cooldownTime = 0f;
         private bool _overheated;
+        public static int ID = 0;
+        private int _id = ID++;
         
         protected override void GenerateProjectiles(Vector2Int forTarget, List<BaseProjectile> intoList)
         {
@@ -42,7 +44,9 @@ namespace UnitBrains.Player
         public override Vector2Int GetNextStep()
         {
             Vector2Int position = unit.Pos;
-            Vector2Int nextPosition = GetAllTargets().ToList()[0];
+            int numberOfEnemy = GetAllTargets().Count();
+            int EnemyNumber = _id % numberOfEnemy;
+            Vector2Int nextPosition = GetAllTargets().ToList()[EnemyNumber];
             if (IsTargetInRange(nextPosition))
             {
                 return position;
@@ -56,9 +60,13 @@ namespace UnitBrains.Player
             // Homework 1.4 (1st block, 4rd module)
             ///////////////////////////////////////
             List<Vector2Int> result = GetAllTargets().ToList();
+            SortByDistanceToOwnBase(result);
             List<Vector2Int> BodiesNotInRange = new List<Vector2Int>();
+            Vector2Int Result = result[0];
 
             float minima = float.MaxValue;
+            int numberOfEnemy = GetAllTargets().Count();
+            int EnemyNumber = _id % numberOfEnemy;
 
 
             if (result.Count() == 0)
@@ -71,23 +79,11 @@ namespace UnitBrains.Player
             }
             else
             {
-                Vector2Int MinBody = new Vector2Int();
-                foreach (Vector2Int Body in result)
-                {
-                    if (!IsTargetInRange(Body))
-                    {
-                        BodiesNotInRange.Add(Body);
-                    }
-                    if (IsTargetInRange(Body) && (DistanceToOwnBase(Body) < minima || MinBody == new Vector2Int()))
-                    {
-                        MinBody = Body;
-                        minima = DistanceToOwnBase(Body);
-                    }
-                }
+                Result = result[EnemyNumber];
                 result.Clear();
-                if (MinBody != new Vector2Int())
+                if (IsTargetInRange(Result))
                 {
-                    result.Add(MinBody);
+                    result.Add(Result);
                 }
                 
 
