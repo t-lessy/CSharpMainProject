@@ -54,7 +54,7 @@ public class ThirdUnitScript : DefaultPlayerUnitBrain
         var target = runtimeModel.RoMap.Bases[
             IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId];
 
-        _activePath = new DummyUnitPath(runtimeModel, unit.Pos, target);
+        _activePath = new UnitBrains.Pathfinding.AdvancedUnitPath(runtimeModel, unit.Pos, target);
         return _activePath.GetNextStepFrom(unit.Pos);
     }
 
