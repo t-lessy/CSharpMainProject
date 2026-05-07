@@ -27,7 +27,6 @@ namespace UnitBrains.Player
             }
 
             int projectileAmount = temperature + 1;
-            Debug.Log("projectile:" + projectileAmount + ", temp:" + temperature);
             for (int i = 0; i < projectileAmount; i++)
             {
                 var projectile = CreateProjectile(forTarget);
