@@ -33,9 +33,9 @@ namespace UnitBrains.Player
         protected override List<Vector2Int> SelectTargets()
         {
             var result = new List<Vector2Int>();
-            var attackRangeX2 = this.unit.Config.AttackRange * 2;
+            var attackRange = this.unit.AttackRange;
             var target = unitCoordinator.GetRecomendedTarget(IsPlayerUnitBrain);
-            if (GetUnitsInRadius(attackRangeX2, true).Contains(target))
+            if (GetUnitsInRadius(attackRange, false).Contains(target))
             {
                 result.Add(target.Pos);
                 return result;

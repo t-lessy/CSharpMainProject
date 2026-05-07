@@ -34,16 +34,6 @@ namespace UnitBrains
 
         public virtual Vector2Int GetNextStep()
         {
-            // Старый код
-            //if (HasTargetsInRange())
-            //    return unit.Pos;
-
-            //var target = runtimeModel.RoMap.Bases[
-            //    IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId];
-
-            //_activePath = new NewUnitPath(runtimeModel, unit.Pos, target);
-            //return _activePath.GetNextStepFrom(unit.Pos);
-            //
             if (HasTargetsInRange())
                 return unit.Pos;
 
@@ -91,16 +81,10 @@ namespace UnitBrains
 
         protected virtual List<Vector2Int> SelectTargets()
         {
-            // старый код
-            //var result = GetReachableTargets();
-            //while (result.Count > 1)
-            //    result.RemoveAt(result.Count - 1);
-            //return result;
-            //
             var result = new List<Vector2Int>();
-            var attackRangeX2 = this.unit.Config.AttackRange * 2;
+            var attackRange = this.unit.AttackRange;
             var target = unitCoordinator.GetRecomendedTarget(IsPlayerUnitBrain);
-            if (GetUnitsInRadius(attackRangeX2, true).Contains(target))
+            if (GetUnitsInRadius(attackRange, false).Contains(target))
             {
                 result.Add(target.Pos);
                 return result;
@@ -149,7 +133,7 @@ namespace UnitBrains
 
         protected bool HasTargetsInRange()
         {
-            var attackRangeSqr = unit.Config.AttackRange * unit.Config.AttackRange;
+            var attackRangeSqr = unit.AttackRange * unit.AttackRange;
             foreach (var possibleTarget in GetAllTargets())
             {
                 var diff = possibleTarget - unit.Pos;
@@ -176,7 +160,7 @@ namespace UnitBrains
 
         protected bool IsTargetInRange(Vector2Int targetPos)
         {
-            var attackRangeSqr = unit.Config.AttackRange * unit.Config.AttackRange;
+            var attackRangeSqr = unit.AttackRange * unit.AttackRange;
             var diff = targetPos - unit.Pos;
             return diff.sqrMagnitude <= attackRangeSqr;
         }
@@ -184,7 +168,7 @@ namespace UnitBrains
         protected List<Vector2Int> GetReachableTargets()
         {
             var result = new List<Vector2Int>();
-            var attackRangeSqr = unit.Config.AttackRange * unit.Config.AttackRange;
+            var attackRangeSqr = unit.AttackRange * unit.AttackRange;
             foreach (var possibleTarget in GetAllTargets())
             {
                 if (!IsTargetInRange(possibleTarget))

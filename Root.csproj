@@ -60,13 +60,15 @@
     <Analyzer Include="C:\Program Files\Unity\Hub\Editor\2022.3.62f3\Editor\Data\Tools\Unity.SourceGenerators\Unity.Properties.SourceGenerator.dll" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\Scripts\Model\Runtime\BaffSystem\AttackRangeBuff.cs" />
     <Compile Include="Assets\Scripts\View\TileView.cs" />
+    <Compile Include="Assets\Scripts\Model\Runtime\BaffSystem\Buff.cs" />
     <Compile Include="Assets\Scripts\Model\Runtime\Projectiles\BaseProjectile.cs" />
     <Compile Include="Assets\Scripts\UnitBrains\Player\BufferUnitBrain.cs" />
     <Compile Include="Assets\Scripts\View\UnitView.cs" />
     <Compile Include="Assets\Scripts\Model\Runtime\ReadOnly\IReadOnlyUnit.cs" />
     <Compile Include="Assets\Scripts\UnitBrains\BaseUnitBrain.cs" />
-    <Compile Include="Assets\Scripts\Model\Runtime\BaffSystem\BuffSystem.cs" />
+    <Compile Include="Assets\Scripts\Model\Runtime\BaffSystem\IModifiableUnit.cs" />
     <Compile Include="Assets\Scripts\Controller\UnitCoordinator.cs" />
     <Compile Include="Assets\Scripts\Utilities\CameraPositioning.cs" />
     <Compile Include="Assets\Scripts\View\ChooseUnitView.cs" />
@@ -75,6 +77,7 @@
     <Compile Include="Assets\Scripts\View\LevelFinishedView.cs" />
     <Compile Include="Assets\Scripts\View\Gameplay3dView.cs" />
     <Compile Include="Assets\Scripts\EnterPoint.cs" />
+    <Compile Include="Assets\Scripts\Model\Runtime\BaffSystem\IBuffSystem.cs" />
     <Compile Include="Assets\Scripts\Model\Runtime\MainBase.cs" />
     <Compile Include="Assets\Scripts\Model\Runtime\ReadOnly\IReadOnlyMap.cs" />
     <Compile Include="Assets\Scripts\Model\Runtime\Projectiles\ProjectileType.cs" />
@@ -82,7 +85,9 @@
     <Compile Include="Assets\Scripts\Model\Runtime\Map.cs" />
     <Compile Include="Assets\Scripts\UnitBrains\Pathfinding\DebugPathOutput.cs" />
     <Compile Include="Assets\Scripts\Model\Config\Settings.cs" />
+    <Compile Include="Assets\Scripts\Model\Runtime\BaffSystem\BuffManager.cs" />
     <Compile Include="Assets\Scripts\Model\Config\UnitConfig.cs" />
+    <Compile Include="Assets\Scripts\Model\Runtime\BaffSystem\AttackSpeedBuff.cs" />
     <Compile Include="Assets\Scripts\Utilities\PersistanceUtils.cs" />
     <Compile Include="Assets\Scripts\View\RootView.cs" />
     <Compile Include="Assets\Scripts\UnitBrains\Pathfinding\BaseUnitPath.cs" />
@@ -101,8 +106,9 @@
     <Compile Include="Assets\Scripts\View\VFXView.cs" />
     <Compile Include="Assets\Scripts\Controller\IPlayerUnitChoosingListener.cs" />
     <Compile Include="Assets\Scripts\Utilities\Extensions.cs" />
-    <Compile Include="Assets\Scripts\Model\Runtime\BaffSystem\BuffType.cs" />
+    <Compile Include="Assets\Scripts\Model\Runtime\BaffSystem\AttackCountBuff.cs" />
     <Compile Include="Assets\Scripts\Utilities\ServiceLocator.cs" />
+    <Compile Include="Assets\Scripts\Model\Runtime\BaffSystem\BuffFactory.cs" />
     <Compile Include="Assets\Scripts\Model\Runtime\Projectiles\ArchToTileProjectile.cs" />
     <Compile Include="Assets\Scripts\UnitBrains\Pathfinding\DummyUnitPath.cs" />
     <Compile Include="Assets\Scripts\UnitBrains\Pathfinding\NewUnitPath.cs" />
@@ -114,6 +120,7 @@
     <Compile Include="Assets\Scripts\Utilities\MapGenerator.cs" />
     <Compile Include="Assets\Scripts\Controller\BotController.cs" />
     <Compile Include="Assets\Scripts\Controller\SimulationController.cs" />
+    <Compile Include="Assets\Scripts\Model\Runtime\BaffSystem\MoveSpeedBuff.cs" />
     <Compile Include="Assets\Scripts\UnitBrains\Pathfinding\Node.cs" />
   </ItemGroup>
   <ItemGroup>

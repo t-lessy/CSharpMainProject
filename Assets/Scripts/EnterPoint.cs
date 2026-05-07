@@ -19,9 +19,8 @@ public class EnterPoint : MonoBehaviour
         _settings.LoadPrefabs();
         ServiceLocator.Register(_settings);
 
-        // Создаём и инициализируем систему баффов
         var buffSystem = new BuffManager();
-        buffSystem.Initialize(this); // 'this' — наш EnterPoint как MonoBehaviour
+        buffSystem.Initialize(this); // 'this' — EnterPoint как MonoBehaviour
         ServiceLocator.Register<IBuffSystem>(buffSystem);
 
         var rootController = new RootController(_settings, _targetCanvas);
