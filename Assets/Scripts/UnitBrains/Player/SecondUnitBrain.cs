@@ -28,21 +28,42 @@ namespace UnitBrains.Player
 
         public override Vector2Int GetNextStep()
         {
+            Vector2Int moveTarget;
+
             if (_targetsToMove.Count == 0)
-                return unit.Pos;
+            {
+                moveTarget = GetCoordinatorPointOrDefault(unit.Pos);
 
-            Vector2Int target = _targetsToMove[0];
+                if (moveTarget == unit.Pos)
+                    return unit.Pos;
+            }
+            else
+            {
+                moveTarget = _targetsToMove[0];
 
-            if (IsTargetInRange(target))
-                return unit.Pos;
+                if (IsTargetInRange(moveTarget))
+                    return unit.Pos;
+            }
 
-            return unit.Pos.CalcNextStepTowards(target);
+            var path = new AStarUnitPath(runtimeModel, unit.Pos, moveTarget);
+            return path.GetNextStepFrom(unit.Pos);
         }
 
         protected override List<Vector2Int> SelectTargets()
         {
             List<Vector2Int> result = new();
             _targetsToMove.Clear();
+
+            if (TryGetCoordinatorTarget(out Vector2Int recommendedTarget))
+            {
+                _targetsToMove.Add(recommendedTarget);
+                result.Add(recommendedTarget);
+                return result;
+            }
+
+            Vector2Int recommendedPoint = GetCoordinatorPointOrDefault(unit.Pos);
+            if (recommendedPoint != unit.Pos)
+                _targetsToMove.Add(recommendedPoint);
 
             List<Vector2Int> allTargets = GetAllTargets().ToList();
 
@@ -54,7 +75,8 @@ namespace UnitBrains.Player
 
             if (allTargets.Count == 0)
             {
-                _targetsToMove.Add(enemyBase);
+                if (_targetsToMove.Count == 0)
+                    _targetsToMove.Add(enemyBase);
 
                 if (IsTargetInRange(enemyBase))
                     result.Add(enemyBase);
@@ -69,7 +91,8 @@ namespace UnitBrains.Player
 
             Vector2Int selectedTarget = allTargets[targetIndex];
 
-            _targetsToMove.Add(selectedTarget);
+            if (_targetsToMove.Count == 0)
+                _targetsToMove.Add(selectedTarget);
 
             if (IsTargetInRange(selectedTarget))
                 result.Add(selectedTarget);

@@ -1,4 +1,6 @@
+using Model;
 using System.Collections.Generic;
+using UnitBrains.Pathfinding;
 using UnityEngine;
 
 namespace UnitBrains.Player
@@ -15,7 +17,6 @@ namespace UnitBrains.Player
 
         private UnitMode _currentMode = UnitMode.Moving;
         private UnitMode _nextMode = UnitMode.Moving;
-
         private float _switchTimer = 0f;
 
         public override string TargetUnitName => "Ironclad Behemoth";
@@ -43,22 +44,16 @@ namespace UnitBrains.Player
             if (IsSwitching)
                 return new List<Vector2Int>();
 
+            if (_currentMode == UnitMode.Moving)
+                return new List<Vector2Int>();
+
             List<Vector2Int> targets = base.SelectTargets();
 
-            if (_currentMode == UnitMode.Moving && targets.Count > 0)
-            {
-                StartSwitch(UnitMode.Attacking);
-                return new List<Vector2Int>();
-            }
-
-            if (_currentMode == UnitMode.Attacking && targets.Count == 0)
+            if (targets.Count == 0)
             {
                 StartSwitch(UnitMode.Moving);
                 return new List<Vector2Int>();
             }
-
-            if (_currentMode == UnitMode.Moving)
-                return new List<Vector2Int>();
 
             return targets;
         }
@@ -71,7 +66,21 @@ namespace UnitBrains.Player
             if (_currentMode == UnitMode.Attacking)
                 return unit.Pos;
 
-            return base.GetNextStep();
+            List<Vector2Int> reachableTargets = GetReachableTargets();
+
+            if (reachableTargets.Count > 0)
+            {
+                StartSwitch(UnitMode.Attacking);
+                return unit.Pos;
+            }
+
+            Vector2Int fallbackTarget = runtimeModel.RoMap.Bases[
+                IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId];
+
+            Vector2Int moveTarget = GetCoordinatorPointOrDefault(fallbackTarget);
+
+            BaseUnitPath path = new AStarUnitPath(runtimeModel, unit.Pos, moveTarget);
+            return path.GetNextStepFrom(unit.Pos);
         }
 
         private void StartSwitch(UnitMode nextMode)
