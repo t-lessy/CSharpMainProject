@@ -1,6 +1,8 @@
 using System.Collections.Generic;
+using Model.Runtime;
 using Model.Runtime.Projectiles;
 using Model.Runtime.ReadOnly;
+using UnitBrains.Buffs;
 using UnityEngine;
 using Utilities;
 using View;
@@ -15,7 +17,11 @@ namespace UnitBrains.Player
         private const float StopBeforeBuff = 0.5f;
         private const float StopAfterBuff = 0.5f;
 
-        private static readonly HashSet<IReadOnlyUnit> _buffedUnits = new();
+        private static readonly BaseBuff[] _availableBuffs =
+        {
+            new DoubleShotBuff(),
+            new ExtendedRangeBuff(),
+        };
 
         private enum BufferState
         {
@@ -28,6 +34,7 @@ namespace UnitBrains.Player
         private float _stateEndTime;
         private float _nextBuffTime;
         private IReadOnlyUnit _pendingTarget;
+        private BaseBuff _pendingBuff;
 
         protected override void GenerateProjectiles(Vector2Int forTarget, List<BaseProjectile> intoList)
         {
@@ -46,11 +53,11 @@ namespace UnitBrains.Player
                     if (time < _nextBuffTime)
                         return;
 
-                    var target = FindUnbuffedAlly();
-                    if (target == null)
+                    if (!TryFindBuffTarget(out var target, out var buff))
                         return;
 
                     _pendingTarget = target;
+                    _pendingBuff = buff;
                     _state = BufferState.Preparing;
                     _stateEndTime = time + StopBeforeBuff;
                     break;
@@ -59,10 +66,10 @@ namespace UnitBrains.Player
                     if (time < _stateEndTime)
                         return;
 
-                    if (_pendingTarget != null && _pendingTarget.Health > 0 && IsTargetInRange(_pendingTarget.Pos))
-                        ApplyBuff(_pendingTarget);
+                    TryApplyPendingBuff();
 
                     _pendingTarget = null;
+                    _pendingBuff = null;
                     _state = BufferState.Cooldown;
                     _stateEndTime = time + StopAfterBuff;
                     break;
@@ -85,22 +92,43 @@ namespace UnitBrains.Player
             return base.GetNextStep();
         }
 
-        private IReadOnlyUnit FindUnbuffedAlly()
+        private bool TryFindBuffTarget(out IReadOnlyUnit target, out BaseBuff buff)
         {
-            var allies = GetUnitsInRadius(unit.Config.AttackRange, enemies: false);
+            var allies = GetUnitsInRadius(unit.AttackRange, enemies: false);
             foreach (var ally in allies)
             {
-                if (!_buffedUnits.Contains(ally))
-                    return ally;
+                foreach (var candidate in _availableBuffs)
+                {
+                    if (!candidate.CanApplyTo(ally))
+                        continue;
+
+                    target = ally;
+                    buff = candidate;
+                    return true;
+                }
             }
 
-            return null;
+            target = null;
+            buff = null;
+            return false;
         }
 
-        private void ApplyBuff(IReadOnlyUnit target)
+        private void TryApplyPendingBuff()
         {
-            _buffedUnits.Add(target);
-            ServiceLocator.Get<VFXView>().PlayVFX(target.Pos, VFXView.VFXType.BuffApplied);
+            if (_pendingTarget == null || _pendingBuff == null)
+                return;
+
+            if (!IsTargetInRange(_pendingTarget.Pos))
+                return;
+
+            if (_pendingTarget is not Unit mutableUnit)
+                return;
+
+            if (!_pendingBuff.CanApplyTo(mutableUnit))
+                return;
+
+            _pendingBuff.ApplyTo(mutableUnit);
+            ServiceLocator.Get<VFXView>().PlayVFX(mutableUnit.Pos, VFXView.VFXType.BuffApplied);
         }
     }
 }
