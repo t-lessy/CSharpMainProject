@@ -98,7 +98,7 @@ namespace UnitBrains.Player
         }
         public override void Update(float deltaTime, float time)
         {
-            StartTimer += deltaTime;   /// ¬от здесь что то не так!!!!!!!! StartTimer нужен дл€ отсчета 1 секунды, он также выводитс€ в CheckDelay дл€ проверки.
+            StartTimer += deltaTime * 10;   /// ¬от здесь что то не так!!!!!!!! StartTimer нужен дл€ отсчета 1 секунды, он также выводитс€ в CheckDelay дл€ проверки.
             CheckDelay();
             if (HasTargetsInRange())
             {
