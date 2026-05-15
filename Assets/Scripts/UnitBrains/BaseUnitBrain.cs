@@ -14,13 +14,15 @@ namespace UnitBrains
     {
         public virtual string TargetUnitName => string.Empty;
         public virtual bool IsPlayerUnitBrain => true;
-        public virtual BaseUnitPath ActivePath => _activePath;
+        public virtual BaseUnitPath ActivePath => activePath;
 
         protected Unit unit { get; private set; }
         protected IReadOnlyRuntimeModel runtimeModel => ServiceLocator.Get<IReadOnlyRuntimeModel>();
-        private BaseUnitPath _activePath = null;
 
-        private readonly Vector2[] _projectileShifts = new Vector2[]
+        private BaseUnitPath activePath = null;
+        private PlayerCoordinator coordinator = null;
+
+        private readonly Vector2[] projectileShifts = new Vector2[]
         {
             new Vector2(0f, 0f),
             new Vector2(0.15f, 0f),
@@ -36,14 +38,13 @@ namespace UnitBrains
             if (HasTargetsInRange())
                 return unit.Pos;
 
-            var target = runtimeModel.RoMap.Bases[
+            Vector2Int target = runtimeModel.RoMap.Bases[
                 IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId];
 
-            if (IsPlayerUnitBrain)
-                target = GetCoordinatorPointOrDefault(target);
+            target = GetCoordinatorPointOrDefault(target);
 
-            _activePath = new AStarUnitPath(runtimeModel, unit.Pos, target);
-            return _activePath.GetNextStepFrom(unit.Pos);
+            activePath = new AStarUnitPath(runtimeModel, unit.Pos, target);
+            return activePath.GetNextStepFrom(unit.Pos);
         }
 
         public List<BaseProjectile> GetProjectiles()
@@ -56,7 +57,7 @@ namespace UnitBrains
             for (int i = 0; i < result.Count; i++)
             {
                 var proj = result[i];
-                proj.AddStartShift(_projectileShifts[i % _projectileShifts.Length]);
+                proj.AddStartShift(projectileShifts[i % projectileShifts.Length]);
             }
 
             return result;
@@ -65,6 +66,11 @@ namespace UnitBrains
         public void SetUnit(Unit unit)
         {
             this.unit = unit;
+        }
+
+        public void SetCoordinator(PlayerCoordinator coordinator)
+        {
+            this.coordinator = coordinator;
         }
 
         public virtual void Update(float deltaTime, float time)
@@ -82,20 +88,32 @@ namespace UnitBrains
                 return new List<Vector2Int> { recommendedTarget };
 
             var result = GetReachableTargets();
+
             while (result.Count > 1)
                 result.RemoveAt(result.Count - 1);
 
             return result;
         }
 
-        protected BaseProjectile CreateProjectile(Vector2Int target) =>
-            BaseProjectile.Create(unit.Config.ProjectileType, unit, unit.Pos, target, unit.Config.Damage);
+        protected BaseProjectile CreateProjectile(Vector2Int target)
+        {
+            return BaseProjectile.Create(
+                unit.Config.ProjectileType,
+                unit,
+                unit.Pos,
+                target,
+                unit.Config.Damage);
+        }
 
-        protected void AddProjectileToList(BaseProjectile projectile, List<BaseProjectile> list) =>
+        protected void AddProjectileToList(BaseProjectile projectile, List<BaseProjectile> list)
+        {
             list.Add(projectile);
+        }
 
-        protected IReadOnlyUnit GetUnitAt(Vector2Int pos) =>
-            runtimeModel.RoUnits.FirstOrDefault(u => u.Pos == pos);
+        protected IReadOnlyUnit GetUnitAt(Vector2Int pos)
+        {
+            return runtimeModel.RoUnits.FirstOrDefault(u => u.Pos == pos);
+        }
 
         protected List<IReadOnlyUnit> GetUnitsInRadius(float radius, bool enemies)
         {
@@ -108,13 +126,14 @@ namespace UnitBrains
                 if (otherUnit == unit)
                     continue;
 
-                if (enemies != (otherUnit.Config.IsPlayerUnit == unit.Config.IsPlayerUnit))
+                bool sameSide = otherUnit.Config.IsPlayerUnit == unit.Config.IsPlayerUnit;
+
+                if (enemies == sameSide)
                     continue;
 
-                var otherPos = otherUnit.Pos;
-                var diff = otherPos - pos;
-                var distance = diff.sqrMagnitude;
-                if (distance <= distanceSqr)
+                var diff = otherUnit.Pos - pos;
+
+                if (diff.sqrMagnitude <= distanceSqr)
                     units.Add(otherUnit);
             }
 
@@ -123,11 +142,12 @@ namespace UnitBrains
 
         protected bool HasTargetsInRange()
         {
-            var attackRangeSqr = unit.Config.AttackRange * unit.Config.AttackRange;
+            float attackRangeSqr = unit.Config.AttackRange * unit.Config.AttackRange;
 
             foreach (var possibleTarget in GetAllTargets())
             {
                 var diff = possibleTarget - unit.Pos;
+
                 if (diff.sqrMagnitude <= attackRangeSqr)
                     return true;
             }
@@ -152,8 +172,9 @@ namespace UnitBrains
 
         protected bool IsTargetInRange(Vector2Int targetPos)
         {
-            var attackRangeSqr = unit.Config.AttackRange * unit.Config.AttackRange;
+            float attackRangeSqr = unit.Config.AttackRange * unit.Config.AttackRange;
             var diff = targetPos - unit.Pos;
+
             return diff.sqrMagnitude <= attackRangeSqr;
         }
 
@@ -176,46 +197,44 @@ namespace UnitBrains
         {
             target = unit.Pos;
 
-            if (!IsPlayerUnitBrain)
+            if (coordinator == null)
                 return false;
 
-            PlayerCoordinator.Instance.Recalculate();
+            coordinator.Recalculate();
 
-            if (!PlayerCoordinator.Instance.HasRecommendedTarget)
+            if (!coordinator.HasRecommendedTarget)
                 return false;
 
             float doubleAttackRange = unit.Config.AttackRange * 2f;
-            var diff = PlayerCoordinator.Instance.RecommendedTarget - unit.Pos;
+            var diff = coordinator.RecommendedTarget - unit.Pos;
 
             if (diff.sqrMagnitude > doubleAttackRange * doubleAttackRange)
                 return false;
 
-            target = PlayerCoordinator.Instance.RecommendedTarget;
+            target = coordinator.RecommendedTarget;
             return true;
         }
 
         protected Vector2Int GetCoordinatorPointOrDefault(Vector2Int fallback)
         {
-            if (!IsPlayerUnitBrain)
+            if (coordinator == null)
                 return fallback;
 
-            PlayerCoordinator.Instance.Recalculate();
+            coordinator.Recalculate();
 
-            if (!PlayerCoordinator.Instance.HasRecommendedTarget)
-                return fallback;
-
-            return GetDistributedCoordinatorPoint(PlayerCoordinator.Instance.RecommendedPoint, fallback);
+            return GetDistributedCoordinatorPoint(coordinator.RecommendedPoint, fallback);
         }
 
         protected Vector2Int GetDistributedCoordinatorPoint(Vector2Int center, Vector2Int fallback)
         {
-            var playerUnits = runtimeModel.RoUnits
-                .Where(u => u.Config.IsPlayerUnit)
+            var sameSideUnits = runtimeModel.RoUnits
+                .Where(u => u.Config.IsPlayerUnit == unit.Config.IsPlayerUnit)
                 .OrderBy(u => u.Pos.x)
                 .ThenBy(u => u.Pos.y)
                 .ToList();
 
-            int unitIndex = playerUnits.FindIndex(u => u == unit);
+            int unitIndex = sameSideUnits.FindIndex(u => u == unit);
+
             if (unitIndex < 0)
                 return fallback;
 
@@ -240,9 +259,13 @@ namespace UnitBrains
 
             foreach (var cell in candidates)
             {
-                bool occupiedByOtherUnit = runtimeModel.RoUnits.Any(u => u != unit && u.Pos == cell);
+                if (!runtimeModel.IsTileWalkable(cell))
+                    continue;
 
-                if (!runtimeModel.IsTileWalkable(cell) && !occupiedByOtherUnit)
+                bool occupiedByOtherUnit = runtimeModel.RoUnits
+                    .Any(u => u != unit && u.Pos == cell);
+
+                if (occupiedByOtherUnit)
                     continue;
 
                 available.Add(cell);

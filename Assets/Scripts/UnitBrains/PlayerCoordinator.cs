@@ -10,53 +10,60 @@ namespace UnitBrains
 {
     public sealed class PlayerCoordinator
     {
-        private static PlayerCoordinator _instance;
-
-        public static PlayerCoordinator Instance => _instance ??= new PlayerCoordinator();
-
         private readonly IReadOnlyRuntimeModel runtimeModel;
         private readonly TimeUtil timeUtil;
+        private readonly int ownerPlayerId;
+        private readonly int enemyPlayerId;
 
         public bool HasRecommendedTarget { get; private set; }
         public Vector2Int RecommendedTarget { get; private set; }
         public Vector2Int RecommendedPoint { get; private set; }
 
-        private PlayerCoordinator()
+        public PlayerCoordinator(
+            IReadOnlyRuntimeModel runtimeModel,
+            TimeUtil timeUtil,
+            int ownerPlayerId,
+            int enemyPlayerId)
         {
-            runtimeModel = ServiceLocator.Get<IReadOnlyRuntimeModel>();
-            timeUtil = ServiceLocator.Get<TimeUtil>();
+            this.runtimeModel = runtimeModel;
+            this.timeUtil = timeUtil;
+            this.ownerPlayerId = ownerPlayerId;
+            this.enemyPlayerId = enemyPlayerId;
         }
 
         public void Recalculate()
         {
-            var myBase = runtimeModel.RoMap.Bases[RuntimeModel.PlayerId];
-            var enemyBase = runtimeModel.RoMap.Bases[RuntimeModel.BotPlayerId];
+            _ = timeUtil;
 
-            var playerUnits = runtimeModel.RoUnits
-                .Where(u => u.Config.IsPlayerUnit)
+            bool ownerIsPlayerUnit = ownerPlayerId == RuntimeModel.PlayerId;
+
+            Vector2Int myBase = runtimeModel.RoMap.Bases[ownerPlayerId];
+            Vector2Int enemyBase = runtimeModel.RoMap.Bases[enemyPlayerId];
+
+            var myUnits = runtimeModel.RoUnits
+                .Where(u => u.Config.IsPlayerUnit == ownerIsPlayerUnit)
                 .ToList();
 
             var enemyUnits = runtimeModel.RoUnits
-                .Where(u => !u.Config.IsPlayerUnit)
+                .Where(u => u.Config.IsPlayerUnit != ownerIsPlayerUnit)
                 .ToList();
 
             if (enemyUnits.Count == 0)
             {
                 HasRecommendedTarget = false;
-                RecommendedTarget = myBase;
-                RecommendedPoint = GetNearestWalkable(myBase, myBase);
+                RecommendedTarget = enemyBase;
+                RecommendedPoint = GetNearestWalkable(enemyBase, myBase);
                 return;
             }
 
             var enemiesOnOurHalf = enemyUnits
                 .Where(u => IsOnOurHalf(u.Pos, myBase, enemyBase))
+                .OrderBy(u => Manhattan(u.Pos, myBase))
                 .ToList();
 
             if (enemiesOnOurHalf.Count > 0)
             {
-                var nearestToBase = enemiesOnOurHalf
-                    .OrderBy(u => Manhattan(u.Pos, myBase))
-                    .First();
+                var nearestToBase = enemiesOnOurHalf.First();
 
                 HasRecommendedTarget = true;
                 RecommendedTarget = nearestToBase.Pos;
@@ -78,8 +85,8 @@ namespace UnitBrains
             HasRecommendedTarget = true;
             RecommendedTarget = weakestEnemy.Pos;
 
-            float minAttackRange = playerUnits.Count > 0
-                ? playerUnits.Min(u => u.Config.AttackRange)
+            float minAttackRange = myUnits.Count > 0
+                ? myUnits.Min(u => u.Config.AttackRange)
                 : 1f;
 
             int rangeCells = Mathf.Max(1, Mathf.RoundToInt(minAttackRange));
@@ -88,8 +95,8 @@ namespace UnitBrains
 
             RecommendedPoint = GetNearestWalkable(desiredPoint, myBase);
         }
-       
-           private bool IsOnOurHalf(Vector2Int point, Vector2Int myBase, Vector2Int enemyBase)
+
+        private bool IsOnOurHalf(Vector2Int point, Vector2Int myBase, Vector2Int enemyBase)
         {
             Vector2 center = ((Vector2)myBase + (Vector2)enemyBase) * 0.5f;
             Vector2 toMyBase = (Vector2)myBase - center;
@@ -97,7 +104,7 @@ namespace UnitBrains
 
             return Vector2.Dot(toPoint, toMyBase) >= 0f;
         }
-        
+
         private Vector2Int GetNearestWalkable(Vector2Int desired, Vector2Int fallback)
         {
             if (runtimeModel.IsTileWalkable(desired))
@@ -135,6 +142,7 @@ namespace UnitBrains
         {
             int dx = Mathf.Clamp(to.x - from.x, -1, 1);
             int dy = Mathf.Clamp(to.y - from.y, -1, 1);
+
             return new Vector2Int(dx, dy);
         }
 
