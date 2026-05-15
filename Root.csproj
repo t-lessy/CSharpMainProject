@@ -85,6 +85,7 @@
     <Compile Include="Assets\Scripts\UnitBrains\Player\SecondUnitBrain.cs" />
     <Compile Include="Assets\Scripts\Model\PersistedModel.cs" />
     <Compile Include="Assets\Scripts\Model\Runtime\ReadOnly\IReadOnlyBase.cs" />
+    <Compile Include="Assets\Scripts\UnitBrains\Pathfinding\SmartUnitPath.cs" />
     <Compile Include="Assets\Scripts\Utilities\TimeUtil.cs" />
     <Compile Include="Assets\Scripts\UnitBrains\Player\ThirdUnitBrain.cs" />
     <Compile Include="Assets\Scripts\Controller\LevelController.cs" />
@@ -106,6 +107,7 @@
     <Compile Include="Assets\Scripts\Model\Runtime\Projectiles\HorizontalLineProjectile.cs" />
     <Compile Include="Assets\Scripts\Model\Runtime\Projectiles\HomingProjectile.cs" />
     <Compile Include="Assets\Scripts\Utilities\MapGenerator.cs" />
+    <Compile Include="Assets\Scripts\UnitBrains\Pathfinding\Tile.cs" />
     <Compile Include="Assets\Scripts\Controller\BotController.cs" />
     <Compile Include="Assets\Scripts\Controller\SimulationController.cs" />
   </ItemGroup>

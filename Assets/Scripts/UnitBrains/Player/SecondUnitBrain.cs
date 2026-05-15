@@ -6,6 +6,7 @@ using System.Linq;
 using UnityEngine;
 using Utilities;
 using static UnityEngine.GraphicsBuffer;
+using UnitBrains.Pathfinding;
 
 namespace UnitBrains.Player
 {
@@ -17,6 +18,9 @@ namespace UnitBrains.Player
         private float _temperature = 0f;
         private float _cooldownTime = 0f;
         private bool _overheated;
+
+        private BaseUnitPath _activePath = null;
+        public override BaseUnitPath ActivePath => _activePath;
         
         protected override void GenerateProjectiles(Vector2Int forTarget, List<BaseProjectile> intoList)
         {
@@ -46,7 +50,8 @@ namespace UnitBrains.Player
             if (NextEnemyUnderDistance.Count > 0 )
             {
                 var target = NextEnemyUnderDistance[0];
-                return unit.Pos.CalcNextStepTowards(target);
+                _activePath = new SmartUnitPath(runtimeModel, unit.Pos, target);
+                return _activePath.GetNextStepFrom(unit.Pos);
             }
             else
             {
@@ -123,7 +128,7 @@ namespace UnitBrains.Player
             return result;
 
             /*/
-            Гы. Я учусь на XYZ!!!!
+            Гы. Я учусь на XYZ!!!! 
             /*/
         }
 
