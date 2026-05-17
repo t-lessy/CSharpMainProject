@@ -1,93 +1,114 @@
 using System.Collections.Generic;
-using UnitBrains.Pathfinding;
+using Model.Runtime.Projectiles;
 using UnityEngine;
-using View;
-using Utilities;
+using System.Linq;
+using Model;                    // чтобы видеть RuntimeModel.PlayerId / BotPlayerId
+using UnitBrains.Pathfinding;
+using System.Collections.Generic;
 
 namespace UnitBrains.Player
 {
     public class FourthUnitBrain : DefaultPlayerUnitBrain
     {
         public override string TargetUnitName => "Buffer";
+        private const float OverheatTemperature = 3f;
+        private const float OverheatCooldown = 2f;
+        private float _temperature = 0f;
+        private float _cooldownTime = 0f;
+        private bool _overheated;
+        private static int s_unitCounter = 0;
+        private int _unitNumber;
+        private const int MAX_SMART_TARGETS = 3;
+                
+        //private readonly System.Collections.Generic.List<Vector2Int> _pendingTargets = new System.Collections.Generic.List<Vector2Int>();
+        private readonly List<Vector2Int> _pendingTargets = new List<Vector2Int>(); 
+        private Vector2Int? _currentObjective;
 
-        private enum BrainMode { Move, Buffing, Switching }
-
-        private const float SwitchDuration = 1f;
-        private BrainMode _mode = BrainMode.Move;
-        private BrainMode _pendingMode = BrainMode.Move;
-        private float _switchTimer = 0f;
-		private bool hasTargets = false;
-        private ArmyBrain _armyBrain;
-		private VFXView _vfxView;
-
-        public override void SetArmyBrain(ArmyBrain armyBrain) => _armyBrain = armyBrain;
-
-        private void BeginSwitch(BrainMode to)
-        {
-            _pendingMode = to;
-            _mode = BrainMode.Switching;
-            _switchTimer = SwitchDuration;
-        }
-
-        public override void Update(float deltaTime, float time)
-        {
-			_vfxView = ServiceLocator.Get<VFXView>();
-			_vfxView.PlayVFX(unit.Pos, VFXView.VFXType.BuffApplied);
-            base.Update(deltaTime, time);
-            
-            if (_mode == BrainMode.Switching)
-            {
-                _switchTimer -= deltaTime;
-                if (_switchTimer <= 0f)
-                {
-                    _mode = _pendingMode;
-                    _switchTimer = 0f;
-                }
-                return;
-            }
-            
-            var desired = hasTargets ? BrainMode.Buffing : BrainMode.Move;
-            
-            if (_mode != desired)
-            {
-                BeginSwitch(desired);
-            }
-        }
+        public FourthUnitBrain() { _unitNumber = s_unitCounter++; }
         
-        protected override List<Vector2Int> SelectTargets()
+        private void SortByDistanceToOwnBase(List<Vector2Int> list)
         {
-            var recommended = _armyBrain?.GetRecommendedTarget();
+            var myBase = runtimeModel.RoMap.Bases[IsPlayerUnitBrain ? RuntimeModel.PlayerId : RuntimeModel.BotPlayerId];
+            list.Sort((a, b) => ((a - myBase).sqrMagnitude).CompareTo((b - myBase).sqrMagnitude));
+        }
 
-            if (recommended != null)
+        protected override void GenerateProjectiles(Vector2Int forTarget, List<BaseProjectile> intoList)
+        {
+            float overheatTemperature = OverheatTemperature;
+
+            float currentTemperature = GetTemperature();
+            if (currentTemperature >= overheatTemperature) { return; }
+
+            for (float i = -1; i < currentTemperature; i++)
             {
-                float twoRanges = unit.Config.AttackRange * 2f;
-                float dist = Vector2Int.Distance(unit.Pos, recommended.Pos);
-                if (dist <= twoRanges && IsTargetInRange(recommended.Pos))
-                {
-                    hasTargets = true;
-                    return new List<Vector2Int> { recommended.Pos };
-                }
+                ///////////////////////////////////////
+                // Homework 1.3 (1st block, 3rd module)
+                ///////////////////////////////////////      
+                var projectile = CreateProjectile(forTarget);
+                AddProjectileToList(projectile, intoList);
+                ///////////////////////////////////////
             }
-
-            var result = base.SelectTargets();
-            hasTargets = result.Count > 0;
-            if (_mode != BrainMode.Buffing)
-                result.Clear();
-
-            return result;
+            IncreaseTemperature();
         }
 
         public override Vector2Int GetNextStep()
         {
-            if (_mode != BrainMode.Move)
-                return unit.Pos;
-
-            var target = _armyBrain?.GetRecommendedPoint() ?? unit.Pos;
-            if (target == unit.Pos)
-                return unit.Pos;
-
-            var path = new DummyUnitPath(runtimeModel, unit.Pos, target);
+            if (_currentObjective == null && _pendingTargets.Count > 0) _currentObjective = _pendingTargets[0];
+            if (_currentObjective == null) return unit.Pos;
+            if (IsTargetInRange(_currentObjective.Value)) return unit.Pos;
+            var path = new DummyUnitPath(runtimeModel, unit.Pos, _currentObjective.Value);
             return path.GetNextStepFrom(unit.Pos);
+        }
+
+        protected override List<Vector2Int> SelectTargets()
+        {
+            ///////////////////////////////////////
+            // Homework 1.4 (1st block, 4rd module)
+            ///////////////////////////////////////
+            _pendingTargets.Clear();
+            var goals = new List<Vector2Int>();
+            foreach (var t in GetAllTargets()) goals.Add(t);
+            if (goals.Count == 0)
+            {
+                var enemyBase = runtimeModel.RoMap.Bases[IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId];
+                goals.Add(enemyBase);
+            }
+            SortByDistanceToOwnBase(goals);
+            int idx = _unitNumber % MAX_SMART_TARGETS;
+            if (idx >= goals.Count) idx = 0;
+            var chosen = goals[idx];
+            _currentObjective = chosen;
+            var result = new List<Vector2Int>();
+            if (IsTargetInRange(chosen)) result.Add(chosen); else _pendingTargets.Add(chosen);
+            return result;
+            ///////////////////////////////////////
+        }
+
+        public override void Update(float deltaTime, float time)
+        {
+            if (_overheated)
+            {              
+                _cooldownTime += Time.deltaTime;
+                float t = _cooldownTime / (OverheatCooldown/10);
+                _temperature = Mathf.Lerp(OverheatTemperature, 0, t);
+                if (t >= 1)
+                {
+                    _cooldownTime = 0;
+                    _overheated = false;
+                }
+            }
+        }
+
+        private int GetTemperature()
+        {
+            if(_overheated) return (int) OverheatTemperature;
+            else return (int)_temperature;
+        }
+
+        private void IncreaseTemperature()
+        {
+            _temperature += 1f;
+            if (_temperature >= OverheatTemperature) _overheated = true;
         }
     }
 }
