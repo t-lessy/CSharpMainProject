@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using UnitBrains.Pathfinding;
 using UnityEngine;
+using View;
+using Utilities;
 
 namespace UnitBrains.Player
 {
@@ -16,6 +18,7 @@ namespace UnitBrains.Player
         private float _switchTimer = 0f;
 		private bool hasTargets = false;
         private ArmyBrain _armyBrain;
+		private VFXView _vfxView;
 
         public override void SetArmyBrain(ArmyBrain armyBrain) => _armyBrain = armyBrain;
 
@@ -28,6 +31,8 @@ namespace UnitBrains.Player
 
         public override void Update(float deltaTime, float time)
         {
+			_vfxView = ServiceLocator.Get<VFXView>();
+			_vfxView.PlayVFX(unit.Pos, VFXView.VFXType.BuffApplied);
             base.Update(deltaTime, time);
             
             if (_mode == BrainMode.Switching)
