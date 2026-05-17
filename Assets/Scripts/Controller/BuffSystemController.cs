@@ -10,7 +10,7 @@ namespace Controller
     {
         // Для хранения баффов рекомендуется использовать словарь. 
 		// Словарь юнит - бафф
-		public Dictionary<Unit, List<Buff>> buffs = new Dictionary<Unit, List<Buff>>();
+		private Dictionary<Unit, List<Buff>> buffs = new Dictionary<Unit, List<Buff>>();
 		private readonly TimeUtil _timeUtil = ServiceLocator.Get<TimeUtil>();
 
 		public float GetMoveDelayModifier(Unit unit) 
