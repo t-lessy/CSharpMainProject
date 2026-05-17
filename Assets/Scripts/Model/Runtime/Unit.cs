@@ -7,6 +7,7 @@ using UnitBrains;
 using UnitBrains.Pathfinding;
 using UnityEngine;
 using Utilities;
+using Controller;
 
 namespace Model.Runtime
 {
@@ -39,6 +40,8 @@ namespace Model.Runtime
 
         public void Update(float deltaTime, float time)
         {
+            var buffs = ServiceLocator.Get<BuffSystemController>();
+            
             if (IsDead)
                 return;
             
