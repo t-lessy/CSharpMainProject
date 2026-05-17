@@ -39,11 +39,6 @@ namespace Model.Runtime
             _brain.SetUnit(this);
             _runtimeModel = ServiceLocator.Get<IReadOnlyRuntimeModel>();
             _increaseSpeedBuff = new IncreaseSpeedBuff();
-            
-            var buffs = ServiceLocator.Get<BuffSystemController>();
-            _increaseSpeedBuff.modifier = 0.05f;
-            _increaseSpeedBuff.duration = 5f;
-            buffs.AddBuff(this, _increaseSpeedBuff);
         }
 
         public void Update(float deltaTime, float time)
