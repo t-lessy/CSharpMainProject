@@ -41,7 +41,8 @@ namespace Model.Runtime
             _increaseSpeedBuff = new IncreaseSpeedBuff();
             
             var buffs = ServiceLocator.Get<BuffSystemController>();
-            _increaseSpeedBuff.modifier = 50;
+            _increaseSpeedBuff.modifier = 0.05f;
+            _increaseSpeedBuff.duration = 5f;
             buffs.AddBuff(this, _increaseSpeedBuff);
         }
 
