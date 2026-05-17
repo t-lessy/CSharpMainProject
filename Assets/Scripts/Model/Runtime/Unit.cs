@@ -8,6 +8,7 @@ using UnitBrains.Pathfinding;
 using UnityEngine;
 using Utilities;
 using Controller;
+using Effects;
 
 namespace Model.Runtime
 {
@@ -27,6 +28,7 @@ namespace Model.Runtime
         private float _nextBrainUpdateTime = 0f;
         private float _nextMoveTime = 0f;
         private float _nextAttackTime = 0f;
+        private IncreaseSpeedBuff _increaseSpeedBuff;
         
         public Unit(UnitConfig config, Vector2Int startPos)
         {
@@ -36,6 +38,11 @@ namespace Model.Runtime
             _brain = UnitBrainProvider.GetBrain(config);
             _brain.SetUnit(this);
             _runtimeModel = ServiceLocator.Get<IReadOnlyRuntimeModel>();
+            _increaseSpeedBuff = new IncreaseSpeedBuff();
+            
+            var buffs = ServiceLocator.Get<BuffSystemController>();
+            _increaseSpeedBuff.modifier = 50;
+            buffs.AddBuff(this, _increaseSpeedBuff);
         }
 
         public void Update(float deltaTime, float time)
@@ -53,13 +60,13 @@ namespace Model.Runtime
             
             if (_nextMoveTime < time)
             {
-                _nextMoveTime = time + Config.MoveDelay;
+                _nextMoveTime = time + Config.MoveDelay * buffs.GetMoveDelayModifier(this);
                 Move();
             }
             
             if (_nextAttackTime < time && Attack())
             {
-                _nextAttackTime = time + Config.AttackDelay;
+                _nextAttackTime = time + Config.AttackDelay * buffs.GetAttackDelayModifier(this);
             }
         }
 

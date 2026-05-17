@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using Model.Runtime;
 using Effects;
 using UnityEngine;
+using Utilities;
 
 namespace Controller
 {
@@ -10,20 +11,41 @@ namespace Controller
         // Для хранения баффов рекомендуется использовать словарь. 
 		// Словарь юнит - бафф
 		public Dictionary<Unit, List<Buff>> buffs = new Dictionary<Unit, List<Buff>>();
+		private readonly TimeUtil _timeUtil = ServiceLocator.Get<TimeUtil>();
 
 		public float GetMoveDelayModifier(Unit unit) 
         {
-            return buffs[unit].moveDelayModifier;
+			if (!buffs.ContainsKey(unit)) return 1f;
+            
+			float result = 1f;
+            foreach (var buff in buffs[unit])
+                result *= buff.moveDelayModifier;
+            return result;
         }
 
 		public float GetAttackDelayModifier(Unit unit) 
         {
-            return buffs[unit].attackDelayModifier;
+			if (!buffs.ContainsKey(unit)) return 1f;
+
+            float result = 1f;
+            foreach (var buff in buffs[unit])
+                result *= buff.attackDelayModifier;
+            return result;
         }
 
-		public void AddBuff(Unit unit)
-		{
-			buffs.Add(unit, increaseSpeedBuff);
-		}
+        public void AddBuff(Unit unit, Buff buff)
+        {
+            if (!buffs.ContainsKey(unit))
+                buffs[unit] = new List<Buff>();
+            
+            buffs[unit].Add(buff);
+            _timeUtil.RunDelayed(buff.duration, () => RemoveBuff(unit, buff));
+        }
+
+        private void RemoveBuff(Unit unit, Buff buff)
+        {
+            if (buffs.ContainsKey(unit))
+                buffs[unit].Remove(buff);
+        }
     }
 }

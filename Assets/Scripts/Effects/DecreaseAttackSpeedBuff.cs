@@ -1,7 +1,8 @@
 namespace Effects
 {
-    public class DecreaseAttackSpeedBuff
+    public class DecreaseAttackSpeedBuff : Buff
     {
-        
+        public override float moveDelayModifier => 1f;
+    	public override float attackDelayModifier => modifier;
     }
 }
