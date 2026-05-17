@@ -5,6 +5,11 @@ using System.Linq;
 using Model;                    // чтобы видеть RuntimeModel.PlayerId / BotPlayerId
 using UnitBrains.Pathfinding;
 using System.Collections.Generic;
+using Model.Runtime;
+using Controller;
+using View;
+using Utilities;
+using Effects;
 
 namespace UnitBrains.Player
 {
@@ -20,9 +25,10 @@ namespace UnitBrains.Player
         private int _unitNumber;
         private const int MAX_SMART_TARGETS = 3;
                 
-        //private readonly System.Collections.Generic.List<Vector2Int> _pendingTargets = new System.Collections.Generic.List<Vector2Int>();
         private readonly List<Vector2Int> _pendingTargets = new List<Vector2Int>(); 
         private Vector2Int? _currentObjective;
+		private VFXView _vfxView;
+		private IncreaseSpeedBuff _increaseSpeedBuff;
 
         public FourthUnitBrain() { _unitNumber = s_unitCounter++; }
         
@@ -86,6 +92,9 @@ namespace UnitBrains.Player
 
         public override void Update(float deltaTime, float time)
         {
+			_vfxView = ServiceLocator.Get<VFXView>();
+			_vfxView.PlayVFX(unit.Pos, VFXView.VFXType.BuffApplied);
+
             if (_overheated)
             {              
                 _cooldownTime += Time.deltaTime;
@@ -110,5 +119,15 @@ namespace UnitBrains.Player
             _temperature += 1f;
             if (_temperature >= OverheatTemperature) _overheated = true;
         }
+
+		private void BuffAlly(Unit unit)
+		{
+			_vfxView = ServiceLocator.Get<VFXView>();
+			_vfxView.PlayVFX(unit.Pos, VFXView.VFXType.BuffApplied);
+			var buffs = ServiceLocator.Get<BuffSystemController>();
+            _increaseSpeedBuff.modifier = 0.05f;
+            _increaseSpeedBuff.duration = 5f;
+            buffs.AddBuff(unit, _increaseSpeedBuff);
+		}
     }
 }
