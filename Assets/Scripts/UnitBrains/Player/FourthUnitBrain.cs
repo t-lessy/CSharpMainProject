@@ -5,7 +5,7 @@ using System.Linq;
 using Model;                    // чтобы видеть RuntimeModel.PlayerId / BotPlayerId
 using UnitBrains.Pathfinding;
 using System.Collections.Generic;
-using Model.Runtime;
+using Model.Runtime.ReadOnly;
 using Controller;
 using View;
 using Utilities;
@@ -85,27 +85,19 @@ namespace UnitBrains.Player
             var chosen = goals[idx];
             _currentObjective = chosen;
             var result = new List<Vector2Int>();
-            if (IsTargetInRange(chosen)) result.Add(chosen); else _pendingTargets.Add(chosen);
+            if (IsTargetInRange(chosen)) _pendingTargets.Add(chosen);
             return result;
             ///////////////////////////////////////
         }
 
         public override void Update(float deltaTime, float time)
         {
-			_vfxView = ServiceLocator.Get<VFXView>();
-			_vfxView.PlayVFX(unit.Pos, VFXView.VFXType.BuffApplied);
+            var allies = GetUnitsInRadius(unit.Config.AttackRange, false);
+            if (allies.Count == 0) return;
 
-            if (_overheated)
-            {              
-                _cooldownTime += Time.deltaTime;
-                float t = _cooldownTime / (OverheatCooldown/10);
-                _temperature = Mathf.Lerp(OverheatTemperature, 0, t);
-                if (t >= 1)
-                {
-                    _cooldownTime = 0;
-                    _overheated = false;
-                }
-            }
+            var closest = allies.OrderBy(a => (a.Pos - unit.Pos).sqrMagnitude).First();
+            BuffAlly(closest);
+
         }
 
         private int GetTemperature()
@@ -120,14 +112,13 @@ namespace UnitBrains.Player
             if (_temperature >= OverheatTemperature) _overheated = true;
         }
 
-		private void BuffAlly(Unit unit)
+		private void BuffAlly(IReadOnlyUnit unit)
 		{
 			_vfxView = ServiceLocator.Get<VFXView>();
 			_vfxView.PlayVFX(unit.Pos, VFXView.VFXType.BuffApplied);
 			var buffs = ServiceLocator.Get<BuffSystemController>();
-            _increaseSpeedBuff.modifier = 0.05f;
-            _increaseSpeedBuff.duration = 5f;
-            buffs.AddBuff(unit, _increaseSpeedBuff);
+            var buff = new IncreaseSpeedBuff { modifier = 0.5f, duration = 5f };
+            buffs.AddBuff(unit, buff);
 		}
     }
 }

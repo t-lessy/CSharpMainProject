@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using Model.Runtime;
+using Model.Runtime.ReadOnly;
 using Effects;
 using UnityEngine;
 using Utilities;
@@ -10,10 +10,10 @@ namespace Controller
     {
         // Для хранения баффов рекомендуется использовать словарь. 
 		// Словарь юнит - бафф
-		private Dictionary<Unit, List<Buff>> buffs = new Dictionary<Unit, List<Buff>>();
+		private Dictionary<IReadOnlyUnit, List<Buff>> buffs = new Dictionary<IReadOnlyUnit, List<Buff>>();
 		private readonly TimeUtil _timeUtil = ServiceLocator.Get<TimeUtil>();
 
-		public float GetMoveDelayModifier(Unit unit) 
+		public float GetMoveDelayModifier(IReadOnlyUnit unit) 
         {
 			if (!buffs.ContainsKey(unit)) return 1f;
             
@@ -23,7 +23,7 @@ namespace Controller
             return result;
         }
 
-		public float GetAttackDelayModifier(Unit unit) 
+		public float GetAttackDelayModifier(IReadOnlyUnit unit) 
         {
 			if (!buffs.ContainsKey(unit)) return 1f;
 
@@ -33,7 +33,7 @@ namespace Controller
             return result;
         }
 
-        public void AddBuff(Unit unit, Buff buff)
+        public void AddBuff(IReadOnlyUnit unit, Buff buff)
         {
             if (!buffs.ContainsKey(unit))
                 buffs[unit] = new List<Buff>();
@@ -42,7 +42,7 @@ namespace Controller
             _timeUtil.RunDelayed(buff.duration, () => RemoveBuff(unit, buff));
         }
 
-        private void RemoveBuff(Unit unit, Buff buff)
+        private void RemoveBuff(IReadOnlyUnit unit, Buff buff)
         {
             if (buffs.ContainsKey(unit))
                 buffs[unit].Remove(buff);
