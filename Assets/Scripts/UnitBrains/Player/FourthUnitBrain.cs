@@ -91,6 +91,10 @@ namespace UnitBrains.Player
 
         public override void Update(float deltaTime, float time)
         {
+            _buffTimer += deltaTime;
+            if (_buffTimer < BuffInterval) return;
+            _buffTimer = 0f;
+
             var allies = GetUnitsInRadius(unit.Config.AttackRange, true);
             if (allies.Count == 0) return;
 
