@@ -118,7 +118,7 @@ namespace UnitBrains.Player
 			_vfxView = ServiceLocator.Get<VFXView>();
 			_vfxView.PlayVFX(unit.Pos, VFXView.VFXType.BuffApplied);
 			var buffs = ServiceLocator.Get<BuffSystemController>();
-            var buff = new IncreaseAttackSpeedBuff { modifier = 0.005f, duration = 5f };
+            var buff = new IncreaseAttackSpeedBuff { modifier = 0.5f, duration = 5f };
             buffs.AddBuff(unit, buff);
 		}
     }
