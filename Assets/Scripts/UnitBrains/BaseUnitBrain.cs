@@ -33,6 +33,8 @@ namespace UnitBrains
 
         public virtual Vector2Int GetNextStep()
         {
+            Debug.Log("BaseUnitBrain.GetNextStep");
+
             if (HasTargetsInRange())
                 return unit.Pos;
 
