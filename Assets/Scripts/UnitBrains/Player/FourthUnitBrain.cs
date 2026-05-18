@@ -28,7 +28,6 @@ namespace UnitBrains.Player
         private readonly List<Vector2Int> _pendingTargets = new List<Vector2Int>(); 
         private Vector2Int? _currentObjective;
 		private VFXView _vfxView;
-		private IncreaseSpeedBuff _increaseSpeedBuff;
 
         public FourthUnitBrain() { _unitNumber = s_unitCounter++; }
         
@@ -92,11 +91,13 @@ namespace UnitBrains.Player
 
         public override void Update(float deltaTime, float time)
         {
-            var allies = GetUnitsInRadius(unit.Config.AttackRange, false);
+            var allies = GetUnitsInRadius(unit.Config.AttackRange, true);
             if (allies.Count == 0) return;
 
-            var closest = allies.OrderBy(a => (a.Pos - unit.Pos).sqrMagnitude).First();
-            BuffAlly(closest);
+            var buffSystem = ServiceLocator.Get<BuffSystemController>();
+            var target = allies.FirstOrDefault(a => !buffSystem.HasBuff(a));
+            if (target != null)
+                BuffAlly(target);
 
         }
 
@@ -117,7 +118,7 @@ namespace UnitBrains.Player
 			_vfxView = ServiceLocator.Get<VFXView>();
 			_vfxView.PlayVFX(unit.Pos, VFXView.VFXType.BuffApplied);
 			var buffs = ServiceLocator.Get<BuffSystemController>();
-            var buff = new IncreaseSpeedBuff { modifier = 0.5f, duration = 5f };
+            var buff = new IncreaseSpeedBuff { modifier = 0.005f, duration = 5f };
             buffs.AddBuff(unit, buff);
 		}
     }

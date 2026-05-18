@@ -47,5 +47,10 @@ namespace Controller
             if (buffs.ContainsKey(unit))
                 buffs[unit].Remove(buff);
         }
+
+        public bool HasBuff(IReadOnlyUnit unit)
+        {
+            return buffs.ContainsKey(unit) && buffs[unit].Count > 0;
+        }
     }
 }
