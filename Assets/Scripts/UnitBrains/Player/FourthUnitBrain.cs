@@ -26,7 +26,11 @@ namespace UnitBrains.Player
         private const int MAX_SMART_TARGETS = 3;
         private float _buffTimer = 0f;
         private const float BuffInterval = 0.05f;
+        private const float BuffStopTime = 0.5f;
+        private float _busyUntil = 0f;
+        private float _castAt = 0f;
         private bool _isBusy = false;
+        private IReadOnlyUnit _pendingBuffTarget;
                 
         private readonly List<Vector2Int> _pendingTargets = new List<Vector2Int>(); 
         private Vector2Int? _currentObjective;
@@ -95,6 +99,21 @@ namespace UnitBrains.Player
 
         public override void Update(float deltaTime, float time)
         {
+            _isBusy = time < _busyUntil;
+
+            if (_isBusy)
+            {
+                if (_pendingBuffTarget != null && time >= _castAt)
+                {
+                    if (IsTargetInRange(_pendingBuffTarget.Pos))
+                        BuffAlly(_pendingBuffTarget);
+                    else
+                        _busyUntil = time;
+                    _pendingBuffTarget = null;
+                }
+                return;
+            }
+
             _buffTimer += deltaTime;
             if (_buffTimer < BuffInterval) return;
             _buffTimer = 0f;
@@ -105,8 +124,12 @@ namespace UnitBrains.Player
             var buffSystem = ServiceLocator.Get<BuffSystemController>();
             var target = allies.FirstOrDefault(a => !buffSystem.HasBuff(a));
             if (target != null)
-                BuffAlly(target);
-
+            {
+                _pendingBuffTarget = target;
+                _castAt = time + BuffStopTime;
+                _busyUntil = time + BuffStopTime * 2f;
+                _isBusy = true;
+            }
         }
 
         private int GetTemperature()
