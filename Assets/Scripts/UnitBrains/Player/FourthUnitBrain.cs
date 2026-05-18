@@ -25,7 +25,8 @@ namespace UnitBrains.Player
         private int _unitNumber;
         private const int MAX_SMART_TARGETS = 3;
         private float _buffTimer = 0f;
-        private const float BuffInterval = 3f;
+        private const float BuffInterval = 0.05f;
+        private bool _isBusy = false;
                 
         private readonly List<Vector2Int> _pendingTargets = new List<Vector2Int>(); 
         private Vector2Int? _currentObjective;
@@ -60,6 +61,7 @@ namespace UnitBrains.Player
 
         public override Vector2Int GetNextStep()
         {
+            if (_isBusy) return unit.Pos;
             if (_currentObjective == null && _pendingTargets.Count > 0) _currentObjective = _pendingTargets[0];
             if (_currentObjective == null) return unit.Pos;
             if (IsTargetInRange(_currentObjective.Value)) return unit.Pos;
