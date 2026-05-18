@@ -64,7 +64,7 @@ MonoBehaviour:
   _isPlayerUnit: 1
   _name: Buffer
   _icon: {fileID: 21300000, guid: ed0ebd9a5a7925f4892864c78333b9f4, type: 3}
-  _cost: 200
+  _cost: 30
   _maxHealth: 400
   _brainUpdateDelay: 0.25
   _moveDelay: 0.25
