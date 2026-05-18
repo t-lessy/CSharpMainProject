@@ -24,6 +24,8 @@ namespace UnitBrains.Player
         private static int s_unitCounter = 0;
         private int _unitNumber;
         private const int MAX_SMART_TARGETS = 3;
+        private float _buffTimer = 0f;
+        private const float BuffInterval = 3f;
                 
         private readonly List<Vector2Int> _pendingTargets = new List<Vector2Int>(); 
         private Vector2Int? _currentObjective;
