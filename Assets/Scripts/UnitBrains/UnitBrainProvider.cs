@@ -1,67 +1,70 @@
-﻿using System;
+﻿using Model;
+using Model.Config;
+using Model.Runtime;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using Model.Config;
 using UnityEngine;
 
 namespace UnitBrains
 {
     public static class UnitBrainProvider
     {
-        private static readonly List<BaseUnitBrain> brainsCache = new List<BaseUnitBrain>();
+        private static readonly List<BaseUnitBrain> _brainsCache = new();
+        private static readonly Dictionary<int, PlayerCoordinator> _coordinators = new();
 
-        private static PlayerCoordinator playerCoordinator;
-        private static PlayerCoordinator botCoordinator;
-
-        public static void SetCoordinators(
-            PlayerCoordinator newPlayerCoordinator,
-            PlayerCoordinator newBotCoordinator)
+        public static void SetCoordinator(int playerId, PlayerCoordinator coordinator)
         {
-            playerCoordinator = newPlayerCoordinator;
-            botCoordinator = newBotCoordinator;
+            if (_coordinators.ContainsKey(playerId))
+                _coordinators[playerId] = coordinator;
+            else
+                _coordinators.Add(playerId, coordinator);
         }
 
         public static BaseUnitBrain GetBrain(UnitConfig forUnit)
         {
             InitBrainsCache();
 
-            var brain = brainsCache.FirstOrDefault(b =>
+            var brainPrototype = _brainsCache.FirstOrDefault(b =>
                 b.TargetUnitName == forUnit.Name &&
                 b.IsPlayerUnitBrain == forUnit.IsPlayerUnit);
 
-            if (brain == null)
+            if (brainPrototype == null)
             {
-                brain = brainsCache.FirstOrDefault(b =>
+                brainPrototype = _brainsCache.FirstOrDefault(b =>
                     string.IsNullOrEmpty(b.TargetUnitName) &&
                     b.IsPlayerUnitBrain == forUnit.IsPlayerUnit);
             }
 
-            if (brain == null)
+            if (brainPrototype == null)
             {
                 Debug.LogError($"Could not find brains for unit {forUnit.Name}");
                 return null;
             }
 
-            var createdBrain = (BaseUnitBrain)Activator.CreateInstance(brain.GetType());
+            var brain = (BaseUnitBrain)Activator.CreateInstance(brainPrototype.GetType());
 
-            if (forUnit.IsPlayerUnit)
-                createdBrain.SetCoordinator(playerCoordinator);
-            else
-                createdBrain.SetCoordinator(botCoordinator);
+            int playerId = forUnit.IsPlayerUnit
+                ? RuntimeModel.PlayerId
+                : RuntimeModel.BotPlayerId;
 
-            return createdBrain;
+            if (_coordinators.TryGetValue(playerId, out var coordinator))
+                brain.SetCoordinator(coordinator);
+
+            return brain;
         }
 
         private static void InitBrainsCache()
         {
-            if (brainsCache.Count != 0)
+            if (_brainsCache.Count != 0)
                 return;
 
-            brainsCache.AddRange(
+            _brainsCache.AddRange(
                 AppDomain.CurrentDomain.GetAssemblies()
                     .SelectMany(a => a.GetTypes())
                     .Where(t => !t.IsAbstract && typeof(BaseUnitBrain).IsAssignableFrom(t))
-                    .Select(t => (BaseUnitBrain)Activator.CreateInstance(t)));
+                    .Select(t => (BaseUnitBrain)Activator.CreateInstance(t))
+            );
         }
     }
 }

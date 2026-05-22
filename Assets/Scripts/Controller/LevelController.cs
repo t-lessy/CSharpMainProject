@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using Buffs;
 using Model;
 using Model.Config;
 using Model.Runtime;
@@ -22,19 +23,20 @@ namespace Controller
 
         private readonly PlayerCoordinator _playerCoordinator;
         private readonly PlayerCoordinator _botCoordinator;
+        private readonly BuffSystem _buffSystem;
 
         public LevelController(RuntimeModel runtimeModel, RootController rootController)
         {
             _runtimeModel = runtimeModel;
             _rootController = rootController;
 
-            _botController = new BotController(OnBotUnitChosen);
-            _simulationController = new SimulationController(runtimeModel, OnLevelFinished);
-
             _rootView = ServiceLocator.Get<RootView>();
             _gameplayView = ServiceLocator.Get<Gameplay3dView>();
             _settings = ServiceLocator.Get<Settings>();
             _timeUtil = ServiceLocator.Get<TimeUtil>();
+
+            _botController = new BotController(OnBotUnitChosen);
+            _simulationController = new SimulationController(runtimeModel, OnLevelFinished);
 
             _playerCoordinator = new PlayerCoordinator(
                 _runtimeModel,
@@ -48,7 +50,11 @@ namespace Controller
                 RuntimeModel.BotPlayerId,
                 RuntimeModel.PlayerId);
 
-            UnitBrainProvider.SetCoordinators(_playerCoordinator, _botCoordinator);
+            UnitBrainProvider.SetCoordinator(RuntimeModel.PlayerId, _playerCoordinator);
+            UnitBrainProvider.SetCoordinator(RuntimeModel.BotPlayerId, _botCoordinator);
+
+            _buffSystem = new BuffSystem(_timeUtil);
+            ServiceLocator.Register(_buffSystem);
         }
 
         public void StartLevel(int level)
@@ -69,28 +75,37 @@ namespace Controller
                 level);
 
             _runtimeModel.Clear();
+            _buffSystem.Clear();
+
             _runtimeModel.Map = new Map(map, Settings.PlayersCount);
             _runtimeModel.Stage = RuntimeModel.GameStage.ChooseUnit;
+
             _runtimeModel.Bases[RuntimeModel.PlayerId] = new MainBase(_settings.MainBaseMaxHp);
             _runtimeModel.Bases[RuntimeModel.BotPlayerId] = new MainBase(_settings.MainBaseMaxHp);
-
-            _playerCoordinator.Recalculate();
-            _botCoordinator.Recalculate();
 
             _gameplayView.Reinitialize();
         }
 
         public void OnPlayersUnitChosen(UnitConfig unitConfig)
         {
+            if (_runtimeModel.Stage != RuntimeModel.GameStage.ChooseUnit)
+                return;
+
             if (unitConfig.Cost > _runtimeModel.Money[RuntimeModel.PlayerId])
                 return;
 
             SpawnUnit(RuntimeModel.PlayerId, unitConfig);
+
+            _botController.ChooseUnit();
+
             TryStartSimulation();
         }
 
         private void OnBotUnitChosen(UnitConfig unitConfig)
         {
+            if (_runtimeModel.Stage != RuntimeModel.GameStage.ChooseUnit)
+                return;
+
             SpawnUnit(RuntimeModel.BotPlayerId, unitConfig);
             TryStartSimulation();
         }
@@ -105,26 +120,72 @@ namespace Controller
 
             _runtimeModel.Money[forPlayer] -= config.Cost;
             _runtimeModel.PlayersUnits[forPlayer].Add(unit);
+
+            AddHomeworkBuffDemo(unit, forPlayer);
         }
 
         private void TryStartSimulation()
         {
-            if (_runtimeModel.Money[RuntimeModel.PlayerId] < _settings.GetCheapestPlayerUnitCost() &&
-                _runtimeModel.Money[RuntimeModel.BotPlayerId] < _settings.GetCheapestEnemyUnitCost())
+            bool playerCanBuyMore =
+                _runtimeModel.Money[RuntimeModel.PlayerId] >= _settings.GetCheapestPlayerUnitCost();
+
+            bool botCanBuyMore =
+                _runtimeModel.Money[RuntimeModel.BotPlayerId] >= _settings.GetCheapestEnemyUnitCost();
+
+            if (playerCanBuyMore)
+                return;
+
+            if (botCanBuyMore)
             {
-                _runtimeModel.Stage = RuntimeModel.GameStage.Simulation;
+                _timeUtil.RunDelayed(0.05f, () =>
+                {
+                    if (_runtimeModel.Stage == RuntimeModel.GameStage.ChooseUnit)
+                        _botController.ChooseUnit();
+                });
+
+                return;
             }
+
+            bool playerHasUnits = _runtimeModel.PlayersUnits[RuntimeModel.PlayerId].Count > 0;
+            bool botHasUnits = _runtimeModel.PlayersUnits[RuntimeModel.BotPlayerId].Count > 0;
+
+            if (!playerHasUnits || !botHasUnits)
+                return;
+
+            _runtimeModel.Stage = RuntimeModel.GameStage.Simulation;
         }
 
         private void SetInitialMoney()
         {
             var startMoney = _settings.BaseLevelMoney + _runtimeModel.Level * _settings.LevelMoneyIncrement;
 
-            var botMoneyAdvantage =
-                (_runtimeModel.Level + _settings.BotMoneyAdvantageLevelShift) *
-                _settings.BotMoneyAdvantagePerLevel;
+            var botMoneyAdvantage = (_runtimeModel.Level + _settings.BotMoneyAdvantageLevelShift) *
+                                    _settings.BotMoneyAdvantagePerLevel;
 
             _runtimeModel.SetMoneyForAll(startMoney, startMoney + botMoneyAdvantage);
+        }
+
+        private void AddHomeworkBuffDemo(Unit unit, int forPlayer)
+        {
+            if (unit == null)
+                return;
+
+            int unitIndex = _runtimeModel.PlayersUnits[forPlayer].Count;
+
+            if (forPlayer == RuntimeModel.PlayerId)
+            {
+                if (unitIndex % 2 == 0)
+                    _buffSystem.AddBuff(unit, UnitBuff.MoveSpeedUp);
+                else
+                    _buffSystem.AddBuff(unit, UnitBuff.AttackSpeedUp);
+            }
+            else
+            {
+                if (unitIndex % 2 == 0)
+                    _buffSystem.AddBuff(unit, UnitBuff.MoveSpeedDown);
+                else
+                    _buffSystem.AddBuff(unit, UnitBuff.AttackSpeedDown);
+            }
         }
 
         private void OnLevelFinished(bool playerWon)

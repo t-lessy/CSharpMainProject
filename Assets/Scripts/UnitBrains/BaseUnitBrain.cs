@@ -14,15 +14,15 @@ namespace UnitBrains
     {
         public virtual string TargetUnitName => string.Empty;
         public virtual bool IsPlayerUnitBrain => true;
-        public virtual BaseUnitPath ActivePath => activePath;
+        public virtual BaseUnitPath ActivePath => _activePath;
 
         protected Unit unit { get; private set; }
         protected IReadOnlyRuntimeModel runtimeModel => ServiceLocator.Get<IReadOnlyRuntimeModel>();
 
-        private BaseUnitPath activePath = null;
-        private PlayerCoordinator coordinator = null;
+        private BaseUnitPath _activePath;
+        private PlayerCoordinator _coordinator;
 
-        private readonly Vector2[] projectileShifts = new Vector2[]
+        private readonly Vector2[] _projectileShifts =
         {
             new Vector2(0f, 0f),
             new Vector2(0.15f, 0f),
@@ -33,36 +33,6 @@ namespace UnitBrains
             new Vector2(-0.15f, -0.15f),
         };
 
-        public virtual Vector2Int GetNextStep()
-        {
-            if (HasTargetsInRange())
-                return unit.Pos;
-
-            Vector2Int target = runtimeModel.RoMap.Bases[
-                IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId];
-
-            target = GetCoordinatorPointOrDefault(target);
-
-            activePath = new AStarUnitPath(runtimeModel, unit.Pos, target);
-            return activePath.GetNextStepFrom(unit.Pos);
-        }
-
-        public List<BaseProjectile> GetProjectiles()
-        {
-            List<BaseProjectile> result = new List<BaseProjectile>();
-
-            foreach (var target in SelectTargets())
-                GenerateProjectiles(target, result);
-
-            for (int i = 0; i < result.Count; i++)
-            {
-                var proj = result[i];
-                proj.AddStartShift(projectileShifts[i % projectileShifts.Length]);
-            }
-
-            return result;
-        }
-
         public void SetUnit(Unit unit)
         {
             this.unit = unit;
@@ -70,11 +40,44 @@ namespace UnitBrains
 
         public void SetCoordinator(PlayerCoordinator coordinator)
         {
-            this.coordinator = coordinator;
+            _coordinator = coordinator;
         }
 
         public virtual void Update(float deltaTime, float time)
         {
+        }
+
+        public virtual Vector2Int GetNextStep()
+        {
+            if (HasTargetsInRange())
+                return unit.Pos;
+
+            var target = runtimeModel.RoMap.Bases[
+                IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId];
+
+            if (IsPlayerUnitBrain)
+                target = GetCoordinatorPointOrDefault(target);
+
+            target = ResolveMoveTarget(target);
+
+            _activePath = new AStarUnitPath(runtimeModel, unit.Pos, target);
+            return _activePath.GetNextStepFrom(unit.Pos);
+        }
+
+        public List<BaseProjectile> GetProjectiles()
+        {
+            List<BaseProjectile> result = new();
+
+            foreach (var target in SelectTargets())
+                GenerateProjectiles(target, result);
+
+            for (int i = 0; i < result.Count; i++)
+            {
+                var proj = result[i];
+                proj.AddStartShift(_projectileShifts[i % _projectileShifts.Length]);
+            }
+
+            return result;
         }
 
         protected virtual void GenerateProjectiles(Vector2Int forTarget, List<BaseProjectile> intoList)
@@ -88,32 +91,20 @@ namespace UnitBrains
                 return new List<Vector2Int> { recommendedTarget };
 
             var result = GetReachableTargets();
-
             while (result.Count > 1)
                 result.RemoveAt(result.Count - 1);
 
             return result;
         }
 
-        protected BaseProjectile CreateProjectile(Vector2Int target)
-        {
-            return BaseProjectile.Create(
-                unit.Config.ProjectileType,
-                unit,
-                unit.Pos,
-                target,
-                unit.Config.Damage);
-        }
+        protected BaseProjectile CreateProjectile(Vector2Int target) =>
+            BaseProjectile.Create(unit.Config.ProjectileType, unit, unit.Pos, target, unit.Config.Damage);
 
-        protected void AddProjectileToList(BaseProjectile projectile, List<BaseProjectile> list)
-        {
+        protected void AddProjectileToList(BaseProjectile projectile, List<BaseProjectile> list) =>
             list.Add(projectile);
-        }
 
-        protected IReadOnlyUnit GetUnitAt(Vector2Int pos)
-        {
-            return runtimeModel.RoUnits.FirstOrDefault(u => u.Pos == pos);
-        }
+        protected IReadOnlyUnit GetUnitAt(Vector2Int pos) =>
+            runtimeModel.RoUnits.FirstOrDefault(u => u.Pos == pos);
 
         protected List<IReadOnlyUnit> GetUnitsInRadius(float radius, bool enemies)
         {
@@ -126,13 +117,10 @@ namespace UnitBrains
                 if (otherUnit == unit)
                     continue;
 
-                bool sameSide = otherUnit.Config.IsPlayerUnit == unit.Config.IsPlayerUnit;
-
-                if (enemies == sameSide)
+                if (enemies != (otherUnit.Config.IsPlayerUnit == unit.Config.IsPlayerUnit))
                     continue;
 
                 var diff = otherUnit.Pos - pos;
-
                 if (diff.sqrMagnitude <= distanceSqr)
                     units.Add(otherUnit);
             }
@@ -142,12 +130,11 @@ namespace UnitBrains
 
         protected bool HasTargetsInRange()
         {
-            float attackRangeSqr = unit.Config.AttackRange * unit.Config.AttackRange;
+            var attackRangeSqr = unit.Config.AttackRange * unit.Config.AttackRange;
 
             foreach (var possibleTarget in GetAllTargets())
             {
                 var diff = possibleTarget - unit.Pos;
-
                 if (diff.sqrMagnitude <= attackRangeSqr)
                     return true;
             }
@@ -172,9 +159,8 @@ namespace UnitBrains
 
         protected bool IsTargetInRange(Vector2Int targetPos)
         {
-            float attackRangeSqr = unit.Config.AttackRange * unit.Config.AttackRange;
+            var attackRangeSqr = unit.Config.AttackRange * unit.Config.AttackRange;
             var diff = targetPos - unit.Pos;
-
             return diff.sqrMagnitude <= attackRangeSqr;
         }
 
@@ -197,48 +183,56 @@ namespace UnitBrains
         {
             target = unit.Pos;
 
-            if (coordinator == null)
+            if (!IsPlayerUnitBrain)
                 return false;
 
-            coordinator.Recalculate();
+            if (_coordinator == null)
+                return false;
 
-            if (!coordinator.HasRecommendedTarget)
+            _coordinator.Recalculate();
+
+            if (!_coordinator.HasRecommendedTarget)
                 return false;
 
             float doubleAttackRange = unit.Config.AttackRange * 2f;
-            var diff = coordinator.RecommendedTarget - unit.Pos;
+            var diff = _coordinator.RecommendedTarget - unit.Pos;
 
             if (diff.sqrMagnitude > doubleAttackRange * doubleAttackRange)
                 return false;
 
-            target = coordinator.RecommendedTarget;
+            target = _coordinator.RecommendedTarget;
             return true;
         }
 
         protected Vector2Int GetCoordinatorPointOrDefault(Vector2Int fallback)
         {
-            if (coordinator == null)
+            if (!IsPlayerUnitBrain)
                 return fallback;
 
-            coordinator.Recalculate();
+            if (_coordinator == null)
+                return fallback;
 
-            return GetDistributedCoordinatorPoint(coordinator.RecommendedPoint, fallback);
+            _coordinator.Recalculate();
+
+            if (!_coordinator.HasRecommendedTarget)
+                return fallback;
+
+            return GetDistributedCoordinatorPoint(_coordinator.RecommendedPoint, fallback);
         }
 
         protected Vector2Int GetDistributedCoordinatorPoint(Vector2Int center, Vector2Int fallback)
         {
-            var sameSideUnits = runtimeModel.RoUnits
-                .Where(u => u.Config.IsPlayerUnit == unit.Config.IsPlayerUnit)
+            var playerUnits = runtimeModel.RoUnits
+                .Where(u => u.Config.IsPlayerUnit)
                 .OrderBy(u => u.Pos.x)
                 .ThenBy(u => u.Pos.y)
                 .ToList();
 
-            int unitIndex = sameSideUnits.FindIndex(u => u == unit);
-
+            int unitIndex = playerUnits.FindIndex(u => u == unit);
             if (unitIndex < 0)
                 return fallback;
 
-            List<Vector2Int> candidates = new List<Vector2Int>
+            List<Vector2Int> candidates = new()
             {
                 center,
                 center + new Vector2Int(1, 0),
@@ -255,17 +249,14 @@ namespace UnitBrains
                 center + new Vector2Int(0, -2),
             };
 
-            List<Vector2Int> available = new List<Vector2Int>();
+            List<Vector2Int> available = new();
 
             foreach (var cell in candidates)
             {
-                if (!runtimeModel.IsTileWalkable(cell))
+                if (runtimeModel.RoMap[cell])
                     continue;
 
-                bool occupiedByOtherUnit = runtimeModel.RoUnits
-                    .Any(u => u != unit && u.Pos == cell);
-
-                if (occupiedByOtherUnit)
+                if (runtimeModel.RoUnits.Any(u => u != unit && u.Pos == cell))
                     continue;
 
                 available.Add(cell);
@@ -275,6 +266,43 @@ namespace UnitBrains
                 return fallback;
 
             return available[unitIndex % available.Count];
+        }
+
+        private Vector2Int ResolveMoveTarget(Vector2Int rawTarget)
+        {
+            if (!runtimeModel.RoMap[rawTarget])
+                return rawTarget;
+
+            Vector2Int[] around =
+            {
+                rawTarget + Vector2Int.up,
+                rawTarget + Vector2Int.right,
+                rawTarget + Vector2Int.down,
+                rawTarget + Vector2Int.left
+            };
+
+            Vector2Int best = unit.Pos;
+            int bestDistance = int.MaxValue;
+            bool found = false;
+
+            foreach (var cell in around)
+            {
+                if (runtimeModel.RoMap[cell])
+                    continue;
+
+                if (runtimeModel.RoUnits.Any(u => u != unit && u.Pos == cell))
+                    continue;
+
+                int dist = Mathf.Abs(cell.x - unit.Pos.x) + Mathf.Abs(cell.y - unit.Pos.y);
+                if (dist < bestDistance)
+                {
+                    bestDistance = dist;
+                    best = cell;
+                    found = true;
+                }
+            }
+
+            return found ? best : rawTarget;
         }
     }
 }
