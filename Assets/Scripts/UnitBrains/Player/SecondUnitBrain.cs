@@ -12,7 +12,9 @@ namespace UnitBrains.Player
         private float _temperature = 0f;
         private float _cooldownTime = 0f;
         private bool _overheated;
-        
+        private List<Vector2Int> _targetsToChase = new List<Vector2Int>();
+
+
         protected override void GenerateProjectiles(Vector2Int forTarget, List<BaseProjectile> intoList)
         {
             float overheatTemperature = OverheatTemperature;
@@ -38,20 +40,33 @@ namespace UnitBrains.Player
 
         public override Vector2Int GetNextStep()
         {
-            return base.GetNextStep();
+            if (_targetsToChase.Count > 0)
+            {
+                return unit.Pos.CalcNextStepTowards(_targetsToChase[0]);
+            }
+            else
+            {
+                return unit.Pos;
+            }
         }
 
         protected override List<Vector2Int> SelectTargets()
         {
             ///////////////////////////////////////
-            // Homework 1.4 (1st block, 4rd module)
+            // Homework 4
             ///////////////////////////////////////
             List<Vector2Int> result = GetReachableTargets();
+            var allTargets = GetAllTargets();
+            var enemyBase = runtimeModel.RoMap.Bases[IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId];
+
+            List<Vector2Int> unreachableTargets = new List<Vector2Int>();
+
             float minDistance = float.MaxValue;
             Vector2Int nearestTarget = Vector2Int.zero;
             bool targetFound = false;
 
-            foreach (Vector2Int target in result)
+
+            foreach (Vector2Int target in allTargets)
             {
                 float distance = DistanceToOwnBase(target);
 
@@ -60,16 +75,28 @@ namespace UnitBrains.Player
                     minDistance = distance;
                     nearestTarget = target;
                     targetFound = true;
+                    
                 }
             }
 
             result.Clear();
+            _targetsToChase.Clear();
 
             if (targetFound)
             {
-                result.Add(nearestTarget);
+                if (IsTargetInRange(nearestTarget))
+                    result.Add(nearestTarget);
+                else
+                    _targetsToChase.Add(nearestTarget);
             }
-
+            else
+            {
+                if (IsTargetInRange(enemyBase))
+                    result.Add(enemyBase);
+                else
+                    _targetsToChase.Add(enemyBase);
+            }
+                
             return result;
             ///////////////////////////////////////
         }
