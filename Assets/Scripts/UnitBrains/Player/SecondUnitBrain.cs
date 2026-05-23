@@ -1,6 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using Model;
+using Model.Runtime;
 using Model.Runtime.Projectiles;
+using System.Collections.Generic;
+using System.Linq;
+using UnitBrains.Pathfinding;
 using UnityEngine;
+using Utilities;
+using static UnityEngine.GraphicsBuffer;
 
 namespace UnitBrains.Player
 {
@@ -12,8 +18,17 @@ namespace UnitBrains.Player
         private float _temperature = 0f;
         private float _cooldownTime = 0f;
         private bool _overheated;
-        private List<Vector2Int> _targetsToChase = new List<Vector2Int>();
 
+        private List<Vector2Int> _targetsToChase = new List<Vector2Int>();
+        private static int _unitCounter = 0;
+        private readonly int _unitID;
+        private const int MaxTargets = 3;
+
+
+        public SecondUnitBrain()
+        {
+            _unitID = _unitCounter++;
+        }
 
         protected override void GenerateProjectiles(Vector2Int forTarget, List<BaseProjectile> intoList)
         {
@@ -53,50 +68,35 @@ namespace UnitBrains.Player
         protected override List<Vector2Int> SelectTargets()
         {
             ///////////////////////////////////////
-            // Homework 4
+            // Homework 5
             ///////////////////////////////////////
-            List<Vector2Int> result = GetReachableTargets();
-            var allTargets = GetAllTargets();
+            List<Vector2Int> result = new List<Vector2Int>();
+            var allTargets = GetAllTargets().ToList();
             var enemyBase = runtimeModel.RoMap.Bases[IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId];
-
-            List<Vector2Int> unreachableTargets = new List<Vector2Int>();
-
-            float minDistance = float.MaxValue;
-            Vector2Int nearestTarget = Vector2Int.zero;
-            bool targetFound = false;
-
-
-            foreach (Vector2Int target in allTargets)
-            {
-                float distance = DistanceToOwnBase(target);
-
-                if (distance < minDistance)
-                {
-                    minDistance = distance;
-                    nearestTarget = target;
-                    targetFound = true;
-                    
-                }
-            }
 
             result.Clear();
             _targetsToChase.Clear();
 
-            if (targetFound)
-            {
-                if (IsTargetInRange(nearestTarget))
-                    result.Add(nearestTarget);
-                else
-                    _targetsToChase.Add(nearestTarget);
-            }
-            else
+
+            if (allTargets.Count == 0)
             {
                 if (IsTargetInRange(enemyBase))
                     result.Add(enemyBase);
                 else
                     _targetsToChase.Add(enemyBase);
+                return result;
             }
-                
+
+            SortByDistanceToOwnBase(allTargets);
+
+            int enemyIndex = _unitID % Mathf.Min(allTargets.Count, MaxTargets);
+            Vector2Int assignedTarget = allTargets[enemyIndex];
+
+            if (IsTargetInRange(assignedTarget))
+                result.Add(assignedTarget);
+            else
+                _targetsToChase.Add(assignedTarget);
+
             return result;
             ///////////////////////////////////////
         }
