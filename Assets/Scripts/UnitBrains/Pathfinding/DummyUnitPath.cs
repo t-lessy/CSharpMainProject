@@ -30,65 +30,39 @@ namespace UnitBrains.Pathfinding
 
         protected override void Calculate()
         {
-            Debug.Log($"Calculate: start={startPoint}, end={endPoint}");
-
-            // Пытаемся найти путь через A*
-            var pathList = FindAStarPath(startPoint, endPoint);
+            var pathList = FindAStarPathWithDiagonal(startPoint, endPoint);
 
             if (pathList != null && pathList.Count > 1)
             {
                 path = pathList.ToArray();
-                Debug.Log($"A* SUCCESS! Path length: {path.Length}");
+                Debug.Log($"A* SUCCESS with diagonal! Path length: {path.Length}");
                 return;
             }
 
-            // Если A* не сработал - используем гарантированный рабочий fallback
-            Debug.Log($"A* failed, using working fallback");
-
-            var currentPoint = startPoint;
-            var result = new List<Vector2Int> { startPoint };
-            var counter = 0;
-            var maxSteps = 200;
-
-            while (currentPoint != endPoint && counter++ < maxSteps)
-            {
-                var nextStep = CalcNextStepTowards(currentPoint, endPoint);
-                var hasLoop = result.Contains(nextStep);
-                result.Add(nextStep);
-                if (hasLoop)
-                    break;
-                currentPoint = nextStep;
-            }
-
-            path = result.ToArray();
-            Debug.Log($"Fallback path created, length = {path.Length}");
+            // Fallback: простой путь
+            path = new Vector2Int[] { startPoint };
+            Debug.Log($"A* failed, using fallback");
         }
 
-        private List<Vector2Int> FindAStarPath(Vector2Int start, Vector2Int target)
+        // A* с 8 направлениями (включая диагонали)
+        private List<Vector2Int> FindAStarPathWithDiagonal(Vector2Int start, Vector2Int target)
         {
-            // Проверка проходимости
             if (!runtimeModel.IsTileWalkable(start))
-            {
-                Debug.Log($"Start {start} not walkable");
                 return null;
-            }
 
             if (!runtimeModel.IsTileWalkable(target))
-            {
-                Debug.Log($"Target {target} not walkable");
                 return null;
-            }
 
             var openSet = new List<Node>();
             var closedSet = new HashSet<Vector2Int>();
 
             var startNode = new Node(start);
             startNode.GCost = 0;
-            startNode.HCost = Heuristic(start, target);
+            startNode.HCost = HeuristicDiagonal(start, target);
             openSet.Add(startNode);
 
             var iterations = 0;
-            var maxIterations = 10000;
+            var maxIterations = 30000;
 
             while (openSet.Count > 0 && iterations < maxIterations)
             {
@@ -105,24 +79,30 @@ namespace UnitBrains.Pathfinding
                 openSet.Remove(current);
                 closedSet.Add(current.Position);
 
-                var neighbors = GetNeighbors(current.Position);
+                // 8 направлений: 4 кардинальных + 4 диагональных
+                var neighbors = GetAllNeighbors(current.Position);
 
                 foreach (var neighborPos in neighbors)
                 {
-                    if (!runtimeModel.IsTileWalkable(neighborPos))
+                    if (!IsTilePassableForMovement(neighborPos))
                         continue;
 
                     if (closedSet.Contains(neighborPos))
                         continue;
 
-                    var tentativeGCost = current.GCost + 1;
+                    // Стоимость: диагональ дороже (1.4), прямо - 1
+                    bool isDiagonal = Mathf.Abs(neighborPos.x - current.Position.x) == 1 &&
+                                      Mathf.Abs(neighborPos.y - current.Position.y) == 1;
+                    float moveCost = isDiagonal ? 1.4f : 1f;
+
+                    float tentativeGCost = current.GCost + moveCost;
                     var neighborNode = openSet.FirstOrDefault(n => n.Position == neighborPos);
 
                     if (neighborNode == null)
                     {
                         neighborNode = new Node(neighborPos);
                         neighborNode.GCost = tentativeGCost;
-                        neighborNode.HCost = Heuristic(neighborPos, target);
+                        neighborNode.HCost = HeuristicDiagonal(neighborPos, target);
                         neighborNode.Parent = current;
                         openSet.Add(neighborNode);
                     }
@@ -134,26 +114,51 @@ namespace UnitBrains.Pathfinding
                 }
             }
 
-            Debug.Log($"A* failed after {iterations} iterations");
             return null;
         }
 
-        private float Heuristic(Vector2Int a, Vector2Int b)
+        // Диагональная эвристика (чебышёвское расстояние)
+        private float HeuristicDiagonal(Vector2Int a, Vector2Int b)
         {
-            // Манхэттенское расстояние
-            return Mathf.Abs(a.x - b.x) + Mathf.Abs(a.y - b.y);
+            int dx = Mathf.Abs(a.x - b.x);
+            int dy = Mathf.Abs(a.y - b.y);
+            return Mathf.Max(dx, dy) + (Mathf.Min(dx, dy) * 0.5f);
         }
 
-        private List<Vector2Int> GetNeighbors(Vector2Int pos)
+        // 8 направлений
+        private List<Vector2Int> GetAllNeighbors(Vector2Int pos)
         {
-            // 4 направления для простоты (работает везде)
             return new List<Vector2Int>
             {
+                // Кардинальные направления
                 pos + Vector2Int.up,
                 pos + Vector2Int.down,
                 pos + Vector2Int.left,
-                pos + Vector2Int.right
+                pos + Vector2Int.right,
+                // Диагональные направления
+                pos + new Vector2Int(1, 1),
+                pos + new Vector2Int(1, -1),
+                pos + new Vector2Int(-1, 1),
+                pos + new Vector2Int(-1, -1)
             };
+        }
+
+        private bool IsTilePassableForMovement(Vector2Int pos)
+        {
+            if (!runtimeModel.IsTileWalkable(pos))
+                return false;
+
+            var unitAtPos = runtimeModel.RoUnits.FirstOrDefault(u => u.Pos == pos);
+            if (unitAtPos != null)
+            {
+                var ourUnit = runtimeModel.RoUnits.FirstOrDefault(u => u.Pos == startPoint);
+                if (ourUnit != null && unitAtPos.Config.IsPlayerUnit == ourUnit.Config.IsPlayerUnit && unitAtPos != ourUnit)
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         private List<Vector2Int> ReconstructPath(Node endNode)
@@ -169,46 +174,6 @@ namespace UnitBrains.Pathfinding
 
             pathList.Reverse();
             return pathList;
-        }
-
-        // Гарантированно работающий метод движения (старый добрый)
-        private Vector2Int CalcNextStepTowards(Vector2Int fromPos, Vector2Int toPos)
-        {
-            var diff = toPos - fromPos;
-            var stepDiff = diff.SignOrZero();
-            var nextStep = fromPos + stepDiff;
-
-            if (runtimeModel.IsTileWalkable(nextStep))
-                return nextStep;
-
-            if (stepDiff.sqrMagnitude > 1)
-            {
-                var partStep0 = fromPos + new Vector2Int(stepDiff.x, 0);
-                if (runtimeModel.IsTileWalkable(partStep0))
-                    return partStep0;
-
-                var partStep1 = fromPos + new Vector2Int(0, stepDiff.y);
-                if (runtimeModel.IsTileWalkable(partStep1))
-                    return partStep1;
-            }
-
-            var sideStep0 = fromPos + new Vector2Int(stepDiff.y, -stepDiff.x);
-            var shiftedStep0 = fromPos + (sideStep0 + stepDiff).SignOrZero();
-            if (runtimeModel.IsTileWalkable(shiftedStep0))
-                return shiftedStep0;
-
-            var sideStep1 = fromPos + new Vector2Int(-stepDiff.y, stepDiff.x);
-            var shiftedStep1 = fromPos + (sideStep1 + stepDiff).SignOrZero();
-            if (runtimeModel.IsTileWalkable(shiftedStep1))
-                return shiftedStep1;
-
-            if (runtimeModel.IsTileWalkable(sideStep0))
-                return sideStep0;
-
-            if (runtimeModel.IsTileWalkable(sideStep1))
-                return sideStep1;
-
-            return fromPos;
         }
     }
 }

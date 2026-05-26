@@ -12,6 +12,68 @@ namespace UnitBrains
 {
     public abstract class BaseUnitBrain
     {
+        // ========== СИНГЛТОН-КООРДИНАТОР ==========
+        private static BaseUnitBrain _coordinatorInstance;
+        private static readonly object _lock = new object();
+
+        public static BaseUnitBrain Coordinator
+        {
+            get
+            {
+                lock (_lock)
+                {
+                    if (_coordinatorInstance == null)
+                    {
+                        _coordinatorInstance = new CoordinatorBrain();
+                    }
+                    return _coordinatorInstance;
+                }
+            }
+        }
+
+        // Вспомогательный класс-координатор (наследник)
+        private class CoordinatorBrain : BaseUnitBrain
+        {
+            public override bool IsPlayerUnitBrain => true;
+
+            public override Vector2Int GetRecommendedTarget()
+            {
+                var model = ServiceLocator.Get<IReadOnlyRuntimeModel>();
+                var enemies = model.RoUnits
+                    .Where(u => u.Config.IsPlayerUnit == false)
+                    .ToList();
+
+                if (enemies.Count == 0)
+                    return model.RoMap.Bases[RuntimeModel.BotPlayerId];
+
+                return enemies.OrderBy(e => e.Health).First().Pos;
+            }
+
+            public override Vector2Int GetRecommendedPosition()
+            {
+                var model = ServiceLocator.Get<IReadOnlyRuntimeModel>();
+                var myBase = model.RoMap.Bases[RuntimeModel.PlayerId];
+                return new Vector2Int(myBase.x - 1, myBase.y);
+            }
+        }
+
+        // Виртуальные методы координации
+        public virtual Vector2Int GetRecommendedTarget()
+        {
+            // Базовая реализация (будет переопределена в CoordinatorBrain)
+            var enemies = GetAllEnemyUnits().ToList();
+            if (enemies.Count == 0)
+                return runtimeModel.RoMap.Bases[IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId];
+            return enemies.OrderBy(e => e.Health).First().Pos;
+        }
+
+        public virtual Vector2Int GetRecommendedPosition()
+        {
+            var myBase = runtimeModel.RoMap.Bases[RuntimeModel.PlayerId];
+            return new Vector2Int(myBase.x - 1, myBase.y);
+        }
+        // ========== КОНЕЦ КООРДИНАЦИИ ==========
+
         public virtual string TargetUnitName => string.Empty;
         public virtual bool IsPlayerUnitBrain => true;
         public virtual BaseUnitPath ActivePath => _activePath;
@@ -19,6 +81,8 @@ namespace UnitBrains
         protected Unit unit { get; private set; }
         protected IReadOnlyRuntimeModel runtimeModel => ServiceLocator.Get<IReadOnlyRuntimeModel>();
         private BaseUnitPath _activePath = null;
+        private Vector2Int _lastTarget = new Vector2Int(-999, -999);
+        private int _repathCounter = 0;
 
         private readonly Vector2[] _projectileShifts = new Vector2[]
         {
@@ -33,45 +97,61 @@ namespace UnitBrains
 
         public virtual Vector2Int GetNextStep()
         {
-            // Если есть враги в зоне атаки - стоим
             if (HasTargetsInRange())
                 return unit.Pos;
 
-            // Ищем ближайшего врага
-            Vector2Int? closestEnemy = GetClosestEnemyPosition();
+            // Используем координатор
+            var target = GetRecommendedTarget();
 
-            Vector2Int target;
-            if (closestEnemy.HasValue)
+            if (_activePath == null || _lastTarget != target || _repathCounter++ > 30)
             {
-                target = closestEnemy.Value;
-            }
-            else
-            {
-                target = runtimeModel.RoMap.Bases[
-                    IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId];
+                _lastTarget = target;
+                _activePath = new DummyUnitPath(runtimeModel, unit.Pos, target);
+                _repathCounter = 0;
             }
 
-            // Строим путь
-            _activePath = new DummyUnitPath(runtimeModel, unit.Pos, target);
-            return _activePath.GetNextStepFrom(unit.Pos);
-        }
+            var nextStep = _activePath.GetNextStepFrom(unit.Pos);
 
-        private Vector2Int? GetClosestEnemyPosition()
-        {
-            Vector2Int? closest = null;
-            float closestDistance = float.MaxValue;
-
-            foreach (var enemy in GetAllEnemyUnits())
+            if (nextStep == unit.Pos)
             {
-                float distance = Vector2Int.Distance(unit.Pos, enemy.Pos);
-                if (distance < closestDistance)
+                var diagonalStep = TryDiagonalStep(target);
+                if (diagonalStep != unit.Pos)
                 {
-                    closestDistance = distance;
-                    closest = enemy.Pos;
+                    return diagonalStep;
                 }
             }
 
-            return closest;
+            return nextStep;
+        }
+
+        private Vector2Int TryDiagonalStep(Vector2Int target)
+        {
+            var directions = new Vector2Int[]
+            {
+                new Vector2Int(1, 1), new Vector2Int(1, -1),
+                new Vector2Int(-1, 1), new Vector2Int(-1, -1),
+                new Vector2Int(0, 1), new Vector2Int(0, -1),
+                new Vector2Int(1, 0), new Vector2Int(-1, 0),
+            };
+
+            var sorted = directions
+                .OrderBy(dir => Vector2Int.Distance(unit.Pos + dir, target))
+                .ToList();
+
+            foreach (var dir in sorted)
+            {
+                var newPos = unit.Pos + dir;
+                if (runtimeModel.IsTileWalkable(newPos))
+                {
+                    var unitAtPos = runtimeModel.RoUnits.FirstOrDefault(u => u.Pos == newPos);
+                    if (unitAtPos == null || unitAtPos.Config.IsPlayerUnit != IsPlayerUnitBrain)
+                    {
+                        return newPos;
+                    }
+                }
+            }
+
+            return unit.Pos;
         }
 
         public List<BaseProjectile> GetProjectiles()
