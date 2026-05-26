@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using Model.Runtime;
 using Model.Runtime.Projectiles;
+using System.Collections.Generic;
 using UnityEngine;
+using static UnityEngine.GraphicsBuffer;
 
 namespace UnitBrains.Player
 {
@@ -53,16 +55,44 @@ namespace UnitBrains.Player
 
         protected override List<Vector2Int> SelectTargets()
         {
-            ///////////////////////////////////////
+            
             // Homework 1.4 (1st block, 4rd module)
-            ///////////////////////////////////////
+            
+            // Получаем список всех целей, до которых может достать юнит
             List<Vector2Int> result = GetReachableTargets();
+
+            // Пока в списке больше 1 цели - удаляем последнюю
             while (result.Count > 1)
             {
-                result.RemoveAt(result.Count - 1);
+                result.RemoveAt(result.Count - 1); // Удаляем элемент с последним индексом
             }
+
+            // Возвращаем список (в котором остался максимум 1 элемент)
             return result;
-            ///////////////////////////////////////
+
+            // Находим ближайшую к нашей базе цель
+            Vector2Int closestTarget = result[0];
+            float closestDistance = DistanceToOwnBase(closestTarget);
+
+            // Перебираем всех остальных врагов
+            for (int i = 1; i < result.Count; i++)
+            {
+                Vector2Int target = result[i];
+                float distance = DistanceToOwnBase(target);
+
+                if (distance < closestDistance)
+                {
+                    closestDistance = distance;
+                    closestTarget = target;
+                }
+            }
+
+            // Очищаем список и добавляем только ближайшую цель
+            result.Clear();
+            result.Add(closestTarget);
+
+            return result;
+
         }
 
         public override void Update(float deltaTime, float time)
