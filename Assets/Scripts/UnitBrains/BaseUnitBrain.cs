@@ -15,11 +15,11 @@ namespace UnitBrains
         public virtual string TargetUnitName => string.Empty;
         public virtual bool IsPlayerUnitBrain => true;
         public virtual BaseUnitPath ActivePath => _activePath;
-        
+
         protected Unit unit { get; private set; }
         protected IReadOnlyRuntimeModel runtimeModel => ServiceLocator.Get<IReadOnlyRuntimeModel>();
         private BaseUnitPath _activePath = null;
-        
+
         private readonly Vector2[] _projectileShifts = new Vector2[]
         {
             new (0f, 0f),
@@ -33,19 +33,50 @@ namespace UnitBrains
 
         public virtual Vector2Int GetNextStep()
         {
+            // Если есть враги в зоне атаки - стоим
             if (HasTargetsInRange())
                 return unit.Pos;
 
-            var target = runtimeModel.RoMap.Bases[
-                IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId];
+            // Ищем ближайшего врага
+            Vector2Int? closestEnemy = GetClosestEnemyPosition();
 
+            Vector2Int target;
+            if (closestEnemy.HasValue)
+            {
+                target = closestEnemy.Value;
+            }
+            else
+            {
+                target = runtimeModel.RoMap.Bases[
+                    IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId];
+            }
+
+            // Строим путь
             _activePath = new DummyUnitPath(runtimeModel, unit.Pos, target);
             return _activePath.GetNextStepFrom(unit.Pos);
         }
 
+        private Vector2Int? GetClosestEnemyPosition()
+        {
+            Vector2Int? closest = null;
+            float closestDistance = float.MaxValue;
+
+            foreach (var enemy in GetAllEnemyUnits())
+            {
+                float distance = Vector2Int.Distance(unit.Pos, enemy.Pos);
+                if (distance < closestDistance)
+                {
+                    closestDistance = distance;
+                    closest = enemy.Pos;
+                }
+            }
+
+            return closest;
+        }
+
         public List<BaseProjectile> GetProjectiles()
         {
-            List<BaseProjectile> result = new ();
+            List<BaseProjectile> result = new();
             foreach (var target in SelectTargets())
             {
                 GenerateProjectiles(target, result);
@@ -81,10 +112,10 @@ namespace UnitBrains
                 result.RemoveAt(result.Count - 1);
             return result;
         }
-        
+
         protected BaseProjectile CreateProjectile(Vector2Int target) =>
             BaseProjectile.Create(unit.Config.ProjectileType, unit, unit.Pos, target, unit.Config.Damage);
-        
+
         protected void AddProjectileToList(BaseProjectile projectile, List<BaseProjectile> list) =>
             list.Add(projectile);
 
@@ -96,7 +127,7 @@ namespace UnitBrains
             var units = new List<IReadOnlyUnit>();
             var pos = unit.Pos;
             var distanceSqr = radius * radius;
-            
+
             foreach (var otherUnit in runtimeModel.RoUnits)
             {
                 if (otherUnit == unit)
@@ -157,7 +188,7 @@ namespace UnitBrains
             {
                 if (!IsTargetInRange(possibleTarget))
                     continue;
-                
+
                 result.Add(possibleTarget);
             }
 
