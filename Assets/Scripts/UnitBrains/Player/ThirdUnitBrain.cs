@@ -22,31 +22,27 @@ namespace UnitBrains.Player
         public override void Update(float deltaTime, float time)
         {
             base.Update(deltaTime, time);
-            Debug.Log($"Behemoth Update: dt={deltaTime}, state={_state}, timer={_switchTimer}");
             switch (_state)
             {
                 case BehemothState.Moving:
                     if (HasTargetsInRange())
                     {
                         _state = BehemothState.SwitchingToAttack;
+                        _switchStartTime = time;
                     }
                     break;
 
                 case BehemothState.SwitchingToAttack:
-                    _switchTimer += deltaTime;
-                    if (_switchTimer >= SwitchDuration)
+                    if (time - _switchStartTime >= SwitchDuration)
                     {
                         _state = BehemothState.Attacking;
-                        _switchTimer = 0f;
                     }
                     break;
 
                 case BehemothState.SwitchingToMove:
-                    _switchTimer += deltaTime;
-                    if (_switchTimer >= SwitchDuration)
+                    if (time - _switchStartTime >= SwitchDuration)
                     { 
                         _state = BehemothState.Moving;
-                        _switchTimer = 0f;
                     }
                     break;
 
@@ -54,6 +50,7 @@ namespace UnitBrains.Player
                     if (!HasTargetsInRange())
                     {
                         _state = BehemothState.SwitchingToMove;
+                        _switchStartTime = time;
                     }
                     break;
             }
