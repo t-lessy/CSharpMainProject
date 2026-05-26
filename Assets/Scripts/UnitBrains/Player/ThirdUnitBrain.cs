@@ -16,7 +16,7 @@ namespace UnitBrains.Player
 
         public override string TargetUnitName => "Ironclad Behemoth";
         private BehemothState _state = BehemothState.Moving;
-        private float _switchTimer = 0f;
+        private float _switchStartTime = 0f;
         private const float SwitchDuration = 1f;
 
         public override void Update(float deltaTime, float time)
