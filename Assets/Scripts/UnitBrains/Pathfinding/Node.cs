@@ -1,48 +1,51 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace UnitBrains.Pathfinding
 {
     public class Node
     {
-        public int X;
-        public int Y;
-        public int Cost = 10;
-        public int Estimate;
-        public int Value;
-        public Node Parent;
+        public int X { get; set; }
+        public int Y { get; set; }
+        public int G { get; set; }
+        public int H { get; set; }
+        public int Value { get; set; }
+        public Node Parent { get; set; }
 
         public Node(int x, int y)
         {
             X = x;
             Y = y;
+            G = 0;
+            H = 0;
+            Value = 0;
+            Parent = null;
         }
 
         public void CalculateEstimate(int targetX, int targetY)
         {
-            Estimate = Math.Abs(X - targetX) + Math.Abs(Y - targetY);
+            H = Math.Abs(targetX - X) + Math.Abs(targetY - Y);
         }
 
         public void CalculateValue()
         {
-            Value = Cost + Estimate;
+            Value = G + H;
         }
 
         public override bool Equals(object obj)
         {
-            if (obj is null)
-            {
-                return false;
-            }
+            if (obj is Node other)
+                return X == other.X && Y == other.Y;
+            return false;
+        }
 
-            if (!(obj is Node node))
-            {
-                return false;
-            }
-            return X == node.X && Y == node.Y;
+        public override int GetHashCode()
+        {
+            return (X, Y).GetHashCode();
+        }
+
+        public override string ToString()
+        {
+            return $"({X}, {Y}) G={G} H={H} F={Value}";
         }
     }
 }

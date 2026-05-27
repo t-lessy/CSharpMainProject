@@ -18,7 +18,7 @@ namespace UnitBrains
         
         protected Unit unit { get; private set; }
         protected IReadOnlyRuntimeModel runtimeModel => ServiceLocator.Get<IReadOnlyRuntimeModel>();
-        private BaseUnitPath _activePath = null;
+        protected private BaseUnitPath _activePath = null;
         
         private readonly Vector2[] _projectileShifts = new Vector2[]
         {
@@ -33,7 +33,6 @@ namespace UnitBrains
 
         public virtual Vector2Int GetNextStep()
         {
-            Debug.Log("BaseUnitBrain.GetNextStep");
 
             if (HasTargetsInRange())
                 return unit.Pos;
@@ -41,7 +40,7 @@ namespace UnitBrains
             var target = runtimeModel.RoMap.Bases[
                 IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId];
 
-            _activePath = new DummyUnitPath(runtimeModel, unit.Pos, target);
+            _activePath = new UnitPath(runtimeModel, unit.Pos, target);
             return _activePath.GetNextStepFrom(unit.Pos);
         }
 

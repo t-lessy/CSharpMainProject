@@ -2,9 +2,11 @@
 using Model.Runtime.Projectiles;
 using System.Collections.Generic;
 using System.Linq;
+using UnitBrains.Pathfinding;
 using UnityEngine;
 using UnityEngine.UIElements;
 using Utilities;
+using static UnityEngine.GraphicsBuffer;
 
 namespace UnitBrains.Player
 {
@@ -46,12 +48,20 @@ namespace UnitBrains.Player
             Vector2Int position = unit.Pos;
             int numberOfEnemy = GetAllTargets().Count();
             int EnemyNumber = _id % numberOfEnemy;
-            Vector2Int nextPosition = GetAllTargets().ToList()[EnemyNumber];
-            if (IsTargetInRange(nextPosition))
+            List <Vector2Int> targets = new List<Vector2Int>();
+            targets = GetAllTargets().ToList();
+            SortByDistanceToOwnBase(targets);
+            targets.Reverse();
+            Vector2Int target = targets[EnemyNumber];
+
+            _activePath = new UnitPath(runtimeModel, unit.Pos, target);
+
+            if (IsTargetInRange(target))
             {
                 return position;
             }
-            return position.CalcNextStepTowards(nextPosition);
+
+            return _activePath.GetNextStepFrom(unit.Pos);
         }
 
         protected override List<Vector2Int> SelectTargets()

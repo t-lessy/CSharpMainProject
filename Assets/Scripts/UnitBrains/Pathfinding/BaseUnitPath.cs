@@ -18,7 +18,6 @@ namespace UnitBrains.Pathfinding
         
         public IEnumerable<Vector2Int> GetPath()
         {
-            Debug.Log("BaseUnitPath.GetPath");
             if (path == null)
                 Calculate();
             
@@ -42,7 +41,6 @@ namespace UnitBrains.Pathfinding
 
         protected BaseUnitPath(IReadOnlyRuntimeModel runtimeModel, Vector2Int startPoint, Vector2Int endPoint)
         {
-            Debug.Log("BaseUnitPath.BaseUnitPath");
             this.runtimeModel = runtimeModel;
             this.startPoint = startPoint;
             this.endPoint = endPoint;
