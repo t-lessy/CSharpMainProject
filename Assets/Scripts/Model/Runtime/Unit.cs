@@ -22,7 +22,7 @@ namespace Model.Runtime
         private readonly List<BaseProjectile> _pendingProjectiles = new();
         private IReadOnlyRuntimeModel _runtimeModel;
         private BaseUnitBrain _brain;
-        private bool _isInvincible = false;
+        private bool _isInvincible = false;  // <--- ДОБАВЛЕНО
 
         private float _nextBrainUpdateTime = 0f;
         private float _nextMoveTime = 0f;
@@ -97,11 +97,11 @@ namespace Model.Runtime
 
         public void TakeDamage(int projectileDamage)
         {
-            if (_isInvincible)
-                return;
+            if (_isInvincible) return;  
             Health -= projectileDamage;
         }
 
+        // ========== ДОБАВЛЕННЫЕ МЕТОДЫ ==========
         public void SetInvincible(bool invincible)
         {
             _isInvincible = invincible;

@@ -1,6 +1,7 @@
 ﻿using Model;
 using Model.Runtime.Projectiles;
 using System.Collections.Generic;
+using UnitBrains.Buffs;
 using UnityEngine;
 
 namespace UnitBrains.Player
@@ -10,12 +11,14 @@ namespace UnitBrains.Player
         public override string TargetUnitName => "Cobra Commando";
         private const float OverheatTemperature = 3f;
         private const float OverheatCooldown = 2f;
-        private const int MaxTargets = 3; 
-        private static int _unitCounter = 0; 
-        private readonly int _unitNumber; 
+        private const int MaxTargets = 3;
+        private static int _unitCounter = 0;
+        private readonly int _unitNumber;
         private float _temperature = 0f;
         private float _cooldownTime = 0f;
         private bool _overheated;
+
+        private bool _hasDoubleShot = false;
 
         public SecondUnitBrain()
         {
@@ -24,25 +27,23 @@ namespace UnitBrains.Player
 
         protected override void GenerateProjectiles(Vector2Int forTarget, List<BaseProjectile> intoList)
         {
-            float overheatTemperature = OverheatTemperature;
             float temperature = GetTemperature();
-            if (temperature >= overheatTemperature)
-            {
+            if (temperature >= OverheatTemperature)
                 return;
-            }
+
+            // Двойной выстрел если есть бафф
+            int shotsCount = _hasDoubleShot ? 2 : 1;
+
             for (int i = 0; i <= temperature; i++)
             {
-                var projectile = CreateProjectile(forTarget);
-                AddProjectileToList(projectile, intoList);
-
+                for (int s = 0; s < shotsCount; s++)
+                {
+                    var projectile = CreateProjectile(forTarget);
+                    AddProjectileToList(projectile, intoList);
+                }
             }
 
             IncreaseTemperature();
-            ///////////////////////////////////////
-            // Homework 1.3 (1st block, 3rd module)
-            ///////////////////////////////////////           
-            
-            ///////////////////////////////////////
         }
 
         public override Vector2Int GetNextStep()
@@ -52,16 +53,11 @@ namespace UnitBrains.Player
 
         protected override List<Vector2Int> SelectTargets()
         {
-            ///////////////////////////////////////
-            // Homework 1.4 (1st block, 4rd module)
-            ///////////////////////////////////////
-
             List<Vector2Int> result = new List<Vector2Int>();
             List<Vector2Int> allTargets = GetReachableTargets();
 
             if (allTargets.Count == 0)
             {
-                
                 Vector2Int baseTarget = runtimeModel.RoMap.Bases[RuntimeModel.BotPlayerId];
                 if (IsTargetInRange(baseTarget))
                     result.Add(baseTarget);
@@ -77,16 +73,14 @@ namespace UnitBrains.Player
                 result.Add(selectedTarget);
 
             return result;
-
-            ///////////////////////////////////////
         }
 
         public override void Update(float deltaTime, float time)
         {
             if (_overheated)
-            {              
+            {
                 _cooldownTime += Time.deltaTime;
-                float t = _cooldownTime / (OverheatCooldown/10);
+                float t = _cooldownTime / (OverheatCooldown / 10);
                 _temperature = Mathf.Lerp(OverheatTemperature, 0, t);
                 if (t >= 1)
                 {
@@ -94,11 +88,17 @@ namespace UnitBrains.Player
                     _overheated = false;
                 }
             }
+
+            // Проверяем бафф двойного выстрела
+            if (unit != null)
+            {
+                _hasDoubleShot = BuffSystem.HasBuff(unit, "Double Shot");
+            }
         }
 
         private int GetTemperature()
         {
-            if(_overheated) return (int) OverheatTemperature;
+            if (_overheated) return (int)OverheatTemperature;
             else return (int)_temperature;
         }
 
@@ -106,6 +106,15 @@ namespace UnitBrains.Player
         {
             _temperature += 1f;
             if (_temperature >= OverheatTemperature) _overheated = true;
+        }
+
+        // Публичный метод для наложения баффа (вызывается извне)
+        public void ApplyDoubleShotBuff(float duration = 5f)
+        {
+            if (unit != null)
+            {
+                BuffSystem.ApplyBuff(unit, new DoubleShotBuff(duration));
+            }
         }
     }
 }
