@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -33,40 +32,52 @@ namespace Buffs
             _buffs[unit].Add(buff);
         }
 
+        public bool HasAnyBuff(IReadOnlyUnit unit)
+        {
+            if (unit == null)
+                return false;
+
+            if (!_buffs.TryGetValue(unit, out var buffs))
+                return false;
+
+            return buffs.Count > 0;
+        }
+
         public float GetMoveSpeedModifier(IReadOnlyUnit unit)
         {
-            return GetModifier(unit, buff => buff.MoveSpeedModifier);
+            if (unit == null)
+                return 1f;
+
+            if (!_buffs.TryGetValue(unit, out var buffs) || buffs.Count == 0)
+                return 1f;
+
+            float result = 1f;
+
+            foreach (var buff in buffs)
+                result *= buff.MoveSpeedModifier;
+
+            return result;
         }
 
         public float GetAttackSpeedModifier(IReadOnlyUnit unit)
         {
-            return GetModifier(unit, buff => buff.AttackSpeedModifier);
+            if (unit == null)
+                return 1f;
+
+            if (!_buffs.TryGetValue(unit, out var buffs) || buffs.Count == 0)
+                return 1f;
+
+            float result = 1f;
+
+            foreach (var buff in buffs)
+                result *= buff.AttackSpeedModifier;
+
+            return result;
         }
 
         public void Clear()
         {
             _buffs.Clear();
-        }
-
-        private float GetModifier(IReadOnlyUnit unit, Func<UnitBuff, float> selector)
-        {
-            if (unit == null)
-                return 1f;
-
-            if (!_buffs.ContainsKey(unit))
-                return 1f;
-
-            if (_buffs[unit].Count == 0)
-                return 1f;
-
-            float result = 1f;
-
-            foreach (var buff in _buffs[unit])
-            {
-                result *= selector(buff);
-            }
-
-            return Mathf.Max(0.05f, result);
         }
 
         private IEnumerator UpdateCoroutine()
