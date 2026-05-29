@@ -47,11 +47,10 @@ namespace UnitBrains.Player
         {
             Vector2Int position = unit.Pos;
             int numberOfEnemy = GetAllTargets().Count();
-            int EnemyNumber = _id % numberOfEnemy;
+            int EnemyNumber = (_id - 1) % numberOfEnemy;
             List <Vector2Int> targets = new List<Vector2Int>();
             targets = GetAllTargets().ToList();
             SortByDistanceToOwnBase(targets);
-            targets.Reverse();
             Vector2Int target = targets[EnemyNumber];
 
             _activePath = new UnitPath(runtimeModel, unit.Pos, target);
@@ -69,36 +68,21 @@ namespace UnitBrains.Player
             ///////////////////////////////////////
             // Homework 1.4 (1st block, 4rd module)
             ///////////////////////////////////////
-            List<Vector2Int> result = GetAllTargets().ToList();
-            SortByDistanceToOwnBase(result);
-            List<Vector2Int> BodiesNotInRange = new List<Vector2Int>();
-            Vector2Int Result = result[0];
+            List<Vector2Int> targets = GetAllTargets().ToList();
+            SortByDistanceToOwnBase(targets);
 
-            float minima = float.MaxValue;
+            List <Vector2Int> Result = new List<Vector2Int>();
+
             int numberOfEnemy = GetAllTargets().Count();
-            int EnemyNumber = _id % numberOfEnemy;
+            int EnemyNumber = (_id - 1) % numberOfEnemy;
 
 
-            if (result.Count() == 0)
+            if (IsTargetInRange(targets[EnemyNumber]))
             {
-                int enemyId = IsPlayerUnitBrain ? RuntimeModel.PlayerId : RuntimeModel.BotPlayerId;
-                result.Clear();
-                if (IsTargetInRange(runtimeModel.RoMap.Bases[enemyId]))
-                    result.Add(runtimeModel.RoMap.Bases[enemyId]);
-                return result;
+                Result.Add(targets[EnemyNumber]);
             }
-            else
-            {
-                Result = result[EnemyNumber];
-                result.Clear();
-                if (IsTargetInRange(Result))
-                {
-                    result.Add(Result);
-                }
-                
-
-            }
-            return result;
+            
+            return Result;
             ///////////////////////////////////////
         }
 

@@ -1,11 +1,13 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using Model;
+﻿using Model;
 using Model.Runtime.Projectiles;
 using Model.Runtime.ReadOnly;
+using System.Collections.Generic;
+using System.Linq;
 using UnitBrains.Pathfinding;
+using UnitBrains.Player;
 using UnityEngine;
 using Utilities;
+using static UnityEngine.GraphicsBuffer;
 using Unit = Model.Runtime.Unit;
 
 namespace UnitBrains
@@ -33,12 +35,33 @@ namespace UnitBrains
 
         public virtual Vector2Int GetNextStep()
         {
+            DefaultPlayerUnitTactics tactics = DefaultPlayerUnitTactics.GetInstance();
 
-            if (HasTargetsInRange())
-                return unit.Pos;
+            PositionWithDanger targetPos = tactics.GetPriorityTarget(IsPlayerUnitBrain);
 
-            var target = runtimeModel.RoMap.Bases[
-                IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId];
+
+            Vector2Int target;
+
+            if (targetPos.Danger == 1)
+            {
+                if (IsTargetInRange(targetPos.Position))
+                {
+                    target = unit.Pos;
+                }
+                else
+                {
+                    target = targetPos.Position;
+
+                }
+            }
+            else if (HasTargetsInRange())
+            {
+                target = unit.Pos;
+            }
+            else
+            {
+                target = targetPos.Position;
+            }
 
             _activePath = new UnitPath(runtimeModel, unit.Pos, target);
             return _activePath.GetNextStepFrom(unit.Pos);
@@ -77,9 +100,23 @@ namespace UnitBrains
 
         protected virtual List<Vector2Int> SelectTargets()
         {
-            var result = GetReachableTargets();
-            while (result.Count > 1)
-                result.RemoveAt(result.Count - 1);
+            PositionWithDanger targetPos = DefaultPlayerUnitTactics.GetInstance().GetPriorityTarget(IsPlayerUnitBrain);
+            List<Vector2Int> result = new List<Vector2Int>();
+            if (targetPos.Danger == 1)
+            {
+                if (IsTargetInRange(targetPos.Position))
+                {
+                    result.Add(targetPos.Position);
+                    return result;
+                }
+                return result;
+            }
+            else if (HasTargetsInRange())
+            {
+                result.Add(GetReachableTargets().OrderBy(x => GetUnitAt(x).Health).First());
+                return result;
+            }
+
             return result;
         }
         
@@ -128,6 +165,7 @@ namespace UnitBrains
 
             return false;
         }
+
 
         protected IEnumerable<IReadOnlyUnit> GetAllEnemyUnits()
         {

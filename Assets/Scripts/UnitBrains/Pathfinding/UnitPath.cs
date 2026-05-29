@@ -59,7 +59,7 @@ namespace UnitBrains.Pathfinding
 
                 Node currentNode = openList.OrderBy(n => n.Value).First();
 
-                if (Math.Abs(currentNode.X - targetNode.X) <= 1 && Math.Abs(currentNode.Y - targetNode.Y) <= 1)
+                if (currentNode.X == targetNode.X && currentNode.Y == targetNode.Y)
                 {
                     Debug.Log($"Path found in {iterations} iterations");
                     return ReconstructPath(currentNode);
@@ -74,7 +74,10 @@ namespace UnitBrains.Pathfinding
                     int newY = currentNode.Y + dy[i];
 
                     if (!IsValid(newX, newY))
+                    {
+                        Debug.Log($"Cell ({newX},{newY}) is invalid");
                         continue;
+                    }
 
                     Node neighbor = new Node(newX, newY);
 
@@ -141,14 +144,14 @@ namespace UnitBrains.Pathfinding
             bool IsPlayerUnit = runtimeModel.RoPlayerUnits.Any(u => u.Pos == startPoint) ? true : false;
             if (IsPlayerUnit)
             {
-                if (runtimeModel.RoBotUnits.Any(u => u.Pos == pos))
+                if (runtimeModel.RoBotUnits.Any(u => u.Pos == pos) || runtimeModel.RoMap.Bases[RuntimeModel.BotPlayerId] == pos)
                 {
                     return true;
                 }
-            }
+            }   
             else
             {
-                if (runtimeModel.RoPlayerUnits.Any(u => u.Pos == pos))
+                if (runtimeModel.RoPlayerUnits.Any(u => u.Pos == pos) || runtimeModel.RoMap.Bases[RuntimeModel.PlayerId] == pos)
                 {
                     return true;
                 }

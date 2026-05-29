@@ -79,6 +79,7 @@
     <Compile Include="Assets\Scripts\Model\Runtime\Map.cs" />
     <Compile Include="Assets\Scripts\UnitBrains\Pathfinding\DebugPathOutput.cs" />
     <Compile Include="Assets\Scripts\Model\Config\Settings.cs" />
+    <Compile Include="Assets\Scripts\UnitBrains\Player\Tactics.cs" />
     <Compile Include="Assets\Scripts\Model\Config\UnitConfig.cs" />
     <Compile Include="Assets\Scripts\Utilities\PersistanceUtils.cs" />
     <Compile Include="Assets\Scripts\View\RootView.cs" />
@@ -93,6 +94,7 @@
     <Compile Include="Assets\Scripts\UnitBrains\Enemy\DefaultEnemyUnitBrain.cs" />
     <Compile Include="Assets\Scripts\View\ProjectileView.cs" />
     <Compile Include="Assets\Scripts\View\StartMenuView.cs" />
+    <Compile Include="Assets\Scripts\UnitBrains\Player\StructPositionWithDanger.cs" />
     <Compile Include="Assets\Scripts\Model\RuntimeModel.cs" />
     <Compile Include="Assets\Scripts\View\HealthBar.cs" />
     <Compile Include="Assets\Scripts\View\VFXView.cs" />
