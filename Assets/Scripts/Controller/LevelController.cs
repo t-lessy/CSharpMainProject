@@ -36,6 +36,10 @@ namespace Controller
             _timeUtil = ServiceLocator.Get<TimeUtil>();
 
             _botController = new BotController(OnBotUnitChosen);
+
+            _buffSystem = new BuffSystem(_timeUtil);
+            ServiceLocator.Register(_buffSystem);
+
             _simulationController = new SimulationController(runtimeModel, OnLevelFinished);
 
             _playerCoordinator = new PlayerCoordinator(
@@ -52,9 +56,6 @@ namespace Controller
 
             UnitBrainProvider.SetCoordinator(RuntimeModel.PlayerId, _playerCoordinator);
             UnitBrainProvider.SetCoordinator(RuntimeModel.BotPlayerId, _botCoordinator);
-
-            _buffSystem = new BuffSystem(_timeUtil);
-            ServiceLocator.Register(_buffSystem);
         }
 
         public void StartLevel(int level)
@@ -97,13 +98,15 @@ namespace Controller
             SpawnUnit(RuntimeModel.PlayerId, unitConfig);
 
             _botController.ChooseUnit();
-
             TryStartSimulation();
         }
 
         private void OnBotUnitChosen(UnitConfig unitConfig)
         {
             if (_runtimeModel.Stage != RuntimeModel.GameStage.ChooseUnit)
+                return;
+
+            if (unitConfig.Cost > _runtimeModel.Money[RuntimeModel.BotPlayerId])
                 return;
 
             SpawnUnit(RuntimeModel.BotPlayerId, unitConfig);
@@ -120,38 +123,54 @@ namespace Controller
 
             _runtimeModel.Money[forPlayer] -= config.Cost;
             _runtimeModel.PlayersUnits[forPlayer].Add(unit);
-
-            AddHomeworkBuffDemo(unit, forPlayer);
         }
 
         private void TryStartSimulation()
         {
-            bool playerCanBuyMore =
-                _runtimeModel.Money[RuntimeModel.PlayerId] >= _settings.GetCheapestPlayerUnitCost();
-
-            bool botCanBuyMore =
-                _runtimeModel.Money[RuntimeModel.BotPlayerId] >= _settings.GetCheapestEnemyUnitCost();
-
-            if (playerCanBuyMore)
+            if (_runtimeModel.Stage != RuntimeModel.GameStage.ChooseUnit)
                 return;
 
-            if (botCanBuyMore)
-            {
-                _timeUtil.RunDelayed(0.05f, () =>
-                {
-                    if (_runtimeModel.Stage == RuntimeModel.GameStage.ChooseUnit)
-                        _botController.ChooseUnit();
-                });
+            int cheapestPlayerUnitCost = _settings.PlayerUnits.Keys.Min(unit => unit.Cost);
+            int cheapestEnemyUnitCost = _settings.EnemyUnits.Keys.Min(unit => unit.Cost);
 
-                return;
-            }
+            bool playerCanBuyMore = _runtimeModel.Money[RuntimeModel.PlayerId] >= cheapestPlayerUnitCost;
+            bool botCanBuyMore = _runtimeModel.Money[RuntimeModel.BotPlayerId] >= cheapestEnemyUnitCost;
 
             bool playerHasUnits = _runtimeModel.PlayersUnits[RuntimeModel.PlayerId].Count > 0;
             bool botHasUnits = _runtimeModel.PlayersUnits[RuntimeModel.BotPlayerId].Count > 0;
 
+            Debug.Log(
+                $"TryStartSimulation | " +
+                $"PlayerMoney={_runtimeModel.Money[RuntimeModel.PlayerId]} | " +
+                $"BotMoney={_runtimeModel.Money[RuntimeModel.BotPlayerId]} | " +
+                $"CheapestPlayer={cheapestPlayerUnitCost} | " +
+                $"CheapestBot={cheapestEnemyUnitCost} | " +
+                $"PlayerCanBuy={playerCanBuyMore} | " +
+                $"BotCanBuy={botCanBuyMore} | " +
+                $"PlayerHasUnits={playerHasUnits} | " +
+                $"BotHasUnits={botHasUnits}");
+
+            if (!playerHasUnits && !playerCanBuyMore)
+            {
+                Debug.Log("PLAYER HAS NO UNITS AND CANNOT BUY MORE -> LOSE");
+                OnLevelFinished(false);
+                return;
+            }
+
+            if (!botHasUnits && !botCanBuyMore)
+            {
+                Debug.Log("BOT HAS NO UNITS AND CANNOT BUY MORE -> WIN");
+                OnLevelFinished(true);
+                return;
+            }
+
+            if (playerCanBuyMore || botCanBuyMore)
+                return;
+
             if (!playerHasUnits || !botHasUnits)
                 return;
 
+            Debug.Log("START SIMULATION");
             _runtimeModel.Stage = RuntimeModel.GameStage.Simulation;
         }
 
@@ -163,29 +182,6 @@ namespace Controller
                                     _settings.BotMoneyAdvantagePerLevel;
 
             _runtimeModel.SetMoneyForAll(startMoney, startMoney + botMoneyAdvantage);
-        }
-
-        private void AddHomeworkBuffDemo(Unit unit, int forPlayer)
-        {
-            if (unit == null)
-                return;
-
-            int unitIndex = _runtimeModel.PlayersUnits[forPlayer].Count;
-
-            if (forPlayer == RuntimeModel.PlayerId)
-            {
-                if (unitIndex % 2 == 0)
-                    _buffSystem.AddBuff(unit, UnitBuff.MoveSpeedUp);
-                else
-                    _buffSystem.AddBuff(unit, UnitBuff.AttackSpeedUp);
-            }
-            else
-            {
-                if (unitIndex % 2 == 0)
-                    _buffSystem.AddBuff(unit, UnitBuff.MoveSpeedDown);
-                else
-                    _buffSystem.AddBuff(unit, UnitBuff.AttackSpeedDown);
-            }
         }
 
         private void OnLevelFinished(bool playerWon)

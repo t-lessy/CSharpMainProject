@@ -117,7 +117,9 @@ namespace UnitBrains
                 if (otherUnit == unit)
                     continue;
 
-                if (enemies != (otherUnit.Config.IsPlayerUnit == unit.Config.IsPlayerUnit))
+                bool sameSide = otherUnit.Config.IsPlayerUnit == unit.Config.IsPlayerUnit;
+
+                if (enemies == sameSide)
                     continue;
 
                 var diff = otherUnit.Pos - pos;
@@ -130,7 +132,7 @@ namespace UnitBrains
 
         protected bool HasTargetsInRange()
         {
-            var attackRangeSqr = unit.Config.AttackRange * unit.Config.AttackRange;
+            var attackRangeSqr = unit.CurrentAttackRange * unit.CurrentAttackRange;
 
             foreach (var possibleTarget in GetAllTargets())
             {
@@ -159,7 +161,7 @@ namespace UnitBrains
 
         protected bool IsTargetInRange(Vector2Int targetPos)
         {
-            var attackRangeSqr = unit.Config.AttackRange * unit.Config.AttackRange;
+            var attackRangeSqr = unit.CurrentAttackRange * unit.CurrentAttackRange;
             var diff = targetPos - unit.Pos;
             return diff.sqrMagnitude <= attackRangeSqr;
         }
@@ -194,7 +196,7 @@ namespace UnitBrains
             if (!_coordinator.HasRecommendedTarget)
                 return false;
 
-            float doubleAttackRange = unit.Config.AttackRange * 2f;
+            float doubleAttackRange = unit.CurrentAttackRange * 2f;
             var diff = _coordinator.RecommendedTarget - unit.Pos;
 
             if (diff.sqrMagnitude > doubleAttackRange * doubleAttackRange)

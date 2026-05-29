@@ -10,13 +10,10 @@ namespace UnitBrains.Player
 {
     public class CombatBufferBrain : BaseUnitBrain
     {
-        private const float BuffCooldown = 3f;
+        private const float BuffCooldown = 2f;
         private const float BuffDuration = 5f;
         private const float PauseBeforeBuff = 0.5f;
         private const float PauseAfterBuff = 0.5f;
-
-        private const float MoveBuffModifier = 1.5f;
-        private const float AttackBuffModifier = 1.5f;
 
         private float _buffCooldownLeft;
         private float _pauseBeforeLeft;
@@ -83,21 +80,37 @@ namespace UnitBrains.Player
         {
             target = null;
 
-            float rangeSqr = unit.Config.AttackRange * unit.Config.AttackRange;
+            float rangeSqr = unit.CurrentAttackRange * unit.CurrentAttackRange;
 
-            var allies = runtimeModel.RoUnits
+            var alliesInRange = runtimeModel.RoUnits
                 .Where(u => u != unit)
                 .Where(u => u.Config.IsPlayerUnit == unit.Config.IsPlayerUnit)
                 .Where(u => !IsBufferUnit(u))
                 .Where(u => (u.Pos - unit.Pos).sqrMagnitude <= rangeSqr)
                 .Where(u => !_buffSystem.HasAnyBuff(u))
-                .OrderBy(u => (u.Pos - unit.Pos).sqrMagnitude)
                 .ToList();
 
-            if (allies.Count == 0)
+            if (alliesInRange.Count == 0)
                 return false;
 
-            target = allies[0];
+            var cobra = alliesInRange.FirstOrDefault(u => u.Config.Name == "Cobra Commando");
+            if (cobra != null)
+            {
+                target = cobra;
+                return true;
+            }
+
+            var ironclad = alliesInRange.FirstOrDefault(u => u.Config.Name == "Ironclad Behemoth");
+            if (ironclad != null)
+            {
+                target = ironclad;
+                return true;
+            }
+
+            target = alliesInRange
+                .OrderBy(u => (u.Pos - unit.Pos).sqrMagnitude)
+                .First();
+
             return true;
         }
 
@@ -112,14 +125,10 @@ namespace UnitBrains.Player
                 _pendingTarget.Health > 0 &&
                 _pendingTarget.Config.IsPlayerUnit == unit.Config.IsPlayerUnit &&
                 !IsBufferUnit(_pendingTarget) &&
-                (_pendingTarget.Pos - unit.Pos).sqrMagnitude <= unit.Config.AttackRange * unit.Config.AttackRange &&
+                (_pendingTarget.Pos - unit.Pos).sqrMagnitude <= unit.CurrentAttackRange * unit.CurrentAttackRange &&
                 !_buffSystem.HasAnyBuff(_pendingTarget))
             {
-                var buff = new UnitBuff(
-                    BuffDuration,
-                    MoveBuffModifier,
-                    AttackBuffModifier);
-
+                var buff = CreateBuffFor(_pendingTarget);
                 _buffSystem.AddBuff(_pendingTarget, buff);
 
                 Debug.Log($"BUFF APPLIED from {unit.Config.Name} to {_pendingTarget.Config.Name}");
@@ -131,6 +140,24 @@ namespace UnitBrains.Player
             _pendingTarget = null;
             _buffCooldownLeft = BuffCooldown;
             _pauseAfterLeft = PauseAfterBuff;
+        }
+
+        private IUnitBuff CreateBuffFor(IReadOnlyUnit target)
+        {
+            if (target.Config.Name == "Cobra Commando")
+            {
+                Debug.Log("APPLY DOUBLE SHOT BUFF");
+                return new DoubleShotBuff(BuffDuration);
+            }
+
+            if (target.Config.Name == "Ironclad Behemoth")
+            {
+                Debug.Log("APPLY RANGE BUFF");
+                return new AttackRangeBuff(BuffDuration, 2f);
+            }
+
+            Debug.Log("APPLY MOVE SPEED BUFF");
+            return new MoveSpeedBuff(BuffDuration, 1.5f);
         }
     }
 }

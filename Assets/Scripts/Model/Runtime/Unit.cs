@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Buffs;
 using Model.Config;
 using Model.Runtime.Projectiles;
 using Model.Runtime.ReadOnly;
@@ -20,15 +19,24 @@ namespace Model.Runtime
         public BaseUnitPath ActivePath => _brain.ActivePath;
         public IReadOnlyList<BaseProjectile> PendingProjectiles => _pendingProjectiles;
 
+        public float CurrentAttackRange => Config.AttackRange + _attackRangeBonus;
+        public float CurrentMoveDelay => Config.MoveDelay / Mathf.Max(0.05f, _moveSpeedMultiplier);
+        public float CurrentAttackDelay => Config.AttackDelay / Mathf.Max(0.05f, _attackSpeedMultiplier);
+        public int AdditionalShots => _additionalShots;
+
         private readonly List<BaseProjectile> _pendingProjectiles = new();
         private readonly IReadOnlyRuntimeModel _runtimeModel;
-        private readonly BuffSystem _buffSystem;
 
         private BaseUnitBrain _brain;
 
         private float _nextBrainUpdateTime = 0f;
         private float _nextMoveTime = 0f;
         private float _nextAttackTime = 0f;
+
+        private float _moveSpeedMultiplier = 1f;
+        private float _attackSpeedMultiplier = 1f;
+        private float _attackRangeBonus = 0f;
+        private int _additionalShots = 0;
 
         public Unit(UnitConfig config, Vector2Int startPos)
         {
@@ -40,7 +48,6 @@ namespace Model.Runtime
             _brain.SetUnit(this);
 
             _runtimeModel = ServiceLocator.Get<IReadOnlyRuntimeModel>();
-            _buffSystem = ServiceLocator.Get<BuffSystem>();
         }
 
         public void Update(float deltaTime, float time)
@@ -56,49 +63,63 @@ namespace Model.Runtime
 
             if (_nextMoveTime < time)
             {
-                _nextMoveTime = time + GetModifiedMoveDelay();
+                _nextMoveTime = time + CurrentMoveDelay;
                 Move();
             }
 
             if (_nextAttackTime < time && Attack())
             {
-                _nextAttackTime = time + GetModifiedAttackDelay();
+                _nextAttackTime = time + CurrentAttackDelay;
             }
         }
 
-        private float GetModifiedMoveDelay()
+        public void ResetBuffState()
         {
-            float modifier = 1f;
-
-            if (_buffSystem != null)
-                modifier = _buffSystem.GetMoveSpeedModifier(this);
-
-            modifier = Mathf.Max(0.05f, modifier);
-
-            return Config.MoveDelay / modifier;
+            _moveSpeedMultiplier = 1f;
+            _attackSpeedMultiplier = 1f;
+            _attackRangeBonus = 0f;
+            _additionalShots = 0;
         }
 
-        private float GetModifiedAttackDelay()
+        public void MultiplyMoveSpeed(float multiplier)
         {
-            float modifier = 1f;
+            _moveSpeedMultiplier *= multiplier;
+        }
 
-            if (_buffSystem != null)
-                modifier = _buffSystem.GetAttackSpeedModifier(this);
+        public void MultiplyAttackSpeed(float multiplier)
+        {
+            _attackSpeedMultiplier *= multiplier;
+        }
 
-            modifier = Mathf.Max(0.05f, modifier);
+        public void AddAttackRange(float bonus)
+        {
+            _attackRangeBonus += bonus;
+        }
 
-            return Config.AttackDelay / modifier;
+        public void AddAdditionalShots(int count)
+        {
+            _additionalShots += count;
         }
 
         private bool Attack()
         {
-            var projectiles = _brain.GetProjectiles();
+            bool fired = false;
+            int volleys = 1 + AdditionalShots;
 
-            if (projectiles == null || projectiles.Count == 0)
-                return false;
+            Debug.Log($"{Config.Name} attack volleys = {volleys}");
 
-            _pendingProjectiles.AddRange(projectiles);
-            return true;
+            for (int i = 0; i < volleys; i++)
+            {
+                var projectiles = _brain.GetProjectiles();
+
+                if (projectiles == null || projectiles.Count == 0)
+                    continue;
+
+                _pendingProjectiles.AddRange(projectiles);
+                fired = true;
+            }
+
+            return fired;
         }
 
         private void Move()

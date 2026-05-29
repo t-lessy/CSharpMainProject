@@ -1,35 +1,33 @@
-using System.Collections;
+using Model;
+using Model.Runtime;
+using Model.Runtime.ReadOnly;
 using System.Collections.Generic;
 using System.Linq;
-using Model.Runtime.ReadOnly;
-using UnityEngine;
 using Utilities;
 
 namespace Buffs
 {
     public sealed class BuffSystem
     {
-        private const float TickDelay = 0.1f;
-
-        private readonly Dictionary<IReadOnlyUnit, List<UnitBuff>> _buffs = new();
-        private readonly TimeUtil _timeUtil;
-        private readonly Coroutine _coroutine;
+        private readonly Dictionary<IReadOnlyUnit, List<IUnitBuff>> _buffs = new();
 
         public BuffSystem(TimeUtil timeUtil)
         {
-            _timeUtil = timeUtil;
-            _coroutine = _timeUtil.StartCoroutine(UpdateCoroutine());
         }
 
-        public void AddBuff(IReadOnlyUnit unit, UnitBuff buff)
+        public void AddBuff(IReadOnlyUnit unit, IUnitBuff buff)
         {
             if (unit == null || buff == null)
                 return;
 
+            if (!buff.CanApplyTo(unit))
+                return;
+
             if (!_buffs.ContainsKey(unit))
-                _buffs[unit] = new List<UnitBuff>();
+                _buffs[unit] = new List<IUnitBuff>();
 
             _buffs[unit].Add(buff);
+            ReapplyAllBuffs();
         }
 
         public bool HasAnyBuff(IReadOnlyUnit unit)
@@ -37,75 +35,50 @@ namespace Buffs
             if (unit == null)
                 return false;
 
-            if (!_buffs.TryGetValue(unit, out var buffs))
-                return false;
-
-            return buffs.Count > 0;
+            return _buffs.TryGetValue(unit, out var buffs) && buffs.Count > 0;
         }
 
-        public float GetMoveSpeedModifier(IReadOnlyUnit unit)
+        public void Update(float deltaTime)
         {
-            if (unit == null)
-                return 1f;
+            var units = _buffs.Keys.ToList();
 
-            if (!_buffs.TryGetValue(unit, out var buffs) || buffs.Count == 0)
-                return 1f;
+            foreach (var unit in units)
+            {
+                if (!_buffs.TryGetValue(unit, out var buffs))
+                    continue;
 
-            float result = 1f;
+                for (int i = buffs.Count - 1; i >= 0; i--)
+                {
+                    buffs[i].Tick(deltaTime);
 
-            foreach (var buff in buffs)
-                result *= buff.MoveSpeedModifier;
+                    if (buffs[i].IsFinished)
+                        buffs.RemoveAt(i);
+                }
 
-            return result;
-        }
+                if (buffs.Count == 0)
+                    _buffs.Remove(unit);
+            }
 
-        public float GetAttackSpeedModifier(IReadOnlyUnit unit)
-        {
-            if (unit == null)
-                return 1f;
-
-            if (!_buffs.TryGetValue(unit, out var buffs) || buffs.Count == 0)
-                return 1f;
-
-            float result = 1f;
-
-            foreach (var buff in buffs)
-                result *= buff.AttackSpeedModifier;
-
-            return result;
+            ReapplyAllBuffs();
         }
 
         public void Clear()
         {
             _buffs.Clear();
+            ReapplyAllBuffs();
         }
 
-        private IEnumerator UpdateCoroutine()
+        private void ReapplyAllBuffs()
         {
-            while (true)
+            var runtimeModel = ServiceLocator.Get<IReadOnlyRuntimeModel>();
+
+            foreach (var unit in runtimeModel.RoUnits.OfType<Unit>())
+                unit.ResetBuffState();
+
+            foreach (var pair in _buffs)
             {
-                yield return new WaitForSeconds(TickDelay);
-
-                var units = _buffs.Keys.ToList();
-
-                foreach (var unit in units)
-                {
-                    if (!_buffs.ContainsKey(unit))
-                        continue;
-
-                    var buffs = _buffs[unit];
-
-                    for (int i = buffs.Count - 1; i >= 0; i--)
-                    {
-                        buffs[i].Tick(TickDelay);
-
-                        if (buffs[i].IsFinished)
-                            buffs.RemoveAt(i);
-                    }
-
-                    if (buffs.Count == 0)
-                        _buffs.Remove(unit);
-                }
+                foreach (var buff in pair.Value)
+                    buff.ApplyTo(pair.Key);
             }
         }
     }

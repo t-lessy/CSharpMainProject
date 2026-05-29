@@ -67,9 +67,9 @@ MonoBehaviour:
   _cost: 120
   _maxHealth: 400
   _brainUpdateDelay: 0.25
-  _moveDelay: 0.25
+  _moveDelay: 0.2
   _attackDelay: 0.15
-  _attackRange: 3.5
+  _attackRange: 6
   _projectileType: 0
   _damage: 0
 --- !u!1 &526913648782850647
