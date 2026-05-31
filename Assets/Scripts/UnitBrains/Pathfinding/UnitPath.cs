@@ -6,6 +6,7 @@ using System.Linq;
 using UnityEngine;
 using Utilities;
 using UnitBrains;
+using UnityEngine.UIElements;
 
 namespace UnitBrains.Pathfinding
 {
@@ -29,7 +30,6 @@ namespace UnitBrains.Pathfinding
                 path = resultPath.ToArray();
                 Debug.Log($"SUCCESS: Path found with {path.Length} points");
 
-                // ¬ыводим первые и последние несколько точек пути
                 for (int i = 0; i < Mathf.Min(5, path.Length); i++)
                 {
                     Debug.Log($"Path point {i}: {path[i]}");
@@ -38,7 +38,9 @@ namespace UnitBrains.Pathfinding
             else
             {
                 Debug.LogWarning($"FAILED: No path found from {startPoint} to {endPoint}");
-                path = null;
+                List<Vector2Int> MyPath = new List<Vector2Int>();
+                MyPath.Add(startPoint);
+                path = MyPath.ToArray();
             }
         }
 
@@ -148,7 +150,7 @@ namespace UnitBrains.Pathfinding
                 {
                     return true;
                 }
-            }   
+            }
             else
             {
                 if (runtimeModel.RoPlayerUnits.Any(u => u.Pos == pos) || runtimeModel.RoMap.Bases[RuntimeModel.PlayerId] == pos)

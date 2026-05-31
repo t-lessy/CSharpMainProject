@@ -56,7 +56,7 @@ namespace UnitBrains
             }
             else if (HasTargetsInRange())
             {
-                target = unit.Pos;
+                target =  unit.Pos;
             }
             else
             {

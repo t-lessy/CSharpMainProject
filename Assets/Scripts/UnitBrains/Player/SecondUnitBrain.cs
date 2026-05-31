@@ -44,7 +44,7 @@ namespace UnitBrains.Player
         }
 
         public override Vector2Int GetNextStep()
-        {
+        {   
             Vector2Int position = unit.Pos;
             int numberOfEnemy = GetAllTargets().Count();
             int EnemyNumber = (_id - 1) % numberOfEnemy;
@@ -53,14 +53,14 @@ namespace UnitBrains.Player
             SortByDistanceToOwnBase(targets);
             Vector2Int target = targets[EnemyNumber];
 
-            _activePath = new UnitPath(runtimeModel, unit.Pos, target);
+            _activePath = new UnitPath(runtimeModel, position, target);
 
             if (IsTargetInRange(target))
             {
                 return position;
             }
 
-            return _activePath.GetNextStepFrom(unit.Pos);
+            return _activePath.GetNextStepFrom(position);
         }
 
         protected override List<Vector2Int> SelectTargets()
