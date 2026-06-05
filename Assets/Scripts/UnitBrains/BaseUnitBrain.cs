@@ -15,6 +15,7 @@ namespace UnitBrains
         public virtual string TargetUnitName => string.Empty;
         public virtual bool IsPlayerUnitBrain => true;
         public virtual BaseUnitPath ActivePath => _activePath;
+        public virtual float SearchRadius => 3;
         
         protected Unit unit { get; private set; }
         protected IReadOnlyRuntimeModel runtimeModel => ServiceLocator.Get<IReadOnlyRuntimeModel>();
@@ -36,8 +37,7 @@ namespace UnitBrains
             if (HasTargetsInRange())
                 return unit.Pos;
 
-            var target = runtimeModel.RoMap.Bases[
-                IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId];
+            var target = PriorityActions.GetInstance().GetPriorityStep(IsPlayerUnitBrain);
 
             _activePath = new SmartUnitPath(runtimeModel, unit.Pos, target);
             return _activePath.GetNextStepFrom(unit.Pos);
@@ -76,7 +76,14 @@ namespace UnitBrains
 
         protected virtual List<Vector2Int> SelectTargets()
         {
-            var result = GetReachableTargets();
+            var target = PriorityActions.GetInstance().GetPriorityTarget(IsPlayerUnitBrain);
+            List<Vector2Int > result = new List<Vector2Int>();
+            if (GetUnitsInRadius(SearchRadius, true).Contains(target))
+            {
+                result.Add(target.Pos);
+                return result;
+            }
+            result = GetReachableTargets();
             while (result.Count > 1)
                 result.RemoveAt(result.Count - 1);
             return result;

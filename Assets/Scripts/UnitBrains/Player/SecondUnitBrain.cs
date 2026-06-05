@@ -47,17 +47,19 @@ namespace UnitBrains.Player
 
         public override Vector2Int GetNextStep()
         {
-            if (NextEnemyUnderDistance.Count > 0 )
+            var priorityTarget = PriorityActions.GetInstance().GetPriorityStep(IsPlayerUnitBrain);
+            Vector2Int unitPos = unit.Pos;
+            if (NextEnemyUnderDistance.Contains(priorityTarget))
             {
-                var target = NextEnemyUnderDistance[0];
+                var target = priorityTarget;
                 _activePath = new SmartUnitPath(runtimeModel, unit.Pos, target);
-                return _activePath.GetNextStepFrom(unit.Pos);
+                return _activePath.GetNextStepFrom(unitPos);
             }
-            else
+            if (GetReachableTargets().Contains(NextEnemyUnderDistance[0]))
             {
                 return unit.Pos;
             }
-
+            return unitPos.CalcNextStepTowards(priorityTarget);
             //return base.GetNextStep();
 
         }
