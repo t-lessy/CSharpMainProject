@@ -36,7 +36,6 @@ namespace UnitBrains.Pathfinding
             }
             if (found == true)
             {
-                Debug.LogWarning("Unit is on the last node");
                 return unitPos;
             }
 

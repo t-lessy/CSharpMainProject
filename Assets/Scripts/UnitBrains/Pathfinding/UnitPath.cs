@@ -21,19 +21,12 @@ namespace UnitBrains.Pathfinding
 
         protected override void Calculate()
         {
-            Debug.Log($"=== Calculate Path from {startPoint} to {endPoint} ===");
 
             List<Vector2Int> resultPath = FindPath();
 
             if (resultPath != null && resultPath.Count > 0)
             {
                 path = resultPath.ToArray();
-                Debug.Log($"SUCCESS: Path found with {path.Length} points");
-
-                for (int i = 0; i < Mathf.Min(5, path.Length); i++)
-                {
-                    Debug.Log($"Path point {i}: {path[i]}");
-                }
             }
             else
             {
@@ -63,7 +56,6 @@ namespace UnitBrains.Pathfinding
 
                 if (currentNode.X == targetNode.X && currentNode.Y == targetNode.Y)
                 {
-                    Debug.Log($"Path found in {iterations} iterations");
                     return ReconstructPath(currentNode);
                 }
 
@@ -77,7 +69,6 @@ namespace UnitBrains.Pathfinding
 
                     if (!IsValid(newX, newY))
                     {
-                        Debug.Log($"Cell ({newX},{newY}) is invalid");
                         continue;
                     }
 

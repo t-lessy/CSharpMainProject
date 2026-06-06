@@ -31,7 +31,6 @@ namespace UnitBrains.Player
         {
             if (Mode == ModeTypes.Move)
             {
-                Debug.Log("Move!");
                 return base.GetNextStep();
             }
             else
@@ -44,7 +43,6 @@ namespace UnitBrains.Player
         {
             if (Mode == ModeTypes.Attack)
             {
-                Debug.Log("Attack!");
                 return base.SelectTargets();
             }
             else
@@ -64,11 +62,9 @@ namespace UnitBrains.Player
 
         private void CheckDelay()
         {
-            Debug.Log(StartTimer);
             if (Delay && StartTimer >= DelayTime)
             {
                 UnDelayWithChangedMode();
-                Debug.Log("ATTTTAAACK!!!!");
                 Mode = EndMode;
             }
         }

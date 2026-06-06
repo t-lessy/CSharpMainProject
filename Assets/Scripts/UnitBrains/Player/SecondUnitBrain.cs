@@ -20,27 +20,51 @@ namespace UnitBrains.Player
         private bool _overheated;
         public static int ID = 0;
         private int _id = ID++;
+        public bool SecondBullet { get; private set; } = false;
         
         protected override void GenerateProjectiles(Vector2Int forTarget, List<BaseProjectile> intoList)
         {
-            float overheatTemperature = OverheatTemperature;
-            ///////////////////////////////////////
-            // Homework 1.3 (1st block, 3rd module)
-            ///////////////////////////////////////
-            if (GetTemperature() < overheatTemperature)
+            if (!SecondBullet)
             {
-                for (int i = 0; i < GetTemperature() + 1; i++)
+                float overheatTemperature = OverheatTemperature;
+                ///////////////////////////////////////
+                // Homework 1.3 (1st block, 3rd module)
+                ///////////////////////////////////////
+                if (GetTemperature() < overheatTemperature)
                 {
-                    var projectile = CreateProjectile(forTarget);
-                    AddProjectileToList(projectile, intoList);
+                    for (int i = 0; i < GetTemperature() + 1; i++)
+                    {
+                        var projectile = CreateProjectile(forTarget);
+                        AddProjectileToList(projectile, intoList);
+                    }
+                    IncreaseTemperature();
                 }
-                IncreaseTemperature();
+                else
+                {
+                    return;
+                }
+                ///////////////////////////////////////
+
             }
             else
             {
-                return;
+                float overheatTemperature = OverheatTemperature;
+                if (GetTemperature() < overheatTemperature)
+                {
+                    for (int i = 0; i < GetTemperature() + 1; i++)
+                    {
+                        var projectile = CreateProjectile(forTarget);
+                        AddProjectileToList(projectile, intoList);
+                        projectile = CreateProjectile(forTarget);
+                        AddProjectileToList(projectile, intoList);
+                    }
+                    IncreaseTemperature();
+                }
+                else
+                {
+                    return;
+                }
             }
-            ///////////////////////////////////////
         }
 
         public override Vector2Int GetNextStep()
@@ -111,6 +135,11 @@ namespace UnitBrains.Player
         {
             _temperature += 1f;
             if (_temperature >= OverheatTemperature) _overheated = true;
+        }
+
+        public void SetSecondBullet(bool value)
+        {
+            SecondBullet = value;
         }
     }
 }

@@ -32,7 +32,6 @@ namespace UnitBrains.Pathfinding
 
         private IEnumerator HighlightCoroutine(BaseUnitPath path)
         {
-            Debug.Log("Start Coroutine!");
             foreach (Vector2Int pos in path.GetPath())
             {
                 while (allHighlights.Count > 0)

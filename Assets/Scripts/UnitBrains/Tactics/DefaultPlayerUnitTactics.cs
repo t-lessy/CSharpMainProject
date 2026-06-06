@@ -6,16 +6,16 @@ using Model.Runtime.Projectiles;
 using UnityEngine;
 using Utilities;
 
-namespace UnitBrains.Player
+namespace Tactics
 {
-    public class DefaultPlayerUnitTactics
+    public class DefaultPlayerUnitTactics : IDefaultPlayerUnitTactics
     {
-        private static DefaultPlayerUnitTactics _instance;
         private static IReadOnlyRuntimeModel _runtimeModel = ServiceLocator.Get<IReadOnlyRuntimeModel>();
         private static TimeUtil _timeUtil = ServiceLocator.Get<TimeUtil>();
-        
-        private DefaultPlayerUnitTactics()
-        { }
+
+        public DefaultPlayerUnitTactics()
+        {
+        }
         
         private float DistanceToOwnBase(Vector2Int fromPos, int id = RuntimeModel.PlayerId)
         {
@@ -58,15 +58,6 @@ namespace UnitBrains.Player
                 }
 
             }
-        }
-
-        public static DefaultPlayerUnitTactics GetInstance()
-        {
-            if (_instance == null)
-            {
-                _instance = new DefaultPlayerUnitTactics();
-            }
-            return _instance;
         }
     }
 }
