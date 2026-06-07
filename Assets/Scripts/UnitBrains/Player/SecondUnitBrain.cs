@@ -1,8 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using Model.Runtime.Projectiles;
+using System.Collections.Generic;
 using System.Runtime.InteropServices.WindowsRuntime;
-using Model.Runtime.Projectiles;
+using UnityEditor;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
+using static UnityEngine.GraphicsBuffer;
 
 namespace UnitBrains.Player
 {
@@ -33,35 +35,48 @@ namespace UnitBrains.Player
             }
                 IncreaseTemperature();
             }
-                
-
-           
-
-
+    
         }
 
              ///////////////////////////////////////
-            
-
         public override Vector2Int GetNextStep()
         {
             return base.GetNextStep();
         }
 
+        ///////////////////////////////////////
+        // Homework 1.4 (1st block, 4rd module)
+        ///////////////////////////////////////
         protected override List<Vector2Int> SelectTargets()
         {
-            ///////////////////////////////////////
-            // Homework 1.4 (1st block, 4rd module)
-            ///////////////////////////////////////
             List<Vector2Int> result = GetReachableTargets();
             while (result.Count > 1)
             {
-                result.RemoveAt(result.Count - 1);
+                Vector2Int ClosestTarget = result[0]; 
+                var minDistance = DistanceToOwnBase(ClosestTarget);
+
+                for (int i = 1; i < result.Count; i++)
+                {
+                    Vector2Int currentTarget = result[i];
+                    var currentDistance = DistanceToOwnBase(currentTarget);
+
+                    if (currentDistance < minDistance)
+                    {
+                        minDistance = currentDistance;
+                        ClosestTarget = currentTarget;
+                    }
+
+                }
+                    result.Clear();
+                    result.Add(ClosestTarget);
             }
             return result;
-            ///////////////////////////////////////
+
         }
 
+
+
+            ///////////////////////////////////////
         public override void Update(float deltaTime, float time)
         {
             if (_overheated)
