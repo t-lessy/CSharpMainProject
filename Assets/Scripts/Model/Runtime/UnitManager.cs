@@ -8,24 +8,13 @@ namespace Assets.Scripts.Model.Runtime
 {
     public class UnitManager
     {
-        private static UnitManager _instance;
-        public static UnitManager Instance
-        {
-            get
-            {
-                if (_instance == null)
-                    _instance = new UnitManager();
-                return _instance;
-            }
-        }
-
         private readonly IReadOnlyRuntimeModel _runtimeModel;
         private readonly TimeUtil _timeUtil;
 
         public IReadOnlyUnit RecommendedTarget { get; private set; }
         public Vector2Int RecommendedPosition { get; private set; }
 
-        private UnitManager()
+        public UnitManager()
         {
             _runtimeModel = ServiceLocator.Get<IReadOnlyRuntimeModel>();
             _timeUtil = ServiceLocator.Get<TimeUtil>();

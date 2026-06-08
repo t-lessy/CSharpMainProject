@@ -27,8 +27,8 @@ namespace UnitBrains.Player
 
         public override Vector2Int GetNextStep()
         {
-            var manager = UnitManager.Instance;
-            var recommendedPos = manager.RecommendedPosition;
+
+            var recommendedPos = unitManager.RecommendedPosition;
 
             if (HasTargetsInRange())
                 return unit.Pos;
@@ -48,8 +48,7 @@ namespace UnitBrains.Player
 
         protected override List<Vector2Int> SelectTargets()
         {
-            var manager = UnitManager.Instance;
-            var target = manager.RecommendedTarget;
+            var target = unitManager.RecommendedTarget;
 
             if (target == null)
                 return new List<Vector2Int>();

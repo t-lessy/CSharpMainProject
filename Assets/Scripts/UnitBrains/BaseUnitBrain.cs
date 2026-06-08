@@ -1,4 +1,5 @@
-﻿using Model;
+﻿using Assets.Scripts.Model.Runtime;
+using Model;
 using Model.Runtime.Projectiles;
 using Model.Runtime.ReadOnly;
 using System.Collections.Generic;
@@ -18,6 +19,7 @@ namespace UnitBrains
         public virtual BaseUnitPath ActivePath { get; protected set; }
 
         protected Unit unit { get; private set; }
+        protected UnitManager unitManager { get; private set; }
         protected IReadOnlyRuntimeModel runtimeModel => ServiceLocator.Get<IReadOnlyRuntimeModel>();
         protected BaseUnitPath _activePath = null;
         
@@ -67,6 +69,12 @@ namespace UnitBrains
         {
             this.unit = unit;
         }
+
+        public void SetUnitManager(UnitManager manager)
+        {
+            this.unitManager = manager;
+        }
+
 
         public virtual void Update(float deltaTime, float time)
         {
