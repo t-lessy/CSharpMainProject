@@ -28,14 +28,19 @@ namespace UnitBrains.Player
         private List<Vector2Int> _moveTargets = new();
         protected override void GenerateProjectiles(Vector2Int forTarget, List<BaseProjectile> intoList)
         {
-            float overheatTemperature = OverheatTemperature;
             if (GetTemperature() >= OverheatTemperature)
                 return;
-            
+
             IncreaseTemperature();
-            
+
             int projectileCount = GetTemperature();
             for (int i = 0; i < projectileCount; i++)
+            {
+                var projectile = CreateProjectile(forTarget);
+                AddProjectileToList(projectile, intoList);
+            }
+
+            for (int i = 0; i < unit.GetBonusProjectiles(); i++)
             {
                 var projectile = CreateProjectile(forTarget);
                 AddProjectileToList(projectile, intoList);

@@ -79,6 +79,7 @@
     <Compile Include="Assets\Scripts\Model\Runtime\ReadOnly\IReadOnlyMap.cs" />
     <Compile Include="Assets\Scripts\Model\Runtime\Projectiles\ProjectileType.cs" />
     <Compile Include="Assets\Scripts\UnitBrains\UnitBrainProvider.cs" />
+    <Compile Include="Assets\Scripts\UnitBrains\Player\DoubleShootBuff.cs" />
     <Compile Include="Assets\Scripts\Model\Runtime\Map.cs" />
     <Compile Include="Assets\Scripts\UnitBrains\Pathfinding\DebugPathOutput.cs" />
     <Compile Include="Assets\Scripts\Model\Config\Settings.cs" />
@@ -94,6 +95,7 @@
     <Compile Include="Assets\Scripts\Model\Runtime\ReadOnly\IReadOnlyProjectile.cs" />
     <Compile Include="Assets\Scripts\View\Utilities\PersistanceUtils.cs" />
     <Compile Include="Assets\Scripts\UnitBrains\Enemy\DefaultEnemyUnitBrain.cs" />
+    <Compile Include="Assets\Scripts\UnitBrains\AttackRangeBuff.cs" />
     <Compile Include="Assets\Scripts\View\ProjectileView.cs" />
     <Compile Include="Assets\Scripts\View\StartMenuView.cs" />
     <Compile Include="Assets\Scripts\Model\RuntimeModel.cs" />
@@ -105,11 +107,14 @@
     <Compile Include="Assets\Scripts\UnitBrains\Pathfinding\DummyUnitPath.cs" />
     <Compile Include="Assets\Scripts\Controller\RootController.cs" />
     <Compile Include="Assets\Scripts\Model\Runtime\Unit.cs" />
+    <Compile Include="Assets\Scripts\Model\Runtime\ReadOnly\BuffService.cs" />
     <Compile Include="Assets\Scripts\Model\IReadOnlyRuntimeModel.cs" />
     <Compile Include="Assets\Scripts\Model\Runtime\Projectiles\HorizontalLineProjectile.cs" />
     <Compile Include="Assets\Scripts\Model\Runtime\Projectiles\HomingProjectile.cs" />
     <Compile Include="Assets\Scripts\Controller\BotController.cs" />
     <Compile Include="Assets\Scripts\Controller\SimulationController.cs" />
+    <Compile Include="Assets\Scripts\Model\Runtime\ReadOnly\SpeedBuff.cs" />
+    <Compile Include="Assets\Scripts\Model\Runtime\ReadOnly\Buff.cs" />
     <Compile Include="Assets\Scripts\UnitBrains\Pathfinding\Node.cs" />
     <Compile Include="Assets\Scripts\View\Utilities\TimeUtil.cs" />
   </ItemGroup>

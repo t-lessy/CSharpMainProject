@@ -10,6 +10,5 @@ namespace Model.Runtime.ReadOnly
         public Vector2Int Pos { get; }
         public int Health { get; }
         public BaseUnitPath ActivePath { get; }
-        public bool HasBuff { get; }
     }
 }

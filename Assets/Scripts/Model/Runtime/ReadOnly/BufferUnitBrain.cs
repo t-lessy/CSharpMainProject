@@ -62,13 +62,13 @@ namespace UnitBrains.Player
                     break;
 
                 case BufferState.Buffing:
-  
                     if (_buffTarget != null)
                     {
                         var targetUnit = _buffTarget as Model.Runtime.Unit;
                         if (targetUnit != null)
                         {
-                            targetUnit.ApplyBuff();
+                            var buff = ChooseBuff(targetUnit);
+                            ServiceLocator.Get<BuffService>().Apply(buff, targetUnit, 5f);
                             _vfxView.PlayVFX(_buffTarget.Pos, VFXView.VFXType.BuffApplied);
                         }
                     }
@@ -106,10 +106,23 @@ namespace UnitBrains.Player
             var allies = GetUnitsInRadius(unit.Config.AttackRange, enemies: false);
             foreach (var ally in allies)
             {
-                if (!ally.HasBuff)
+                var allyUnit = ally as Model.Runtime.Unit;
+                if (allyUnit == null) continue;
+
+                var buff = ChooseBuff(allyUnit);
+                if (buff.CanApply(allyUnit))
                     return ally;
             }
             return null;
+        }
+
+        private BuffBase ChooseBuff(Model.Runtime.Unit unit)
+        {
+            if (unit.Config.Name == "Cobra Commando")
+                return new DoubleShootBuff();
+            if (unit.Config.Name == "Ironclad Behemoth")
+                return new AttackRangeBuff();
+            return new SpeedBuff();
         }
     }
 }

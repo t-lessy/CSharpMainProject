@@ -19,7 +19,6 @@ namespace Model.Runtime
         public bool IsDead => Health <= 0;
         public BaseUnitPath ActivePath => _brain?.ActivePath;
         public IReadOnlyList<BaseProjectile> PendingProjectiles => _pendingProjectiles;
-        public bool HasBuff => _hasBuff;
 
         private readonly List<BaseProjectile> _pendingProjectiles = new();
         private IReadOnlyRuntimeModel _runtimeModel;
@@ -28,12 +27,9 @@ namespace Model.Runtime
         private float _nextBrainUpdateTime = 0f;
         private float _nextMoveTime = 0f;
         private float _nextAttackTime = 0f;
-
-        private bool _hasBuff = false;
-        private float _buffTimeRemaining = 0f;
-        private const float BuffDuration = 5f;    
-        private const float BuffMoveDelayMultiplier = 0.5f;
-
+        private float _moveDelayMultiplier = 1f;
+        private int _bonusProjectiles = 0;
+        private float _attackRangeMultiplier = 1f;
         public Unit(UnitConfig config, Vector2Int startPos, UnitManager manager)
         {
             Config = config;
@@ -50,13 +46,6 @@ namespace Model.Runtime
             if (IsDead)
                 return;
 
-            if (_hasBuff)
-            {
-                _buffTimeRemaining -= deltaTime;
-                if (_buffTimeRemaining <= 0f)
-                    _hasBuff = false;
-            }
-
             if (_nextBrainUpdateTime < time)
             {
                 _nextBrainUpdateTime = time + Config.BrainUpdateInterval;
@@ -65,11 +54,8 @@ namespace Model.Runtime
 
             if (_nextMoveTime < time)
             {
-                float moveDelay = _hasBuff
-                    ? Config.MoveDelay * BuffMoveDelayMultiplier
-                    : Config.MoveDelay;
-                _nextMoveTime = time + moveDelay;
-                Move();
+                 _nextMoveTime = time + Config.MoveDelay * _moveDelayMultiplier;
+                    Move();
             }
 
             if (_nextAttackTime < time && Attack())
@@ -117,10 +103,44 @@ namespace Model.Runtime
             Health -= projectileDamage;
         }
 
-        public void ApplyBuff()
+        public void SetMoveDelayMultiplier(float multiplier)
         {
-            _hasBuff = true;
-            _buffTimeRemaining = BuffDuration;
+            _moveDelayMultiplier = multiplier;
+        }
+
+        public void ResetMoveDelayMultiplier()
+        {
+            _moveDelayMultiplier = 1f;
+        }
+
+        public void SetBonusProjectiles(int count)
+        {
+            _bonusProjectiles = count;
+        }
+
+        public void ResetBonusProjectiles()
+        {
+            _bonusProjectiles = 0;
+        }
+
+        public int GetBonusProjectiles()
+        {
+            return _bonusProjectiles;
+        }
+
+        public void SetAttackRangeMultiplier(float multiplier)
+        {
+            _attackRangeMultiplier = multiplier;
+        }
+
+        public void ResetAttackRangeMultiplier()
+        {
+            _attackRangeMultiplier = 1f;
+        }
+
+        public float GetAttackRange()
+        {
+            return Config.AttackRange * _attackRangeMultiplier;
         }
     }
 }
