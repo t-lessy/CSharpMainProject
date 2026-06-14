@@ -47,7 +47,7 @@ namespace UnitBrains.Player
 
         public override Vector2Int GetNextStep()
         {
-            var priorityTarget = PriorityActions.GetInstance().GetPriorityStep(IsPlayerUnitBrain);
+            var priorityTarget = PriorityActions.GetInstance().GetPriorityStep(IsPlayerUnitBrain ? RuntimeModel.PlayerId : RuntimeModel.BotPlayerId, unit);
             Vector2Int unitPos = unit.Pos;
             if (NextEnemyUnderDistance.Contains(priorityTarget))
             {

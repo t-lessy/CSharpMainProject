@@ -37,7 +37,7 @@ namespace UnitBrains
             if (HasTargetsInRange())
                 return unit.Pos;
 
-            var target = PriorityActions.GetInstance().GetPriorityStep(IsPlayerUnitBrain);
+            var target = PriorityActions.GetInstance().GetPriorityStep(IsPlayerUnitBrain ? RuntimeModel.PlayerId : RuntimeModel.BotPlayerId, unit);
 
             _activePath = new SmartUnitPath(runtimeModel, unit.Pos, target);
             return _activePath.GetNextStepFrom(unit.Pos);
@@ -76,9 +76,9 @@ namespace UnitBrains
 
         protected virtual List<Vector2Int> SelectTargets()
         {
-            var target = PriorityActions.GetInstance().GetPriorityTarget(IsPlayerUnitBrain);
+            var target = PriorityActions.GetInstance().GetPriorityTarget(IsPlayerUnitBrain ? RuntimeModel.PlayerId : RuntimeModel.BotPlayerId);
             List<Vector2Int > result = new List<Vector2Int>();
-            if (GetUnitsInRadius(SearchRadius, true).Contains(target))
+            if (GetUnitsInRadius(SearchRadius * unit.Config.AttackRange, true).Contains(target))
             {
                 result.Add(target.Pos);
                 return result;
