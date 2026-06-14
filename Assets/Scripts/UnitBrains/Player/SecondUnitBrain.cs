@@ -20,15 +20,16 @@ namespace UnitBrains.Player
             // Homework 1.3 (1st block, 3rd module)
             ///////////////////////////////////////           
             var projectile = CreateProjectile(forTarget);
+            
             if (_overheated) return;
-            do
+            int shotCount = GetTemperature() +1;
+            //Debug.Log("Temperature: " + GetTemperature());
+            for (int i = 0; i < shotCount; i++)
             {
-                //Debug.Log("Temperature: " + GetTemperature());
-                IncreaseTemperature();
                 AddProjectileToList(projectile, intoList);
-                //Debug.Log("Projectile count: " + intoList.Count);
             }
-            while (GetTemperature() < overheatTemperature);
+            // Debug.Log("Projectile count: " + intoList.Count);
+            IncreaseTemperature();
             ///////////////////////////////////////
         }
 
